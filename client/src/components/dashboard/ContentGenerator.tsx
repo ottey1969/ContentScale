@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,11 @@ export default function ContentGenerator() {
   const [paymentAmount, setPaymentAmount] = useState("2.00");
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Get user data for credit display
+  const { data: user } = useQuery({
+    queryKey: ['/api/user'],
+  });
 
   // Debug function to test state
   const handleInputChange = (value: string) => {
@@ -75,17 +80,14 @@ export default function ContentGenerator() {
       // Handle specific error cases
       if (error.status === 402) {
         // Payment required - show PayPal interface
-        const errorData = await error.response?.json?.() || {};
-        if (errorData.requiresPayment) {
-          setShowPayment(true);
-          setPaymentAmount(errorData.pricing?.amount || "2.00");
-          toast({
-            title: "Payment Required",
-            description: "Generate your next article for $2.00",
-            variant: "default",
-          });
-          return;
-        }
+        setShowPayment(true);
+        setPaymentAmount("2.00");
+        toast({
+          title: "Payment Required",
+          description: "Generate your next article for $2.00",
+          variant: "default",
+        });
+        return;
       } else if (error.status === 429) {
         toast({
           title: "Rate Limit Exceeded",
@@ -113,9 +115,14 @@ export default function ContentGenerator() {
   return (
     <Card className="bg-surface border-surface-light overflow-hidden">
       <CardHeader className="border-b border-surface-light">
-        <CardTitle className="flex items-center space-x-2">
-          <Bot className="w-5 h-5 text-primary" />
-          <span>AI Content Generation Hub</span>
+        <CardTitle className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Bot className="w-5 h-5 text-primary" />
+            <span>AI Content Generation Hub</span>
+          </div>
+          <div className="text-sm text-muted-foreground font-normal">
+            {user?.credits || 0}/3
+          </div>
         </CardTitle>
       </CardHeader>
       
@@ -127,7 +134,7 @@ export default function ContentGenerator() {
             Current topic: "{topic}" (length: {topic.length}) - Last updated: {new Date().toLocaleTimeString()}
           </div>
           <div className="relative">
-            <Input
+            <input
               type="text"
               placeholder="e.g., Cybersecurity best practices for SMBs"
               value={topic}
@@ -135,25 +142,21 @@ export default function ContentGenerator() {
                 console.log('Input onChange triggered:', e.target.value);
                 setTopic(e.target.value);
               }}
-              onInput={(e) => {
-                console.log('Input onInput triggered:', e.currentTarget.value);
-              }}
               onKeyDown={(e) => {
                 console.log('Key pressed:', e.key);
                 if (e.key === 'Enter' && !generateMutation.isPending && topic.trim()) {
                   generateMutation.mutate();
                 }
               }}
-              onClick={() => console.log('Input clicked')}
-              onFocus={() => console.log('Input focused')}
-              className="pr-28 bg-background border-border text-foreground"
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm pr-28"
               autoComplete="off"
               style={{
                 pointerEvents: "auto",
                 userSelect: "text",
                 WebkitUserSelect: "text",
-                position: "relative",
-                zIndex: 10
+                backgroundColor: "#1e293b",
+                color: "#f8fafc",
+                border: "1px solid #475569"
               }}
             />
             <button
@@ -282,6 +285,32 @@ export default function ContentGenerator() {
             )}
           </div>
         </div>
+
+        {/* PayPal Payment Section */}
+        {showPayment && (
+          <div className="mt-6 p-4 bg-primary/10 border border-primary rounded-lg">
+            <div className="flex items-center gap-2 mb-3">
+              <CreditCard className="w-5 h-5 text-primary" />
+              <h3 className="text-lg font-semibold">Payment Required</h3>
+            </div>
+            <p className="text-sm text-muted-foreground mb-4">
+              Generate your next high-quality article for ${paymentAmount}. Payment processed securely via PayPal.
+            </p>
+            <div className="flex items-center gap-4">
+              <PayPalButton
+                amount={paymentAmount}
+                currency="USD"
+                intent="CAPTURE"
+              />
+              <Button
+                variant="outline"
+                onClick={() => setShowPayment(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
