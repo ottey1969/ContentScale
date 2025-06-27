@@ -194,6 +194,111 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Public file access endpoints for sharing project files
+  app.get("/api/public/files", async (req, res) => {
+    try {
+      const fs = await import('fs/promises');
+      const path = await import('path');
+      
+      const getFileList = async (dir: string, prefix = ''): Promise<any[]> => {
+        const files = [];
+        try {
+          const items = await fs.readdir(dir, { withFileTypes: true });
+          for (const item of items) {
+            if (item.name.startsWith('.') || item.name === 'node_modules' || item.name === 'export-files') continue;
+            
+            const fullPath = path.join(dir, item.name);
+            const relativePath = prefix ? `${prefix}/${item.name}` : item.name;
+            
+            if (item.isDirectory()) {
+              files.push({
+                name: relativePath,
+                type: 'directory',
+                children: await getFileList(fullPath, relativePath)
+              });
+            } else {
+              const stats = await fs.stat(fullPath);
+              files.push({
+                name: relativePath,
+                type: 'file',
+                size: stats.size,
+                modified: stats.mtime.toISOString()
+              });
+            }
+          }
+        } catch (error) {
+          console.error(`Error reading directory ${dir}:`, error);
+        }
+        return files;
+      };
+
+      const fileList = await getFileList('.');
+      res.json({
+        project: 'ContentScale Agent',
+        description: 'AI-powered content generation platform with real-time research capabilities',
+        timestamp: new Date().toISOString(),
+        files: fileList,
+        exports: [
+          {
+            name: 'contentscale-agent-complete.tar.gz',
+            description: 'Complete project archive with all source code',
+            url: '/api/public/download/complete',
+            size: '~200KB'
+          },
+          {
+            name: 'project-export.md',
+            description: 'Documentation with all file contents in text format',
+            url: '/api/public/download/docs'
+          }
+        ],
+        liveApp: 'https://6d320408-90c0-403c-af8a-140e3ee8b684-00-1m74zn29fh7pq.janeway.replit.dev'
+      });
+    } catch (error) {
+      console.error('Error listing files:', error);
+      res.status(500).json({ message: 'Failed to list files' });
+    }
+  });
+
+  // Download complete project archive
+  app.get("/api/public/download/complete", async (req, res) => {
+    try {
+      const fs = await import('fs');
+      const path = await import('path');
+      const filePath = path.resolve('contentscale-agent-complete.tar.gz');
+      
+      if (fs.existsSync(filePath)) {
+        res.setHeader('Content-Disposition', 'attachment; filename="contentscale-agent-complete.tar.gz"');
+        res.setHeader('Content-Type', 'application/gzip');
+        fs.createReadStream(filePath).pipe(res);
+      } else {
+        res.status(404).json({ message: 'Archive file not found' });
+      }
+    } catch (error) {
+      console.error('Error downloading complete archive:', error);
+      res.status(500).json({ message: 'Failed to download file' });
+    }
+  });
+
+  // Download documentation
+  app.get("/api/public/download/docs", async (req, res) => {
+    try {
+      const fs = await import('fs');
+      const path = await import('path');
+      const filePath = path.resolve('project-export.md');
+      
+      if (fs.existsSync(filePath)) {
+        res.setHeader('Content-Disposition', 'attachment; filename="project-export.md"');
+        res.setHeader('Content-Type', 'text/markdown');
+        fs.createReadStream(filePath).pipe(res);
+      } else {
+        res.status(404).json({ message: 'Documentation file not found' });
+      }
+    } catch (error) {
+      console.error('Error downloading documentation:', error);
+      res.status(500).json({ message: 'Failed to download file' });
+    }
+  });
+
   // Security API routes for admin dashboard
   app.get("/api/admin/security/metrics", isAuthenticated, adminSecurityMiddleware(), async (req: any, res) => {
     try {
