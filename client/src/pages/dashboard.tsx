@@ -11,6 +11,7 @@ import CSVUploader from "@/components/dashboard/CSVUploader";
 import ReferralDashboard from "@/components/dashboard/ReferralDashboard";
 import AchievementSystem from "@/components/dashboard/AchievementSystem";
 import ActivityFeed from "@/components/dashboard/ActivityFeed";
+import APIKeyManager from "@/components/admin/APIKeyManager";
 import { Button } from "@/components/ui/button";
 import { 
   Plus, 
@@ -72,6 +73,9 @@ export default function Dashboard() {
 
             {/* Stats Cards */}
             <StatsCards />
+
+            {/* API Configuration */}
+            <APIKeyManager />
 
             {/* Main Dashboard Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
