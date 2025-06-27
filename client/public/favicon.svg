@@ -1,0 +1,36 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="rocket-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B5CF6;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#A855F7;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#EC4899;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="flame-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#F59E0B;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#EF4444;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#DC2626;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Rocket body -->
+  <path d="M16 2C18.2 2 20 3.8 20 6V18C20 20.2 18.2 22 16 22C13.8 22 12 20.2 12 18V6C12 3.8 13.8 2 16 2Z" fill="url(#rocket-gradient)"/>
+  
+  <!-- Rocket nose cone -->
+  <path d="M16 2L20 6H12L16 2Z" fill="url(#rocket-gradient)" opacity="0.8"/>
+  
+  <!-- Rocket fins -->
+  <path d="M12 18L8 22L10 24L12 20V18Z" fill="url(#rocket-gradient)" opacity="0.7"/>
+  <path d="M20 18L24 22L22 24L20 20V18Z" fill="url(#rocket-gradient)" opacity="0.7"/>
+  
+  <!-- Window -->
+  <circle cx="16" cy="10" r="2" fill="#FFFFFF" opacity="0.9"/>
+  <circle cx="16" cy="10" r="1" fill="#3B82F6" opacity="0.8"/>
+  
+  <!-- Exhaust flames -->
+  <path d="M14 22L12 28L16 26L20 28L18 22" fill="url(#flame-gradient)"/>
+  <path d="M15 22L14 30L16 28L18 30L17 22" fill="url(#flame-gradient)" opacity="0.7"/>
+  
+  <!-- Rocket stripes -->
+  <rect x="12" y="14" width="8" height="1" fill="#FFFFFF" opacity="0.3"/>
+  <rect x="12" y="16" width="8" height="1" fill="#FFFFFF" opacity="0.3"/>
+</svg>
