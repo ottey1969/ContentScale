@@ -135,7 +135,9 @@ export default function Dashboard() {
             <SofeiaAgentBrain />
 
             {/* Stats Cards */}
-            <StatsCards />
+            <div className="mb-6">
+              <StatsCards />
+            </div>
 
             {/* API Configuration */}
             <APIKeyManager />
