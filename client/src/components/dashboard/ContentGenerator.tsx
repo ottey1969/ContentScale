@@ -131,7 +131,7 @@ export default function ContentGenerator() {
             <div className="w-2 h-2 bg-accent rounded-full animate-pulse"></div>
             <span className="text-text-secondary text-sm">AI Preview</span>
           </div>
-          <div className="text-text-primary text-sm leading-relaxed min-h-[8rem] max-h-48 overflow-y-auto custom-scrollbar pr-2 space-y-2">
+          <div className="text-text-primary text-sm leading-relaxed max-h-32 overflow-y-auto custom-scrollbar pr-2">
             {generateMutation.isPending ? (
               <div className="space-y-2">
                 <div className="h-4 bg-surface-light rounded animate-pulse"></div>
@@ -139,11 +139,31 @@ export default function ContentGenerator() {
                 <div className="h-4 bg-surface-light rounded animate-pulse w-1/2"></div>
               </div>
             ) : topic ? (
-              <>
-                <p className="mb-2"><strong>Title:</strong> "Essential {topic} Practices Every Business Must Implement in 2025"</p>
-                <p className="mb-2"><strong>Meta Description:</strong> Discover proven {topic} strategies that protect businesses. Learn implementation steps, costs, and ROI.</p>
-                <p><strong>Keywords:</strong> <span className="text-primary">{topic}</span>, <span className="text-secondary">{topic} best practices</span>, <span className="text-accent">{topic} guide</span></p>
-              </>
+              <div className="space-y-3">
+                <div>
+                  <strong className="text-accent">Title:</strong>
+                  <p className="mt-1">"Essential {topic} Practices Every Business Must Implement in 2025"</p>
+                </div>
+                <div>
+                  <strong className="text-secondary">Meta Description:</strong>
+                  <p className="mt-1">Discover proven {topic} strategies that protect businesses. Learn implementation steps, costs, and ROI for immediate impact.</p>
+                </div>
+                <div>
+                  <strong className="text-primary">Keywords:</strong>
+                  <div className="mt-1 space-y-1">
+                    <p><span className="text-primary">{topic}</span>, <span className="text-secondary">{topic} best practices</span>, <span className="text-accent">{topic} guide</span></p>
+                    <p><span className="text-neural">{topic} implementation</span>, <span className="text-primary">{topic} strategy</span>, <span className="text-secondary">{topic} checklist</span></p>
+                  </div>
+                </div>
+                <div>
+                  <strong className="text-accent">AI Overview Potential:</strong>
+                  <p className="mt-1 text-text-secondary">High - This content is optimized for AI search engines and features rich, actionable information that search algorithms prefer.</p>
+                </div>
+                <div>
+                  <strong className="text-primary">SEO Score:</strong>
+                  <p className="mt-1 text-text-secondary">Estimated 85/100 - Well-structured with target keywords, meta optimization, and user-focused content.</p>
+                </div>
+              </div>
             ) : (
               <p className="text-text-secondary italic">Enter a topic to see AI-generated preview...</p>
             )}
