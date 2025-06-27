@@ -13,7 +13,7 @@ export default function APIKeyManager() {
   });
 
   // Only show for admin users
-  if (!user || user.email !== "ottmar.francisca19@gmail.com") {
+  if (!user || (user.email !== "ottmar.francisca19@gmail.com" && user.email !== "ottmar.francisca1969@gmail.com")) {
     return null;
   }
   const [anthropicKey, setAnthropicKey] = useState("");

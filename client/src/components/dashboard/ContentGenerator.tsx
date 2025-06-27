@@ -148,7 +148,7 @@ export default function ContentGenerator() {
                   generateMutation.mutate();
                 }
               }}
-              className="w-full h-12 px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full h-12 px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-24"
               autoComplete="off"
               style={{
                 zIndex: 999,
@@ -156,50 +156,29 @@ export default function ContentGenerator() {
                 fontSize: "16px"
               }}
             />
-            <button
-              onClick={(e) => {
-                e.preventDefault();
+            <Button
+              onClick={() => {
                 console.log('Generate button clicked, topic:', topic);
-                console.log('Topic length:', topic.length);
                 if (topic.trim()) {
-                  console.log('Calling generateMutation.mutate()');
                   generateMutation.mutate();
-                } else {
-                  console.log('Topic is empty, not generating');
                 }
               }}
               disabled={generateMutation.isPending || !topic.trim()}
-              style={{
-                position: 'absolute',
-                right: '6px',
-                top: '6px',
-                backgroundColor: topic.trim() ? '#3B82F6' : '#6B7280',
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                padding: '8px 12px',
-                fontSize: '14px',
-                cursor: topic.trim() ? 'pointer' : 'not-allowed',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                fontWeight: '500',
-                transition: 'all 0.2s ease'
-              }}
-              title={topic.trim() ? "Generate AI content from your topic" : "Enter a topic first"}
+              className="absolute right-2 top-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2"
+              style={{ zIndex: 1000 }}
             >
               {generateMutation.isPending ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 className="w-4 h-4 animate-spin mr-1" />
                   <span>Generating</span>
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-4 h-4" />
+                  <Sparkles className="w-4 h-4 mr-1" />
                   <span>Generate</span>
                 </>
               )}
-            </button>
+            </Button>
           </div>
         </div>
         
