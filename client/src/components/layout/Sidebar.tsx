@@ -14,8 +14,8 @@ import {
 
 export default function Sidebar() {
   return (
-    <aside className="w-64 bg-surface border-r border-surface-light hidden lg:block">
-      <div className="p-6 space-y-6">
+    <aside className="w-64 bg-surface border-r border-surface-light hidden lg:block h-screen flex flex-col">
+      <div className="p-6 space-y-6 flex-1 overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: '#6B7280 #374151' }}>
         
         {/* Quick Actions */}
         <div className="space-y-3">
