@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
+import { Bot, Loader2, Sparkles, FileText, Newspaper, HelpCircle, Share2 } from "lucide-react";
 
 export default function ContentGenerator() {
   const [topic, setTopic] = useState("");
@@ -64,17 +65,17 @@ export default function ContentGenerator() {
   });
 
   const contentTypes = [
-    { id: "blog", label: "Blog Post", icon: "fas fa-blog", color: "text-primary" },
-    { id: "article", label: "Article", icon: "fas fa-newspaper", color: "text-secondary" },
-    { id: "faq", label: "FAQ", icon: "fas fa-question-circle", color: "text-accent" },
-    { id: "social", label: "Social", icon: "fas fa-share-alt", color: "text-neural" },
+    { id: "blog", label: "Blog Post", icon: FileText, color: "text-primary" },
+    { id: "article", label: "Article", icon: Newspaper, color: "text-secondary" },
+    { id: "faq", label: "FAQ", icon: HelpCircle, color: "text-accent" },
+    { id: "social", label: "Social", icon: Share2, color: "text-neural" },
   ];
 
   return (
     <Card className="bg-surface border-surface-light overflow-hidden">
       <CardHeader className="border-b border-surface-light">
         <CardTitle className="flex items-center space-x-2">
-          <i className="fas fa-robot text-primary"></i>
+          <Bot className="w-5 h-5 text-primary" />
           <span>AI Content Generation Hub</span>
         </CardTitle>
       </CardHeader>
@@ -95,12 +96,12 @@ export default function ContentGenerator() {
               size="sm"
               onClick={() => generateMutation.mutate()}
               disabled={generateMutation.isPending}
-              className="absolute right-2 top-2 bg-primary hover:bg-blue-600"
+              className="absolute right-2 top-2 bg-primary hover:bg-primary/80"
             >
               {generateMutation.isPending ? (
-                <i className="fas fa-spinner animate-spin"></i>
+                <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
-                <i className="fas fa-magic"></i>
+                <Sparkles className="w-4 h-4" />
               )}
             </Button>
           </div>
@@ -118,7 +119,7 @@ export default function ContentGenerator() {
                   : "bg-dark border-surface-light hover:border-primary"
               }`}
             >
-              <i className={`${type.icon} ${type.color} mb-1 text-lg`}></i>
+              <type.icon className={`w-5 h-5 ${type.color} mb-1`} />
               <div className="text-xs">{type.label}</div>
             </button>
           ))}
@@ -130,7 +131,7 @@ export default function ContentGenerator() {
             <div className="w-2 h-2 bg-accent rounded-full animate-pulse"></div>
             <span className="text-text-secondary text-sm">AI Preview</span>
           </div>
-          <div className="text-text-primary text-sm leading-relaxed">
+          <div className="text-text-primary text-sm leading-relaxed max-h-32 overflow-y-auto custom-scrollbar">
             {generateMutation.isPending ? (
               <div className="space-y-2">
                 <div className="h-4 bg-surface-light rounded animate-pulse"></div>

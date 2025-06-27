@@ -28,6 +28,10 @@ export default function Sidebar() {
             <Search className="w-4 h-4 mr-3" />
             Keyword Research
           </Button>
+          <Button className="w-full bg-accent hover:bg-green-600 text-white font-medium transition-all duration-200 transform hover:scale-105">
+            <FileText className="w-4 h-4 mr-3" />
+            CSV Upload
+          </Button>
         </div>
         
         {/* Navigation Menu */}
