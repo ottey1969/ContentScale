@@ -42,6 +42,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Data export (GDPR compliance)
+  app.get("/api/data/export", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      
+      // Collect all user data
+      const userData = {
+        user: await storage.getUser(userId),
+        content: await storage.getUserContent(userId),
+        keywords: await storage.getUserKeywords(userId),
+        achievements: await storage.getUserAchievements(userId),
+        activities: await storage.getUserActivities(userId),
+        referrals: await storage.getUserReferralCode(userId),
+        referralStats: await storage.getReferralStats(userId),
+        exportDate: new Date().toISOString(),
+        dataRetentionPolicy: "Data is retained for service functionality. You can request deletion at any time."
+      };
+
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Content-Disposition', `attachment; filename="contentscale-data-${userId}-${Date.now()}.json"`);
+      res.json(userData);
+    } catch (error) {
+      console.error("Error exporting user data:", error);
+      res.status(500).json({ message: "Failed to export data" });
+    }
+  });
+
+  // Data deletion request (GDPR compliance)
+  app.delete("/api/data/delete", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      
+      // Delete all user data
+      await storage.deleteAllUserData(userId);
+      
+      res.json({ 
+        message: "All your data has been permanently deleted",
+        deletedAt: new Date().toISOString(),
+        note: "This action cannot be undone. Your account will be logged out."
+      });
+    } catch (error) {
+      console.error("Error deleting user data:", error);
+      res.status(500).json({ message: "Failed to delete data" });
+    }
+  });
+
   // Content generation
   app.post("/api/content/generate", isAuthenticated, async (req: any, res) => {
     try {
