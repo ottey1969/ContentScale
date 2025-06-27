@@ -52,7 +52,7 @@ export default function ReferralDashboard() {
   };
 
   const shareOnPlatform = (platform: string) => {
-    const message = "🚀 Just discovered ContentScale Agent - an AI-powered content creation platform! Check it out:";
+    const message = "🚀 Just discovered ContentScale - an AI-powered content creation platform! Check it out:";
     const encodedMessage = encodeURIComponent(message);
     const encodedUrl = encodeURIComponent(referralUrl);
     
@@ -93,7 +93,7 @@ export default function ReferralDashboard() {
           <div className="absolute inset-0 flex items-center justify-center">
             <span className="text-xl font-bold text-accent">{conversions}/{nextMilestone}</span>
           </div>
-          <p className="text-sm text-text-secondary">Converted Users</p>
+          <p className="text-sm text-text-secondary">Bulk Users (5+ Blogs)</p>
           <p className="text-xs text-accent font-medium">
             {nextMilestone - conversions} more for {creditsForNextMilestone} free blogs!
           </p>
@@ -179,6 +179,20 @@ export default function ReferralDashboard() {
             </div>
           </div>
         )}
+        
+        {/* How It Works Section */}
+        <div className="bg-surface-light p-4 rounded-lg mt-4">
+          <h4 className="text-sm font-semibold mb-2 flex items-center">
+            <i className="fas fa-info-circle text-blue-400 mr-2"></i>
+            How Conversions Work
+          </h4>
+          <div className="text-xs text-text-secondary space-y-1">
+            <p>• A user becomes a "bulk user" after generating 5+ blog posts</p>
+            <p>• You earn 5 free blogs for each bulk user conversion</p>
+            <p>• Rewards: 1 bulk user = 5 blogs, 3 = 20 blogs, 10 = 100 blogs</p>
+            <p>• Only active content creators count as conversions</p>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );

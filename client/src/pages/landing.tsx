@@ -222,20 +222,20 @@ export default function Landing() {
                   Viral Referral System
                 </h3>
                 <p className="text-gray-400 mb-4 group-hover:text-gray-300 transition-colors">
-                  Simple reward structure focused on actual user conversions and content creation.
+                  Earn rewards when referred users become bulk content creators (5+ generations).
                 </p>
                 <ul className="text-sm text-gray-400 space-y-2 group-hover:text-gray-300 transition-colors">
                   <li className="flex items-center space-x-2">
                     <div className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse"></div>
-                    <span>1 conversion = 5 free blogs</span>
+                    <span>1 bulk user (5+ blogs) = 5 free blogs</span>
                   </li>
                   <li className="flex items-center space-x-2">
                     <div className="w-1.5 h-1.5 bg-pink-400 rounded-full animate-pulse delay-200"></div>
-                    <span>3 conversions = 20 free blogs</span>
+                    <span>3 bulk users = 20 free blogs</span>
                   </li>
                   <li className="flex items-center space-x-2">
                     <div className="w-1.5 h-1.5 bg-violet-400 rounded-full animate-pulse delay-400"></div>
-                    <span>10 conversions = 100 free blogs</span>
+                    <span>10 bulk users = 100 free blogs</span>
                   </li>
                 </ul>
               </CardContent>
@@ -477,7 +477,7 @@ export default function Landing() {
               <h3 className="text-lg font-semibold text-white">Payment Terms</h3>
               <p>Credit-based pricing at $2 per blog post. First blog post is free. Payments processed via PayPal only.</p>
               <h3 className="text-lg font-semibold text-white">Referral Program</h3>
-              <p>Earn free blog posts through successful referrals: 1 conversion = 5 posts, 3 conversions = 20 posts, 10 conversions = 100 posts.</p>
+              <p>Earn free blog posts when referred users become bulk creators (5+ content generations): 1 bulk user = 5 posts, 3 bulk users = 20 posts, 10 bulk users = 100 posts.</p>
               <h3 className="text-lg font-semibold text-white">Content Ownership</h3>
               <p>You own all generated content. We retain no rights to your created materials.</p>
             </div>

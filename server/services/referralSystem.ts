@@ -37,13 +37,19 @@ class ReferralSystem {
   }
 
   async processReferralConversion(userId: string): Promise<void> {
-    // Called when a referred user creates their first content
+    // Called when a referred user becomes a bulk creator (5+ content generations)
     const referral = await storage.getReferralByReferredUser(userId);
     if (!referral || referral.status !== 'pending') {
       return;
     }
     
-    // Calculate credits to award (5 credits per conversion)
+    // Check if referred user has generated 5+ content pieces
+    const userContent = await storage.getUserContent(userId);
+    if (userContent.length < 5) {
+      return; // Not yet a bulk user
+    }
+    
+    // Calculate credits to award (5 credits per bulk user conversion)
     const creditsToAward = 5;
     
     // Update referral status

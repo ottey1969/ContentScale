@@ -75,6 +75,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Update achievements
       await storage.updateAchievement(userId, "content_creator", 1);
 
+      // Check for referral conversion (bulk user threshold: 5+ content pieces)
+      await referralSystem.processReferralConversion(userId);
+
       res.json(generatedContent);
     } catch (error) {
       console.error("Error generating content:", error);
