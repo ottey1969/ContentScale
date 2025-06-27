@@ -232,6 +232,31 @@
   }
 }
 
+/* Fix input field interactions - Critical */
+input, textarea, select {
+  pointer-events: auto !important;
+  user-select: text !important;
+  cursor: text !important;
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: 2px solid hsl(207, 90%, 54%) !important;
+  outline-offset: 2px !important;
+}
+
+/* Ensure all form elements are interactive */
+button, input, textarea, select {
+  -webkit-touch-callout: default !important;
+  -webkit-user-select: auto !important;
+  -khtml-user-select: auto !important;
+  -moz-user-select: auto !important;
+  -ms-user-select: auto !important;
+  user-select: auto !important;
+}
+
 /* Mobile responsive adjustments */
 @media (max-width: 768px) {
   .animate-typing {
