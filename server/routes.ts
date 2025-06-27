@@ -1,0 +1,370 @@
+import type { Express } from "express";
+import { createServer, type Server } from "http";
+import { WebSocketServer, WebSocket } from "ws";
+import { storage } from "./storage";
+import { setupAuth, isAuthenticated } from "./replitAuth";
+import { contentGenerator } from "./services/contentGenerator";
+import { keywordResearch } from "./services/keywordResearch";
+import { referralSystem } from "./services/referralSystem";
+import { insertContentSchema, insertKeywordSchema, insertActivitySchema } from "@shared/schema";
+import { z } from "zod";
+import multer from "multer";
+import csv from "csv-parser";
+import { Readable } from "stream";
+
+const upload = multer({ storage: multer.memoryStorage() });
+
+export async function registerRoutes(app: Express): Promise<Server> {
+  // Auth middleware
+  await setupAuth(app);
+
+  // Auth routes
+  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      res.json(user);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
+  // Dashboard stats
+  app.get("/api/dashboard/stats", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const stats = await storage.getDashboardStats(userId);
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching dashboard stats:", error);
+      res.status(500).json({ message: "Failed to fetch dashboard stats" });
+    }
+  });
+
+  // Content generation
+  app.post("/api/content/generate", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const body = insertContentSchema.parse(req.body);
+      
+      // Check user credits
+      const user = await storage.getUser(userId);
+      if (!user || (user.credits || 0) < 1) {
+        return res.status(402).json({ message: "Insufficient credits" });
+      }
+
+      // Generate content using AI
+      const generatedContent = await contentGenerator.generateContent({
+        ...body,
+        userId,
+      });
+
+      // Deduct credits
+      await storage.updateUserCredits(userId, (user.credits || 0) - 1);
+
+      // Create activity
+      await storage.createActivity({
+        userId,
+        type: "content_generated",
+        title: `Generated "${generatedContent.title}" blog post`,
+        description: `${generatedContent.content.length} words • SEO Score: ${generatedContent.seoScore}`,
+        metadata: { contentId: generatedContent.id },
+      });
+
+      // Update achievements
+      await storage.updateAchievement(userId, "content_creator", 1);
+
+      res.json(generatedContent);
+    } catch (error) {
+      console.error("Error generating content:", error);
+      res.status(500).json({ message: "Failed to generate content" });
+    }
+  });
+
+  // Get user content
+  app.get("/api/content", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const content = await storage.getUserContent(userId);
+      res.json(content);
+    } catch (error) {
+      console.error("Error fetching content:", error);
+      res.status(500).json({ message: "Failed to fetch content" });
+    }
+  });
+
+  // Keyword research
+  app.post("/api/keywords/research", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { keyword, country = "us" } = req.body;
+
+      if (!keyword) {
+        return res.status(400).json({ message: "Keyword is required" });
+      }
+
+      const results = await keywordResearch.researchKeywords(keyword, country);
+      
+      // Save keywords to database
+      const savedKeywords = await Promise.all(
+        results.map(k => storage.createKeyword({
+          userId,
+          keyword: k.keyword,
+          searchVolume: k.searchVolume,
+          difficulty: k.difficulty,
+          aiOverviewPotential: k.aiOverviewPotential,
+          relatedKeywords: k.relatedKeywords,
+          source: "answer_socrates",
+        }))
+      );
+
+      // Create activity
+      await storage.createActivity({
+        userId,
+        type: "keywords_researched",
+        title: `Researched ${results.length} keywords via Answer Socrates`,
+        description: `Topic: "${keyword}"`,
+        metadata: { keyword, count: results.length },
+      });
+
+      // Update achievements
+      await storage.updateAchievement(userId, "keyword_master", results.length);
+
+      res.json(savedKeywords);
+    } catch (error) {
+      console.error("Error researching keywords:", error);
+      res.status(500).json({ message: "Failed to research keywords" });
+    }
+  });
+
+  // Get user keywords
+  app.get("/api/keywords", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const keywords = await storage.getUserKeywords(userId);
+      res.json(keywords);
+    } catch (error) {
+      console.error("Error fetching keywords:", error);
+      res.status(500).json({ message: "Failed to fetch keywords" });
+    }
+  });
+
+  // CSV upload and processing
+  app.post("/api/csv/upload", isAuthenticated, upload.single('csv'), async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      if (!req.file) {
+        return res.status(400).json({ message: "No CSV file uploaded" });
+      }
+
+      const csvData: any[] = [];
+      const stream = Readable.from(req.file.buffer);
+      
+      stream
+        .pipe(csv())
+        .on('data', (data) => csvData.push(data))
+        .on('end', async () => {
+          try {
+            // Create batch record
+            const batch = await storage.createCsvBatch({
+              userId,
+              filename: req.file!.originalname,
+              totalRows: csvData.length,
+              status: "processing",
+            });
+
+            // Process keywords in background
+            processCSVKeywords(batch.id, csvData, userId);
+
+            res.json({ batchId: batch.id, totalRows: csvData.length });
+          } catch (error) {
+            console.error("Error creating CSV batch:", error);
+            res.status(500).json({ message: "Failed to process CSV" });
+          }
+        });
+    } catch (error) {
+      console.error("Error uploading CSV:", error);
+      res.status(500).json({ message: "Failed to upload CSV" });
+    }
+  });
+
+  // Get CSV batch status
+  app.get("/api/csv/batch/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const batch = await storage.getCsvBatch(req.params.id, userId);
+      if (!batch) {
+        return res.status(404).json({ message: "Batch not found" });
+      }
+      res.json(batch);
+    } catch (error) {
+      console.error("Error fetching CSV batch:", error);
+      res.status(500).json({ message: "Failed to fetch batch status" });
+    }
+  });
+
+  // Referral system
+  app.get("/api/referrals/code", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const referralCode = await referralSystem.getReferralCode(userId);
+      res.json({ referralCode });
+    } catch (error) {
+      console.error("Error getting referral code:", error);
+      res.status(500).json({ message: "Failed to get referral code" });
+    }
+  });
+
+  app.get("/api/referrals/stats", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const stats = await storage.getReferralStats(userId);
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching referral stats:", error);
+      res.status(500).json({ message: "Failed to fetch referral stats" });
+    }
+  });
+
+  // Process referral signup
+  app.post("/api/referrals/signup", async (req, res) => {
+    try {
+      const { referralCode } = req.body;
+      if (referralCode) {
+        await referralSystem.processReferralSignup(referralCode);
+      }
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error processing referral signup:", error);
+      res.status(500).json({ message: "Failed to process referral signup" });
+    }
+  });
+
+  // Achievements
+  app.get("/api/achievements", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const achievements = await storage.getUserAchievements(userId);
+      res.json(achievements);
+    } catch (error) {
+      console.error("Error fetching achievements:", error);
+      res.status(500).json({ message: "Failed to fetch achievements" });
+    }
+  });
+
+  // Activity feed
+  app.get("/api/activities", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const activities = await storage.getUserActivities(userId);
+      res.json(activities);
+    } catch (error) {
+      console.error("Error fetching activities:", error);
+      res.status(500).json({ message: "Failed to fetch activities" });
+    }
+  });
+
+  const httpServer = createServer(app);
+
+  // WebSocket server for real-time updates
+  const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
+
+  wss.on('connection', (ws: WebSocket, req) => {
+    console.log('WebSocket client connected');
+    
+    ws.on('message', (message) => {
+      try {
+        const data = JSON.parse(message.toString());
+        console.log('Received WebSocket message:', data);
+        
+        // Handle different message types
+        switch (data.type) {
+          case 'subscribe':
+            // Subscribe to real-time updates
+            ws.send(JSON.stringify({ type: 'subscribed', success: true }));
+            break;
+          default:
+            console.log('Unknown WebSocket message type:', data.type);
+        }
+      } catch (error) {
+        console.error('Error parsing WebSocket message:', error);
+      }
+    });
+
+    ws.on('close', () => {
+      console.log('WebSocket client disconnected');
+    });
+
+    // Send initial connection confirmation
+    ws.send(JSON.stringify({ type: 'connected', timestamp: new Date().toISOString() }));
+  });
+
+  return httpServer;
+}
+
+// Background CSV processing function
+async function processCSVKeywords(batchId: string, csvData: any[], userId: string) {
+  try {
+    let processedCount = 0;
+    const keywords = [];
+
+    for (const row of csvData) {
+      try {
+        // Extract keyword from various possible column names
+        const keyword = row.keyword || row.Keyword || row.query || row.Query || Object.values(row)[0];
+        
+        if (keyword && typeof keyword === 'string') {
+          // Research each keyword
+          const results = await keywordResearch.researchKeywords(keyword.trim(), "us");
+          
+          for (const result of results) {
+            const savedKeyword = await storage.createKeyword({
+              userId,
+              keyword: result.keyword,
+              searchVolume: result.searchVolume,
+              difficulty: result.difficulty,
+              aiOverviewPotential: result.aiOverviewPotential,
+              relatedKeywords: result.relatedKeywords,
+              source: "csv",
+            });
+            keywords.push(savedKeyword);
+          }
+        }
+        
+        processedCount++;
+        
+        // Update batch progress
+        await storage.updateCsvBatch(batchId, {
+          processedRows: processedCount,
+          status: processedCount === csvData.length ? "completed" : "processing",
+        });
+        
+        // Delay to avoid API rate limits
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+      } catch (error) {
+        console.error(`Error processing CSV row ${processedCount}:`, error);
+        processedCount++;
+      }
+    }
+
+    // Create activity
+    await storage.createActivity({
+      userId,
+      type: "csv_processed",
+      title: `Processed CSV with ${keywords.length} keywords`,
+      description: `Auto-clustered into topics`,
+      metadata: { batchId, keywordCount: keywords.length },
+    });
+
+    // Update achievements
+    await storage.updateAchievement(userId, "keyword_master", keywords.length);
+
+    console.log(`CSV processing completed for batch ${batchId}: ${keywords.length} keywords processed`);
+    
+  } catch (error) {
+    console.error(`Error processing CSV batch ${batchId}:`, error);
+    await storage.updateCsvBatch(batchId, { status: "failed" });
+  }
+}
