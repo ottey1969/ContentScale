@@ -19,7 +19,8 @@ import {
   FileText, 
   Search, 
   Users, 
-  Settings 
+  Settings,
+  Headphones
 } from "lucide-react";
 
 export default function Dashboard() {
@@ -91,7 +92,7 @@ export default function Dashboard() {
                 <div className="bg-surface rounded-xl border border-surface-light overflow-hidden">
                   <div className="p-6 border-b border-surface-light">
                     <h3 className="text-lg font-semibold flex items-center space-x-2">
-                      <i className="fas fa-headset text-primary"></i>
+                      <Headphones className="w-5 h-5 text-primary" />
                       <span>Support</span>
                     </h3>
                   </div>

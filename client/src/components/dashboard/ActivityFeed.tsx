@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Wand2, Search, UserPlus, Upload, Gift, Info, Clock } from "lucide-react";
 
 interface Activity {
   id: string;
@@ -19,17 +20,17 @@ export default function ActivityFeed() {
   const getActivityIcon = (type: string) => {
     switch (type) {
       case 'content_generated':
-        return { icon: 'fas fa-magic', color: 'text-primary', bgColor: 'bg-primary bg-opacity-20' };
+        return { icon: Wand2, color: 'text-primary', bgColor: 'bg-primary bg-opacity-20' };
       case 'keywords_researched':
-        return { icon: 'fas fa-search', color: 'text-secondary', bgColor: 'bg-secondary bg-opacity-20' };
+        return { icon: Search, color: 'text-secondary', bgColor: 'bg-secondary bg-opacity-20' };
       case 'referral_converted':
-        return { icon: 'fas fa-user-plus', color: 'text-accent', bgColor: 'bg-accent bg-opacity-20' };
+        return { icon: UserPlus, color: 'text-accent', bgColor: 'bg-accent bg-opacity-20' };
       case 'csv_processed':
-        return { icon: 'fas fa-upload', color: 'text-neural', bgColor: 'bg-neural bg-opacity-20' };
+        return { icon: Upload, color: 'text-neural', bgColor: 'bg-neural bg-opacity-20' };
       case 'referral_bonus':
-        return { icon: 'fas fa-gift', color: 'text-purple-500', bgColor: 'bg-purple-500 bg-opacity-20' };
+        return { icon: Gift, color: 'text-purple-500', bgColor: 'bg-purple-500 bg-opacity-20' };
       default:
-        return { icon: 'fas fa-info-circle', color: 'text-text-secondary', bgColor: 'bg-surface-light' };
+        return { icon: Info, color: 'text-text-secondary', bgColor: 'bg-surface-light' };
     }
   };
 
@@ -53,7 +54,7 @@ export default function ActivityFeed() {
       <Card className="bg-surface border-surface-light overflow-hidden">
         <CardHeader className="border-b border-surface-light">
           <CardTitle className="flex items-center space-x-2">
-            <i className="fas fa-clock text-text-secondary"></i>
+            <Clock className="w-5 h-5 text-text-secondary" />
             <span>Recent Activity</span>
           </CardTitle>
         </CardHeader>
@@ -81,13 +82,13 @@ export default function ActivityFeed() {
       <Card className="bg-surface border-surface-light overflow-hidden">
         <CardHeader className="border-b border-surface-light">
           <CardTitle className="flex items-center space-x-2">
-            <i className="fas fa-clock text-text-secondary"></i>
+            <Clock className="w-5 h-5 text-text-secondary" />
             <span>Recent Activity</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6">
           <div className="text-center py-8 text-text-secondary">
-            <i className="fas fa-clock text-4xl mb-4 opacity-50"></i>
+            <Clock className="w-16 h-16 mx-auto mb-4 opacity-50" />
             <p className="text-sm">No recent activity. Start creating content to see your activity feed!</p>
           </div>
         </CardContent>
@@ -99,7 +100,7 @@ export default function ActivityFeed() {
     <Card className="bg-surface border-surface-light overflow-hidden">
       <CardHeader className="border-b border-surface-light">
         <CardTitle className="flex items-center space-x-2">
-          <i className="fas fa-clock text-text-secondary"></i>
+          <Clock className="w-5 h-5 text-text-secondary" />
           <span>Recent Activity</span>
         </CardTitle>
       </CardHeader>
@@ -113,7 +114,7 @@ export default function ActivityFeed() {
               <div key={activity.id} className="p-4 hover:bg-surface-light transition-colors">
                 <div className="flex items-center space-x-4">
                   <div className={`w-10 h-10 ${iconConfig.bgColor} rounded-full flex items-center justify-center flex-shrink-0`}>
-                    <i className={`${iconConfig.icon} ${iconConfig.color}`}></i>
+                    <iconConfig.icon className={`w-5 h-5 ${iconConfig.color}`} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-text-primary truncate">

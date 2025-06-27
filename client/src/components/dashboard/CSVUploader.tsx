@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
+import { Upload, Settings, CheckCircle, AlertCircle, Clock, Loader2, CloudUpload } from "lucide-react";
 
 interface CsvBatch {
   id: string;
@@ -129,13 +130,13 @@ export default function CSVUploader() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'processing':
-        return <i className="fas fa-cogs text-neural animate-spin"></i>;
+        return <Settings className="w-5 h-5 text-neural animate-spin" />;
       case 'completed':
-        return <i className="fas fa-check-circle text-accent"></i>;
+        return <CheckCircle className="w-5 h-5 text-accent" />;
       case 'failed':
-        return <i className="fas fa-exclamation-circle text-red-500"></i>;
+        return <AlertCircle className="w-5 h-5 text-red-500" />;
       default:
-        return <i className="fas fa-clock text-text-secondary"></i>;
+        return <Clock className="w-5 h-5 text-text-secondary" />;
     }
   };
 
@@ -145,7 +146,7 @@ export default function CSVUploader() {
     <Card className="bg-surface border-surface-light overflow-hidden">
       <CardHeader className="border-b border-surface-light">
         <CardTitle className="flex items-center space-x-2">
-          <i className="fas fa-upload text-neural"></i>
+          <Upload className="w-5 h-5 text-neural" />
           <span>Bulk CSV Processing</span>
         </CardTitle>
       </CardHeader>
@@ -174,9 +175,9 @@ export default function CSVUploader() {
           <div className="space-y-3">
             <div className="w-16 h-16 bg-neural bg-opacity-20 rounded-full flex items-center justify-center mx-auto">
               {uploadMutation.isPending ? (
-                <i className="fas fa-spinner text-neural text-2xl animate-spin"></i>
+                <Loader2 className="w-8 h-8 text-neural animate-spin" />
               ) : (
-                <i className="fas fa-cloud-upload-alt text-neural text-2xl"></i>
+                <CloudUpload className="w-8 h-8 text-neural" />
               )}
             </div>
             <div>
