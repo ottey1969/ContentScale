@@ -1,0 +1,306 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global scroll behavior */
+html, body {
+  height: 100vh;
+  scroll-behavior: smooth;
+  overflow: hidden;
+}
+
+#root {
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+:root {
+  --background: hsl(222, 84%, 5%);
+  --foreground: hsl(210, 40%, 98%);
+  --muted: hsl(217, 32%, 17%);
+  --muted-foreground: hsl(215, 20%, 65%);
+  --popover: hsl(222, 84%, 5%);
+  --popover-foreground: hsl(210, 40%, 98%);
+  --card: hsl(222, 84%, 5%);
+  --card-foreground: hsl(210, 40%, 98%);
+  --border: hsl(217, 32%, 17%);
+  --input: hsl(217, 32%, 17%);
+  --primary: hsl(207, 90%, 54%);
+  --primary-foreground: hsl(211, 100%, 99%);
+  --secondary: hsl(262, 83%, 58%);
+  --secondary-foreground: hsl(211, 100%, 99%);
+  --accent: hsl(142, 71%, 45%);
+  --accent-foreground: hsl(211, 100%, 99%);
+  --destructive: hsl(0, 62%, 30%);
+  --destructive-foreground: hsl(210, 40%, 98%);
+  --ring: hsl(217, 32%, 17%);
+  --radius: 0.5rem;
+  
+  /* Custom ContentScale Agent colors */
+  --neural: hsl(38, 92%, 50%);
+  --dark: hsl(222, 84%, 5%);
+  --surface: hsl(217, 32%, 17%);
+  --surface-light: hsl(215, 25%, 27%);
+  --text-primary: hsl(210, 40%, 98%);
+  --text-secondary: hsl(215, 20%, 65%);
+}
+
+.light {
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(222, 84%, 5%);
+  --muted: hsl(210, 40%, 96%);
+  --muted-foreground: hsl(215, 16%, 47%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(222, 84%, 5%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(222, 84%, 5%);
+  --border: hsl(214, 32%, 91%);
+  --input: hsl(214, 32%, 91%);
+  --primary: hsl(207, 90%, 54%);
+  --primary-foreground: hsl(211, 100%, 99%);
+  --secondary: hsl(210, 40%, 96%);
+  --secondary-foreground: hsl(222, 84%, 5%);
+  --accent: hsl(210, 40%, 96%);
+  --accent-foreground: hsl(222, 84%, 5%);
+  --destructive: hsl(0, 84%, 60%);
+  --destructive-foreground: hsl(210, 40%, 98%);
+  --ring: hsl(222, 84%, 5%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold;
+  }
+}
+
+@layer utilities {
+  /* Neural network animations */
+  @keyframes neural-pulse {
+    0%, 100% { 
+      opacity: 0.4; 
+      transform: scale(1); 
+    }
+    50% { 
+      opacity: 1; 
+      transform: scale(1.05); 
+    }
+  }
+
+  @keyframes glow {
+    from { 
+      box-shadow: 0 0 20px hsl(207, 90%, 54%); 
+    }
+    to { 
+      box-shadow: 0 0 30px hsl(262, 83%, 58%); 
+    }
+  }
+
+  @keyframes typing {
+    from { width: 0; }
+    to { width: 100%; }
+  }
+
+  @keyframes blink-caret {
+    from, to { border-color: transparent; }
+    50% { border-color: hsl(38, 92%, 50%); }
+  }
+
+  @keyframes pulse-slow {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  @keyframes bounce-gentle {
+    0%, 100% {
+      transform: translateY(0);
+      animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+    }
+    50% {
+      transform: translateY(-5px);
+      animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+    }
+  }
+
+  .animate-neural-pulse {
+    animation: neural-pulse 1.5s ease-in-out infinite;
+  }
+
+  .animate-glow {
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+
+  .animate-typing {
+    overflow: hidden;
+    white-space: nowrap;
+    border-right: 2px solid hsl(38, 92%, 50%);
+    animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+  }
+
+  .animate-pulse-slow {
+    animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .animate-bounce-gentle {
+    animation: bounce-gentle 2s infinite;
+  }
+
+  /* Custom gradient backgrounds */
+  .bg-neural-gradient {
+    background: linear-gradient(135deg, hsl(207, 90%, 54%) 0%, hsl(262, 83%, 58%) 50%, hsl(38, 92%, 50%) 100%);
+  }
+
+  .bg-surface {
+    background-color: hsl(217, 32%, 17%);
+  }
+
+  .bg-surface-light {
+    background-color: hsl(215, 25%, 27%);
+  }
+
+  .text-neural {
+    color: hsl(38, 92%, 50%);
+  }
+
+  .text-text-primary {
+    color: hsl(210, 40%, 98%);
+  }
+
+  .text-text-secondary {
+    color: hsl(215, 20%, 65%);
+  }
+
+  .border-surface-light {
+    border-color: hsl(215, 25%, 27%);
+  }
+
+  /* Interactive elements */
+  .hover-lift {
+    transition: transform 0.2s ease-in-out;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-2px);
+  }
+
+  .glass-effect {
+    backdrop-filter: blur(12px);
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid rgba(203, 213, 225, 0.1);
+  }
+
+  /* Scrollbar styling */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: hsl(217, 32%, 17%);
+    border-radius: 3px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: hsl(215, 25%, 27%);
+    border-radius: 3px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: hsl(207, 90%, 54%);
+  }
+
+  /* Progress ring animations */
+  .progress-ring-circle {
+    transition: stroke-dashoffset 0.5s ease-in-out;
+  }
+
+  /* Button hover effects */
+  .btn-primary {
+    @apply bg-primary hover:bg-blue-600 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary hover:bg-purple-600 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200;
+  }
+
+  .btn-accent {
+    @apply bg-accent hover:bg-green-600 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200;
+  }
+
+  .btn-neural {
+    @apply bg-neural hover:bg-yellow-600 text-black font-medium px-4 py-2 rounded-lg transition-all duration-200;
+  }
+
+  /* Card hover effects */
+  .card-hover {
+    @apply transition-all duration-200 hover:shadow-lg hover:border-primary;
+  }
+}
+
+/* Fix input field interactions - Critical Fix */
+input, textarea, select {
+  pointer-events: auto !important;
+  user-select: text !important;
+  cursor: text !important;
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  position: relative !important;
+  z-index: 10 !important;
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: 2px solid hsl(207, 90%, 54%) !important;
+  outline-offset: 2px !important;
+  z-index: 20 !important;
+}
+
+/* Force form elements to be interactive */
+input[type="text"], input[type="password"], input[type="email"], textarea, select {
+  pointer-events: auto !important;
+  -webkit-touch-callout: default !important;
+  -webkit-user-select: text !important;
+  -khtml-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  user-select: text !important;
+  background-color: hsl(217, 32%, 17%) !important;
+  color: hsl(210, 40%, 98%) !important;
+  border: 1px solid hsl(215, 25%, 27%) !important;
+}
+
+/* Override any conflicting styles */
+.bg-surface input, .bg-dark input, .card input {
+  pointer-events: auto !important;
+  user-select: text !important;
+}
+
+/* Button interaction fix */
+button {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+button:disabled {
+  pointer-events: none !important;
+  cursor: not-allowed !important;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+  .animate-typing {
+    animation: none;
+    border-right: none;
+    white-space: normal;
+    overflow: visible;
+  }
+}
