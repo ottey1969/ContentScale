@@ -85,8 +85,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user.claims.sub;
       const userEmail = req.user.claims.email;
       
-      // Check admin privileges
-      if (userId !== 'admin' && userEmail !== 'admin@contentscale.site') {
+      // Check admin privileges  
+      if (userId !== 'admin' && userEmail !== 'ottmar.francisca19@gmail.com') {
         return res.status(403).json({ message: "Admin access required" });
       }
 

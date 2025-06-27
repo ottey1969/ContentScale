@@ -109,41 +109,18 @@ export default function ContentGenerator() {
             Current topic: "{topic}" (length: {topic.length})
           </div>
           <div className="relative">
-            <input
+            <Input
               type="text"
               placeholder="e.g., Cybersecurity best practices for SMBs"
               value={topic}
-              onChange={(e) => handleInputChange(e.target.value)}
-              onInput={(e) => {
-                const target = e.target as HTMLInputElement;
-                console.log('Input event:', target.value);
-                handleInputChange(target.value);
-              }}
+              onChange={(e) => setTopic(e.target.value)}
               onKeyDown={(e) => {
-                console.log('Key pressed:', e.key);
                 if (e.key === 'Enter' && !generateMutation.isPending && topic.trim()) {
-                  console.log('Enter pressed, generating content');
                   generateMutation.mutate();
                 }
               }}
-              onFocus={() => console.log('Input focused')}
-              onBlur={() => console.log('Input blurred')}
+              className="pr-28 bg-background border-border text-foreground"
               autoComplete="off"
-              spellCheck="false"
-              style={{
-                width: '100%',
-                padding: '12px 120px 12px 16px',
-                backgroundColor: '#1F2937',
-                border: '2px solid #374151',
-                borderRadius: '8px',
-                color: '#FFFFFF',
-                fontSize: '16px',
-                outline: 'none',
-                fontFamily: 'system-ui, sans-serif',
-                WebkitAppearance: 'none',
-                appearance: 'none'
-              }}
-              disabled={false}
             />
             <button
               onClick={(e) => {

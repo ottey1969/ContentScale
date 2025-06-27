@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,6 +7,15 @@ import { useToast } from "@/hooks/use-toast";
 import { Key, Shield, DollarSign } from "lucide-react";
 
 export default function APIKeyManager() {
+  // Check if user is admin
+  const { data: user } = useQuery<{ id: string; email: string }>({
+    queryKey: ["/api/auth/user"],
+  });
+
+  // Only show for admin users
+  if (!user || user.email !== "ottmar.francisca19@gmail.com") {
+    return null;
+  }
   const [anthropicKey, setAnthropicKey] = useState("");
   const [paypalClientId, setPaypalClientId] = useState("");
   const [paypalSecret, setPaypalSecret] = useState("");
