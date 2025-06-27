@@ -106,9 +106,33 @@ ContentScale Agent is a full-stack web application designed for AI-powered conte
 - Node.js 20 runtime environment
 - PostgreSQL 16 database module
 
+## Security Architecture
+
+### Comprehensive Security System
+- **Fingerprint Tracking**: Browser fingerprinting via request headers analysis
+- **IP Monitoring**: Real-time IP tracking and blocking capabilities  
+- **Rate Limiting**: Intelligent rate limits by action type (content: 10/hour, keywords: 50/hour)
+- **Behavioral Analysis**: Pattern detection for suspicious activities
+- **Auto-blocking**: Temporary IP/fingerprint blocks for violations
+- **Security Dashboard**: Real-time monitoring with threat assessment
+
+### Security Components
+- `SecurityService`: Core security logic with fingerprinting and monitoring
+- `SecurityMiddleware`: Request-level security enforcement
+- `SecurityDashboard`: Admin interface for threat monitoring
+- Database tables: `security_events`, `blocked_ips`, `blocked_fingerprints`
+
+### Admin Panel Integration
+- Tabbed interface with Settings and Security sections
+- Live video preview for YouTube demo management
+- Real-time security metrics and event monitoring
+- Comprehensive threat analysis and compliance features
+
 ## Changelog
 
 - June 27, 2025. Initial setup
+- June 27, 2025. Advanced security system with fingerprint tracking and abuse prevention
+- June 27, 2025. Custom rocket favicon and tabbed admin panel with security dashboard
 
 ## User Preferences
 

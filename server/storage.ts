@@ -7,6 +7,9 @@ import {
   activities,
   csvBatches,
   adminSettings,
+  securityEvents,
+  blockedIPs,
+  blockedFingerprints,
   type User,
   type UpsertUser,
   type InsertContent,
@@ -23,9 +26,15 @@ import {
   type CsvBatch,
   type InsertAdminSettings,
   type AdminSettings,
+  type InsertSecurityEvent,
+  type SecurityEvent,
+  type InsertBlockedIP,
+  type BlockedIP,
+  type InsertBlockedFingerprint,
+  type BlockedFingerprint,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and, sql } from "drizzle-orm";
+import { eq, desc, and, sql, gte, lt, gt, isNotNull } from "drizzle-orm";
 
 export interface IStorage {
   // User operations (mandatory for Replit Auth)
@@ -87,6 +96,21 @@ export interface IStorage {
   // Admin settings operations
   getAdminSettings(): Promise<AdminSettings | undefined>;
   updateAdminSettings(settings: Partial<InsertAdminSettings>): Promise<AdminSettings>;
+
+  // Security operations
+  createSecurityEvent(event: InsertSecurityEvent): Promise<SecurityEvent>;
+  getSecurityEventCount(userId?: string, ipAddress?: string, fingerprint?: string, eventType?: string, since?: Date): Promise<number>;
+  getUserSecurityEvents(userId: string, since: Date): Promise<SecurityEvent[]>;
+  getBlockedIP(ipAddress: string): Promise<BlockedIP | undefined>;
+  getBlockedFingerprint(fingerprint: string): Promise<BlockedFingerprint | undefined>;
+  blockIP(ipAddress: string, expiresAt: Date, reason?: string): Promise<void>;
+  blockFingerprint(fingerprint: string, expiresAt: Date, reason?: string): Promise<void>;
+  getBlockedIPCount(): Promise<number>;
+  getActiveUserCount(since: Date): Promise<number>;
+  getRateLimitViolationCount(since: Date): Promise<number>;
+  cleanupExpiredIPBlocks(now: Date): Promise<void>;
+  cleanupExpiredFingerprintBlocks(now: Date): Promise<void>;
+  cleanupOldSecurityEvents(cutoffDate: Date): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -463,6 +487,130 @@ export class DatabaseStorage implements IStorage {
       })
       .returning();
     return settings;
+  }
+
+  // Security operations
+  async createSecurityEvent(eventData: InsertSecurityEvent): Promise<SecurityEvent> {
+    const [event] = await db
+      .insert(securityEvents)
+      .values(eventData)
+      .returning();
+    return event;
+  }
+
+  async getSecurityEventCount(userId?: string, ipAddress?: string, fingerprint?: string, eventType?: string, since?: Date): Promise<number> {
+    let query = db.select({ count: sql<number>`count(*)` }).from(securityEvents);
+    
+    const conditions = [];
+    if (userId) conditions.push(eq(securityEvents.userId, userId));
+    if (ipAddress) conditions.push(eq(securityEvents.ipAddress, ipAddress));
+    if (fingerprint) conditions.push(eq(securityEvents.fingerprint, fingerprint));
+    if (eventType) conditions.push(eq(securityEvents.eventType, eventType));
+    if (since) conditions.push(gte(securityEvents.createdAt, since));
+    
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions));
+    }
+    
+    const result = await query;
+    return result[0]?.count || 0;
+  }
+
+  async getUserSecurityEvents(userId: string, since: Date): Promise<SecurityEvent[]> {
+    return await db
+      .select()
+      .from(securityEvents)
+      .where(and(
+        eq(securityEvents.userId, userId),
+        gte(securityEvents.createdAt, since)
+      ))
+      .orderBy(desc(securityEvents.createdAt));
+  }
+
+  async getBlockedIP(ipAddress: string): Promise<BlockedIP | undefined> {
+    const [blocked] = await db
+      .select()
+      .from(blockedIPs)
+      .where(eq(blockedIPs.ipAddress, ipAddress));
+    return blocked;
+  }
+
+  async getBlockedFingerprint(fingerprint: string): Promise<BlockedFingerprint | undefined> {
+    const [blocked] = await db
+      .select()
+      .from(blockedFingerprints)
+      .where(eq(blockedFingerprints.fingerprint, fingerprint));
+    return blocked;
+  }
+
+  async blockIP(ipAddress: string, expiresAt: Date, reason?: string): Promise<void> {
+    await db
+      .insert(blockedIPs)
+      .values({
+        ipAddress,
+        expiresAt,
+        reason: reason || "Rate limit exceeded"
+      })
+      .onConflictDoUpdate({
+        target: blockedIPs.ipAddress,
+        set: { expiresAt, reason: reason || "Rate limit exceeded" }
+      });
+  }
+
+  async blockFingerprint(fingerprint: string, expiresAt: Date, reason?: string): Promise<void> {
+    await db
+      .insert(blockedFingerprints)
+      .values({
+        fingerprint,
+        expiresAt,
+        reason: reason || "Rate limit exceeded"
+      })
+      .onConflictDoUpdate({
+        target: blockedFingerprints.fingerprint,
+        set: { expiresAt, reason: reason || "Rate limit exceeded" }
+      });
+  }
+
+  async getBlockedIPCount(): Promise<number> {
+    const result = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(blockedIPs)
+      .where(gt(blockedIPs.expiresAt, new Date()));
+    return result[0]?.count || 0;
+  }
+
+  async getActiveUserCount(since: Date): Promise<number> {
+    const result = await db
+      .select({ count: sql<number>`count(distinct ${securityEvents.userId})` })
+      .from(securityEvents)
+      .where(and(
+        gte(securityEvents.createdAt, since),
+        isNotNull(securityEvents.userId)
+      ));
+    return result[0]?.count || 0;
+  }
+
+  async getRateLimitViolationCount(since: Date): Promise<number> {
+    const result = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(securityEvents)
+      .where(and(
+        eq(securityEvents.eventType, 'suspicious_activity'),
+        gte(securityEvents.createdAt, since)
+      ));
+    return result[0]?.count || 0;
+  }
+
+  async cleanupExpiredIPBlocks(now: Date): Promise<void> {
+    await db.delete(blockedIPs).where(lt(blockedIPs.expiresAt, now));
+  }
+
+  async cleanupExpiredFingerprintBlocks(now: Date): Promise<void> {
+    await db.delete(blockedFingerprints).where(lt(blockedFingerprints.expiresAt, now));
+  }
+
+  async cleanupOldSecurityEvents(cutoffDate: Date): Promise<void> {
+    await db.delete(securityEvents).where(lt(securityEvents.createdAt, cutoffDate));
   }
 }
 

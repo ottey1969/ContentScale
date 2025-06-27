@@ -5,10 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { Settings, Video, Save, Eye } from "lucide-react";
+import { Settings, Video, Save, Eye, Shield } from "lucide-react";
+import SecurityDashboard from "@/components/dashboard/SecurityDashboard";
 
 interface AdminSettings {
   demoVideoId: string;
@@ -22,42 +24,42 @@ export default function Admin() {
   const { user, isLoading } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  
+
+  // Check if user is admin
+  const isAdmin = user && (user.id === 'admin' || user.email === 'admin@contentscale.site');
+
   const [settings, setSettings] = useState<AdminSettings>({
-    demoVideoId: "",
-    demoVideoTitle: "ContentScale Demo",
+    demoVideoId: '',
+    demoVideoTitle: 'ContentScale Demo',
     maintenanceMode: false,
-    welcomeMessage: "Welcome to ContentScale!",
-    maxCreditsPerUser: 100
+    welcomeMessage: 'Welcome to ContentScale!',
+    maxCreditsPerUser: 100,
   });
 
-  // Check if user is admin (you can modify this logic as needed)
-  const isAdmin = user?.email === "admin@contentscale.site" || user?.id === "admin";
-
-  // Fetch admin settings
-  const { data: adminSettings } = useQuery({
-    queryKey: ["/api/admin/settings"],
+  // Fetch current admin settings
+  const { data: currentSettings } = useQuery({
+    queryKey: ['/api/admin/settings'],
     enabled: isAdmin,
   });
 
-  // Update settings when fetched
   useEffect(() => {
-    if (adminSettings) {
-      setSettings(adminSettings);
+    if (currentSettings) {
+      setSettings(currentSettings);
     }
-  }, [adminSettings]);
+  }, [currentSettings]);
 
   // Save settings mutation
   const saveSettingsMutation = useMutation({
     mutationFn: async (newSettings: AdminSettings) => {
-      return await apiRequest("/api/admin/settings", "POST", newSettings);
+      return await apiRequest('/api/admin/settings', 'POST', newSettings);
     },
     onSuccess: () => {
       toast({
-        title: "Settings Saved",
+        title: "Settings saved",
         description: "Admin settings have been updated successfully.",
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/settings"] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/settings'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/public/video-settings'] });
     },
     onError: (error) => {
       toast({
@@ -65,6 +67,7 @@ export default function Admin() {
         description: "Failed to save settings. Please try again.",
         variant: "destructive",
       });
+      console.error('Settings save error:', error);
     },
   });
 
@@ -115,7 +118,7 @@ export default function Admin() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 p-6">
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="max-w-7xl mx-auto space-y-6">
         
         {/* Header */}
         <div className="flex items-center space-x-3 mb-8">
@@ -123,123 +126,151 @@ export default function Admin() {
           <h1 className="text-3xl font-bold text-white">Admin Panel</h1>
         </div>
 
-        {/* Demo Video Settings */}
-        <Card className="bg-slate-800 border-slate-700">
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2 text-white">
-              <Video className="w-5 h-5 text-purple-400" />
-              <span>Demo Video Settings</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label htmlFor="videoId" className="text-gray-300">
-                YouTube Video URL or ID
-              </Label>
-              <Input
-                id="videoId"
-                placeholder="https://www.youtube.com/watch?v=YOUR_VIDEO_ID or just YOUR_VIDEO_ID"
-                value={settings.demoVideoId}
-                onChange={(e) => handleVideoIdChange(e.target.value)}
-                className="bg-slate-700 border-slate-600 text-white"
-              />
-              <p className="text-xs text-gray-400 mt-1">
-                Paste any YouTube URL format or just the video ID
-              </p>
-            </div>
-            
-            <div>
-              <Label htmlFor="videoTitle" className="text-gray-300">
-                Video Title
-              </Label>
-              <Input
-                id="videoTitle"
-                value={settings.demoVideoTitle}
-                onChange={(e) => setSettings(prev => ({ ...prev, demoVideoTitle: e.target.value }))}
-                className="bg-slate-700 border-slate-600 text-white"
-              />
-            </div>
+        {/* Tabbed Interface */}
+        <Tabs defaultValue="settings" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 bg-slate-800 border-slate-700">
+            <TabsTrigger value="settings" className="flex items-center space-x-2">
+              <Video className="w-4 h-4" />
+              <span>Settings</span>
+            </TabsTrigger>
+            <TabsTrigger value="security" className="flex items-center space-x-2">
+              <Shield className="w-4 h-4" />
+              <span>Security</span>
+            </TabsTrigger>
+          </TabsList>
 
-            {/* Video Preview */}
-            {settings.demoVideoId && (
-              <div className="mt-4">
-                <Label className="text-gray-300 flex items-center space-x-2 mb-2">
-                  <Eye className="w-4 h-4" />
-                  <span>Preview</span>
-                </Label>
-                <div className="aspect-video bg-black rounded-lg overflow-hidden">
-                  <iframe
-                    width="100%"
-                    height="100%"
-                    src={previewVideoUrl}
-                    title={settings.demoVideoTitle}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  ></iframe>
+          <TabsContent value="settings" className="space-y-6 mt-6">
+            {/* Demo Video Settings */}
+            <Card className="bg-slate-800 border-slate-700">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2 text-white">
+                  <Video className="w-5 h-5 text-purple-400" />
+                  <span>Demo Video Settings</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <Label htmlFor="videoId" className="text-gray-300">
+                    YouTube Video URL or ID
+                  </Label>
+                  <Input
+                    id="videoId"
+                    placeholder="https://www.youtube.com/watch?v=YOUR_VIDEO_ID or just YOUR_VIDEO_ID"
+                    value={settings.demoVideoId}
+                    onChange={(e) => handleVideoIdChange(e.target.value)}
+                    className="bg-slate-700 border-slate-600 text-white placeholder:text-gray-400"
+                  />
+                  <p className="text-sm text-gray-400 mt-1">
+                    Paste any YouTube URL format or just the video ID
+                  </p>
                 </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
 
-        {/* General Settings */}
-        <Card className="bg-slate-800 border-slate-700">
-          <CardHeader>
-            <CardTitle className="text-white">General Settings</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label htmlFor="welcomeMessage" className="text-gray-300">
-                Welcome Message
-              </Label>
-              <Textarea
-                id="welcomeMessage"
-                value={settings.welcomeMessage}
-                onChange={(e) => setSettings(prev => ({ ...prev, welcomeMessage: e.target.value }))}
-                className="bg-slate-700 border-slate-600 text-white"
-                rows={3}
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="maxCredits" className="text-gray-300">
-                Max Credits Per User
-              </Label>
-              <Input
-                id="maxCredits"
-                type="number"
-                value={settings.maxCreditsPerUser}
-                onChange={(e) => setSettings(prev => ({ ...prev, maxCreditsPerUser: parseInt(e.target.value) || 0 }))}
-                className="bg-slate-700 border-slate-600 text-white"
-              />
-            </div>
+                <div>
+                  <Label htmlFor="videoTitle" className="text-gray-300">
+                    Video Title
+                  </Label>
+                  <Input
+                    id="videoTitle"
+                    placeholder="Video title for display"
+                    value={settings.demoVideoTitle}
+                    onChange={(e) => setSettings(prev => ({ ...prev, demoVideoTitle: e.target.value }))}
+                    className="bg-slate-700 border-slate-600 text-white placeholder:text-gray-400"
+                  />
+                </div>
 
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="maintenance"
-                checked={settings.maintenanceMode}
-                onChange={(e) => setSettings(prev => ({ ...prev, maintenanceMode: e.target.checked }))}
-                className="rounded"
-              />
-              <Label htmlFor="maintenance" className="text-gray-300">
-                Maintenance Mode
-              </Label>
-            </div>
-          </CardContent>
-        </Card>
+                {/* Video Preview */}
+                {previewVideoUrl && (
+                  <div className="space-y-2">
+                    <Label className="text-gray-300 flex items-center">
+                      <Eye className="w-4 h-4 mr-2" />
+                      Live Preview
+                    </Label>
+                    <div className="aspect-video bg-black rounded-lg overflow-hidden">
+                      <iframe
+                        width="100%"
+                        height="100%"
+                        src={previewVideoUrl}
+                        title={settings.demoVideoTitle}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        className="rounded-lg"
+                      />
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
-        {/* Save Button */}
-        <div className="flex justify-end">
-          <Button
-            onClick={handleSave}
-            disabled={saveSettingsMutation.isPending}
-            className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6"
-          >
-            <Save className="w-4 h-4 mr-2" />
-            {saveSettingsMutation.isPending ? "Saving..." : "Save Settings"}
-          </Button>
-        </div>
+            {/* General Settings */}
+            <Card className="bg-slate-800 border-slate-700">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2 text-white">
+                  <Settings className="w-5 h-5 text-blue-400" />
+                  <span>General Settings</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <Label htmlFor="welcomeMessage" className="text-gray-300">
+                    Welcome Message
+                  </Label>
+                  <Textarea
+                    id="welcomeMessage"
+                    placeholder="Welcome message for new users"
+                    value={settings.welcomeMessage}
+                    onChange={(e) => setSettings(prev => ({ ...prev, welcomeMessage: e.target.value }))}
+                    className="bg-slate-700 border-slate-600 text-white placeholder:text-gray-400"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="maxCredits" className="text-gray-300">
+                    Max Credits Per User
+                  </Label>
+                  <Input
+                    id="maxCredits"
+                    type="number"
+                    min="1"
+                    max="10000"
+                    value={settings.maxCreditsPerUser}
+                    onChange={(e) => setSettings(prev => ({ ...prev, maxCreditsPerUser: parseInt(e.target.value) || 100 }))}
+                    className="bg-slate-700 border-slate-600 text-white"
+                  />
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="maintenance"
+                    checked={settings.maintenanceMode}
+                    onChange={(e) => setSettings(prev => ({ ...prev, maintenanceMode: e.target.checked }))}
+                    className="rounded"
+                  />
+                  <Label htmlFor="maintenance" className="text-gray-300">
+                    Maintenance Mode
+                  </Label>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Save Button */}
+            <div className="flex justify-end">
+              <Button
+                onClick={handleSave}
+                disabled={saveSettingsMutation.isPending}
+                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6"
+              >
+                <Save className="w-4 h-4 mr-2" />
+                {saveSettingsMutation.isPending ? "Saving..." : "Save Settings"}
+              </Button>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="security" className="space-y-6 mt-6">
+            {/* Security Dashboard */}
+            <SecurityDashboard />
+          </TabsContent>
+        </Tabs>
 
       </div>
     </div>

@@ -6,6 +6,8 @@ import { setupAuth, isAuthenticated } from "./replitAuth";
 import { contentGenerator } from "./services/contentGenerator";
 import { keywordResearch } from "./services/keywordResearch";
 import { referralSystem } from "./services/referralSystem";
+import { securityService } from "./services/securityService";
+import { securityMiddleware, rateLimitMiddleware, adminSecurityMiddleware } from "./middleware/securityMiddleware";
 import { insertContentSchema, insertKeywordSchema, insertActivitySchema } from "@shared/schema";
 import { z } from "zod";
 import multer from "multer";
@@ -19,6 +21,9 @@ const upload = multer({ storage: multer.memoryStorage() });
 export async function registerRoutes(app: Express): Promise<Server> {
   // Serve static files from client/public in development
   app.use(express.static(path.resolve(process.cwd(), "client", "public")));
+  
+  // Security middleware - track all requests
+  app.use(securityMiddleware());
   
   // Auth middleware
   await setupAuth(app);
@@ -147,8 +152,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Content generation
-  app.post("/api/content/generate", isAuthenticated, async (req: any, res) => {
+  // Security API routes for admin dashboard
+  app.get("/api/admin/security/metrics", isAuthenticated, adminSecurityMiddleware(), async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const userEmail = req.user.claims.email;
+      
+      // Check admin privileges
+      if (userId !== 'admin' && userEmail !== 'admin@contentscale.site') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const metrics = await securityService.getSecurityMetrics();
+      res.json(metrics);
+    } catch (error) {
+      console.error("Error fetching security metrics:", error);
+      res.status(500).json({ message: "Failed to fetch security metrics" });
+    }
+  });
+
+  app.get("/api/admin/security/events", isAuthenticated, adminSecurityMiddleware(), async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const userEmail = req.user.claims.email;
+      
+      // Check admin privileges
+      if (userId !== 'admin' && userEmail !== 'admin@contentscale.site') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const last24Hours = new Date(Date.now() - 24 * 60 * 60 * 1000);
+      const events = await storage.getUserSecurityEvents('', last24Hours);
+      res.json(events.slice(0, 50)); // Return last 50 events
+    } catch (error) {
+      console.error("Error fetching security events:", error);
+      res.status(500).json({ message: "Failed to fetch security events" });
+    }
+  });
+
+  // Content generation with rate limiting
+  app.post("/api/content/generate", isAuthenticated, rateLimitMiddleware('content_generation'), async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const body = insertContentSchema.parse(req.body);

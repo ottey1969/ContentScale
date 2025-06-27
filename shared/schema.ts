@@ -134,6 +134,43 @@ export const adminSettings = pgTable("admin_settings", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Security tables for fingerprint and IP tracking
+export const securityEvents = pgTable("security_events", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: varchar("user_id").references(() => users.id),
+  ipAddress: varchar("ip_address").notNull(),
+  fingerprint: varchar("fingerprint").notNull(),
+  eventType: varchar("event_type").notNull(),
+  userAgent: text("user_agent"),
+  metadata: text("metadata"),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_security_events_user_id").on(table.userId),
+  index("idx_security_events_ip").on(table.ipAddress),
+  index("idx_security_events_fingerprint").on(table.fingerprint),
+  index("idx_security_events_created_at").on(table.createdAt),
+]);
+
+export const blockedIPs = pgTable("blocked_ips", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  ipAddress: varchar("ip_address").notNull().unique(),
+  reason: text("reason"),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_blocked_ips_expires_at").on(table.expiresAt),
+]);
+
+export const blockedFingerprints = pgTable("blocked_fingerprints", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  fingerprint: varchar("fingerprint").notNull().unique(),
+  reason: text("reason"),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_blocked_fingerprints_expires_at").on(table.expiresAt),
+]);
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   content: many(content),
@@ -236,6 +273,21 @@ export const insertAdminSettingsSchema = createInsertSchema(adminSettings).omit(
   updatedAt: true,
 });
 
+export const insertSecurityEventSchema = createInsertSchema(securityEvents).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertBlockedIPSchema = createInsertSchema(blockedIPs).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertBlockedFingerprintSchema = createInsertSchema(blockedFingerprints).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -253,3 +305,9 @@ export type InsertCsvBatch = z.infer<typeof insertCsvBatchSchema>;
 export type CsvBatch = typeof csvBatches.$inferSelect;
 export type InsertAdminSettings = z.infer<typeof insertAdminSettingsSchema>;
 export type AdminSettings = typeof adminSettings.$inferSelect;
+export type InsertSecurityEvent = z.infer<typeof insertSecurityEventSchema>;
+export type SecurityEvent = typeof securityEvents.$inferSelect;
+export type InsertBlockedIP = z.infer<typeof insertBlockedIPSchema>;
+export type BlockedIP = typeof blockedIPs.$inferSelect;
+export type InsertBlockedFingerprint = z.infer<typeof insertBlockedFingerprintSchema>;
+export type BlockedFingerprint = typeof blockedFingerprints.$inferSelect;
