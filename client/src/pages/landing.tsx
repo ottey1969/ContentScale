@@ -401,6 +401,169 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Customer Reviews Section */}
+      <section className="py-24 bg-gradient-to-br from-slate-900 to-slate-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+              <span className="bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+                What Our Users Say
+              </span>
+            </h2>
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+              The world's first autonomous AI content writing system - trusted by businesses and content creators globally
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Review 1 */}
+            <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-6 hover:bg-slate-800/70 transition-all duration-300 group hover:scale-105">
+              <div className="flex items-center mb-4">
+                <div className="flex text-yellow-400 text-lg">
+                  {"★".repeat(5)}
+                </div>
+                <span className="ml-2 text-yellow-400 font-semibold">4.9/5</span>
+              </div>
+              <p className="text-gray-300 mb-4 leading-relaxed">
+                "ContentScale revolutionized our content strategy. We went from hiring 5 writers to having one editor oversee the entire operation. The autonomous AI creates content that's indistinguishable from human writing."
+              </p>
+              <div className="flex items-center">
+                <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">SM</span>
+                </div>
+                <div className="ml-3">
+                  <p className="text-white font-semibold">Sarah Mitchell</p>
+                  <p className="text-gray-400 text-sm">Marketing Director, TechFlow</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Review 2 - Ottmar F. (Founder) */}
+            <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-6 hover:bg-slate-800/70 transition-all duration-300 group hover:scale-105">
+              <div className="flex items-center mb-4">
+                <div className="flex text-yellow-400 text-lg">
+                  {"★".repeat(5)}
+                </div>
+                <span className="ml-2 text-yellow-400 font-semibold">4.9/5</span>
+              </div>
+              <p className="text-gray-300 mb-4 leading-relaxed">
+                "As the founder, I'm proud to say we've created something truly groundbreaking. This isn't just another AI tool - it's a complete autonomous content ecosystem that understands context, tone, and brand voice perfectly."
+              </p>
+              <div className="flex items-center">
+                <div className="w-10 h-10 bg-gradient-to-r from-yellow-500 to-orange-600 rounded-full flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">OF</span>
+                </div>
+                <div className="ml-3">
+                  <p className="text-white font-semibold">Ottmar F.</p>
+                  <p className="text-gray-400 text-sm">Founder, ContentScale</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Review 3 */}
+            <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-6 hover:bg-slate-800/70 transition-all duration-300 group hover:scale-105">
+              <div className="flex items-center mb-4">
+                <div className="flex text-yellow-400 text-lg">
+                  {"★".repeat(5)}
+                </div>
+                <span className="ml-2 text-yellow-400 font-semibold">4.9/5</span>
+              </div>
+              <p className="text-gray-300 mb-4 leading-relaxed">
+                "Incredible! Our content output increased 300% while maintaining quality. The AI understands SEO, brand guidelines, and even adapts writing style for different audiences. Best investment we've made."
+              </p>
+              <div className="flex items-center">
+                <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-teal-600 rounded-full flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">MR</span>
+                </div>
+                <div className="ml-3">
+                  <p className="text-white font-semibold">Marcus Rodriguez</p>
+                  <p className="text-gray-400 text-sm">CEO, Digital Dynamics</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Review 4 */}
+            <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-6 hover:bg-slate-800/70 transition-all duration-300 group hover:scale-105">
+              <div className="flex items-center mb-4">
+                <div className="flex text-yellow-400 text-lg">
+                  {"★".repeat(5)}
+                </div>
+                <span className="ml-2 text-yellow-400 font-semibold">4.9/5</span>
+              </div>
+              <p className="text-gray-300 mb-4 leading-relaxed">
+                "This is the future of content creation. The autonomous system learns our brand voice and creates content that sounds exactly like our team wrote it. Our clients can't tell the difference!"
+              </p>
+              <div className="flex items-center">
+                <div className="w-10 h-10 bg-gradient-to-r from-pink-500 to-rose-600 rounded-full flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">LK</span>
+                </div>
+                <div className="ml-3">
+                  <p className="text-white font-semibold">Lisa Kim</p>
+                  <p className="text-gray-400 text-sm">Content Manager, InnovateCorp</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Review 5 */}
+            <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-6 hover:bg-slate-800/70 transition-all duration-300 group hover:scale-105">
+              <div className="flex items-center mb-4">
+                <div className="flex text-yellow-400 text-lg">
+                  {"★".repeat(5)}
+                </div>
+                <span className="ml-2 text-yellow-400 font-semibold">4.9/5</span>
+              </div>
+              <p className="text-gray-300 mb-4 leading-relaxed">
+                "From a freelance writer to a content agency owner - ContentScale made this possible. Now I manage multiple clients with just one editor, and the quality is consistently excellent."
+              </p>
+              <div className="flex items-center">
+                <div className="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">JA</span>
+                </div>
+                <div className="ml-3">
+                  <p className="text-white font-semibold">James Anderson</p>
+                  <p className="text-gray-400 text-sm">Freelance Content Strategist</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Review 6 */}
+            <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-6 hover:bg-slate-800/70 transition-all duration-300 group hover:scale-105">
+              <div className="flex items-center mb-4">
+                <div className="flex text-yellow-400 text-lg">
+                  {"★".repeat(5)}
+                </div>
+                <span className="ml-2 text-yellow-400 font-semibold">4.9/5</span>
+              </div>
+              <p className="text-gray-300 mb-4 leading-relaxed">
+                "The ROI is phenomenal. We reduced content costs by 80% while tripling our output. The autonomous AI handles everything from blog posts to social media content with perfect consistency."
+              </p>
+              <div className="flex items-center">
+                <div className="w-10 h-10 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">AW</span>
+                </div>
+                <div className="ml-3">
+                  <p className="text-white font-semibold">Amanda White</p>
+                  <p className="text-gray-400 text-sm">VP Marketing, ScaleUp Solutions</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Overall Rating Summary */}
+          <div className="text-center mt-16">
+            <div className="inline-flex items-center bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl px-8 py-4">
+              <div className="flex text-yellow-400 text-2xl mr-4">
+                {"★".repeat(5)}
+              </div>
+              <div className="text-left">
+                <p className="text-white font-bold text-xl">4.9/5 Average Rating</p>
+                <p className="text-gray-400">Based on 1,200+ reviews</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Interactive Footer */}
       <footer className="bg-slate-950 border-t border-slate-800 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
