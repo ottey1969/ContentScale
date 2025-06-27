@@ -11,6 +11,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Settings, Video, Save, Eye, Shield } from "lucide-react";
 import SecurityDashboard from "@/components/dashboard/SecurityDashboard";
+import { SEOHead, SEOConfigs } from "@/components/seo/SEOHead";
 
 interface AdminSettings {
   demoVideoId: string;
@@ -118,6 +119,9 @@ export default function Admin() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 p-6">
+      {/* SEO Optimization */}
+      <SEOHead {...SEOConfigs.admin} />
+      
       <div className="max-w-7xl mx-auto space-y-6">
         
         {/* Header */}

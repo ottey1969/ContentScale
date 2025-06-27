@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Rocket, Brain, Search, Users, TrendingUp, Shield, Trophy, CheckCircle, Play, ArrowRight, Cookie, FileText, Shield as ShieldIcon } from "lucide-react";
+import { SEOHead, SEOConfigs } from "@/components/seo/SEOHead";
 
 export default function Landing() {
   const [showCookieConsent, setShowCookieConsent] = useState(
@@ -33,6 +34,9 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-dark text-text-primary">
+      {/* SEO Optimization */}
+      <SEOHead {...SEOConfigs.landing} />
+      
       {/* Navigation */}
       <nav className="bg-surface border-b border-surface-light">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
