@@ -13,6 +13,7 @@ import AchievementSystem from "@/components/dashboard/AchievementSystem";
 import ActivityFeed from "@/components/dashboard/ActivityFeed";
 import APIKeyManager from "@/components/admin/APIKeyManager";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { 
   Plus, 
   MessageSquare, 
@@ -21,7 +22,12 @@ import {
   Search, 
   Users, 
   Settings,
-  Headphones
+  Headphones,
+  Key,
+  Shield,
+  Brain,
+  CreditCard,
+  Save
 } from "lucide-react";
 
 export default function Dashboard() {
@@ -133,6 +139,149 @@ export default function Dashboard() {
             
             {/* Activity Feed */}
             <ActivityFeed />
+            
+            {/* API Configuration Section */}
+            <div className="mt-8">
+              <div className="bg-surface rounded-xl border border-surface-light overflow-hidden">
+                <div className="p-6 border-b border-surface-light">
+                  <h3 className="text-xl font-semibold flex items-center space-x-2">
+                    <Key className="w-6 h-6 text-primary" />
+                    <span>API Configuration</span>
+                  </h3>
+                  <p className="text-sm text-text-secondary mt-2">
+                    Configure your API keys to enable AI-powered content generation and advanced features.
+                  </p>
+                </div>
+                
+                <div className="p-6 space-y-6">
+                  {/* Anthropic API Key */}
+                  <div className="space-y-3">
+                    <div className="flex items-center space-x-2">
+                      <Shield className="w-4 h-4 text-green-500" />
+                      <h3 className="font-medium">Anthropic API Key</h3>
+                      <span className="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">Required</span>
+                    </div>
+                    <p className="text-sm text-text-secondary">
+                      Powers AI content generation • Get your key from <a href="https://console.anthropic.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">console.anthropic.com</a>
+                    </p>
+                    <div className="flex space-x-2">
+                      <Input
+                        type="password"
+                        placeholder="sk-ant-api03-xxxxx..."
+                        className="flex-1 bg-dark border-surface-light"
+                      />
+                      <Button className="bg-green-600 hover:bg-green-700 text-white">
+                        <Save className="w-4 h-4 mr-2" />
+                        Save
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* OpenAI API Key */}
+                  <div className="space-y-3">
+                    <div className="flex items-center space-x-2">
+                      <Brain className="w-4 h-4 text-blue-500" />
+                      <h3 className="font-medium">OpenAI API Key</h3>
+                      <span className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full">Optional</span>
+                    </div>
+                    <p className="text-sm text-text-secondary">
+                      Additional AI capabilities • Get your key from <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">platform.openai.com</a>
+                    </p>
+                    <div className="flex space-x-2">
+                      <Input
+                        type="password"
+                        placeholder="sk-xxxxx..."
+                        className="flex-1 bg-dark border-surface-light"
+                      />
+                      <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                        <Save className="w-4 h-4 mr-2" />
+                        Save
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Answer Socrates API Key */}
+                  <div className="space-y-3">
+                    <div className="flex items-center space-x-2">
+                      <Search className="w-4 h-4 text-purple-500" />
+                      <h3 className="font-medium">Answer Socrates API Key</h3>
+                      <span className="text-xs px-2 py-1 bg-purple-100 text-purple-800 rounded-full">Optional</span>
+                    </div>
+                    <p className="text-sm text-text-secondary">
+                      Enhanced keyword research data • Get your key from <a href="https://answersocrates.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">answersocrates.com</a>
+                    </p>
+                    <div className="flex space-x-2">
+                      <Input
+                        type="password"
+                        placeholder="as_xxxxx..."
+                        className="flex-1 bg-dark border-surface-light"
+                      />
+                      <Button className="bg-purple-600 hover:bg-purple-700 text-white">
+                        <Save className="w-4 h-4 mr-2" />
+                        Save
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* PayPal Configuration */}
+                  <div className="space-y-3">
+                    <div className="flex items-center space-x-2">
+                      <CreditCard className="w-4 h-4 text-yellow-500" />
+                      <h3 className="font-medium">PayPal Configuration</h3>
+                      <span className="text-xs px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full">Payment</span>
+                    </div>
+                    <p className="text-sm text-text-secondary">
+                      Enable credit purchases • Configure PayPal Client ID and Secret
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Client ID</label>
+                        <Input
+                          type="password"
+                          placeholder="PayPal Client ID..."
+                          className="bg-dark border-surface-light"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Client Secret</label>
+                        <Input
+                          type="password"
+                          placeholder="PayPal Client Secret..."
+                          className="bg-dark border-surface-light"
+                        />
+                      </div>
+                    </div>
+                    <Button className="bg-yellow-600 hover:bg-yellow-700 text-white">
+                      <Save className="w-4 h-4 mr-2" />
+                      Save PayPal Config
+                    </Button>
+                  </div>
+
+                  {/* Status Indicators */}
+                  <div className="border-t border-surface-light pt-4">
+                    <h4 className="font-medium mb-3">Service Status</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                        <span className="text-sm">Anthropic: Not configured</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                        <span className="text-sm">OpenAI: Not configured</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                        <span className="text-sm">Keywords: Demo mode</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                        <span className="text-sm">PayPal: Not configured</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </main>
       </div>
