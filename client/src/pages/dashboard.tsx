@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import Navigation from "@/components/layout/Navigation";
@@ -33,6 +33,67 @@ import {
 export default function Dashboard() {
   const { isAuthenticated, isLoading } = useAuth();
   const { toast } = useToast();
+  
+  // API Configuration state
+  const [anthropicKey, setAnthropicKey] = useState("");
+  const [openaiKey, setOpenaiKey] = useState("");
+  const [answerSocratesKey, setAnswerSocratesKey] = useState("");
+  const [paypalClientId, setPaypalClientId] = useState("");
+  const [paypalSecret, setPaypalSecret] = useState("");
+  const [loading, setLoading] = useState("");
+
+  // Function to save API keys
+  const saveApiKey = async (key: string, value: string, label: string) => {
+    if (!value.trim()) {
+      toast({
+        title: "Error",
+        description: `Please enter the ${label}`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(key);
+    
+    try {
+      const response = await fetch('/api/admin/add-secret', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key, value: value.trim() })
+      });
+      
+      const result = await response.json();
+      
+      if (response.ok) {
+        toast({
+          title: "Success!",
+          description: `${label} saved successfully`,
+        });
+        
+        // Clear the input based on key type
+        if (key === 'ANTHROPIC_API_KEY') setAnthropicKey("");
+        if (key === 'OPENAI_API_KEY') setOpenaiKey("");
+        if (key === 'ANSWER_SOCRATES_API_KEY') setAnswerSocratesKey("");
+        if (key === 'PAYPAL_CLIENT_ID') setPaypalClientId("");
+        if (key === 'PAYPAL_CLIENT_SECRET') setPaypalSecret("");
+        
+      } else {
+        toast({
+          title: "Error",
+          description: result.error || `Failed to save ${label}`,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: `Failed to save ${label}. Please try again.`,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading("");
+    }
+  };
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -172,11 +233,17 @@ export default function Dashboard() {
                   <Input
                     type="password"
                     placeholder="sk-ant-api03-xxxxx..."
+                    value={anthropicKey}
+                    onChange={(e) => setAnthropicKey(e.target.value)}
                     className="flex-1 bg-dark border-surface-light"
                   />
-                  <Button className="bg-green-600 hover:bg-green-700 text-white">
+                  <Button 
+                    onClick={() => saveApiKey('ANTHROPIC_API_KEY', anthropicKey, 'Anthropic API Key')}
+                    disabled={loading === 'ANTHROPIC_API_KEY'}
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                  >
                     <Save className="w-4 h-4 mr-2" />
-                    Save
+                    {loading === 'ANTHROPIC_API_KEY' ? 'Saving...' : 'Save'}
                   </Button>
                 </div>
               </div>
@@ -195,11 +262,17 @@ export default function Dashboard() {
                   <Input
                     type="password"
                     placeholder="sk-xxxxx..."
+                    value={openaiKey}
+                    onChange={(e) => setOpenaiKey(e.target.value)}
                     className="flex-1 bg-dark border-surface-light"
                   />
-                  <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                  <Button 
+                    onClick={() => saveApiKey('OPENAI_API_KEY', openaiKey, 'OpenAI API Key')}
+                    disabled={loading === 'OPENAI_API_KEY'}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                  >
                     <Save className="w-4 h-4 mr-2" />
-                    Save
+                    {loading === 'OPENAI_API_KEY' ? 'Saving...' : 'Save'}
                   </Button>
                 </div>
               </div>
@@ -218,11 +291,17 @@ export default function Dashboard() {
                   <Input
                     type="password"
                     placeholder="as_xxxxx..."
+                    value={answerSocratesKey}
+                    onChange={(e) => setAnswerSocratesKey(e.target.value)}
                     className="flex-1 bg-dark border-surface-light"
                   />
-                  <Button className="bg-purple-600 hover:bg-purple-700 text-white">
+                  <Button 
+                    onClick={() => saveApiKey('ANSWER_SOCRATES_API_KEY', answerSocratesKey, 'Answer Socrates API Key')}
+                    disabled={loading === 'ANSWER_SOCRATES_API_KEY'}
+                    className="bg-purple-600 hover:bg-purple-700 text-white"
+                  >
                     <Save className="w-4 h-4 mr-2" />
-                    Save
+                    {loading === 'ANSWER_SOCRATES_API_KEY' ? 'Saving...' : 'Save'}
                   </Button>
                 </div>
               </div>
@@ -243,6 +322,8 @@ export default function Dashboard() {
                     <Input
                       type="password"
                       placeholder="PayPal Client ID..."
+                      value={paypalClientId}
+                      onChange={(e) => setPaypalClientId(e.target.value)}
                       className="bg-dark border-surface-light"
                     />
                   </div>
@@ -251,14 +332,30 @@ export default function Dashboard() {
                     <Input
                       type="password"
                       placeholder="PayPal Client Secret..."
+                      value={paypalSecret}
+                      onChange={(e) => setPaypalSecret(e.target.value)}
                       className="bg-dark border-surface-light"
                     />
                   </div>
                 </div>
-                <Button className="bg-yellow-600 hover:bg-yellow-700 text-white">
-                  <Save className="w-4 h-4 mr-2" />
-                  Save PayPal Config
-                </Button>
+                <div className="flex space-x-2">
+                  <Button 
+                    onClick={() => saveApiKey('PAYPAL_CLIENT_ID', paypalClientId, 'PayPal Client ID')}
+                    disabled={loading === 'PAYPAL_CLIENT_ID'}
+                    className="bg-yellow-600 hover:bg-yellow-700 text-white"
+                  >
+                    <Save className="w-4 h-4 mr-2" />
+                    {loading === 'PAYPAL_CLIENT_ID' ? 'Saving...' : 'Save Client ID'}
+                  </Button>
+                  <Button 
+                    onClick={() => saveApiKey('PAYPAL_CLIENT_SECRET', paypalSecret, 'PayPal Client Secret')}
+                    disabled={loading === 'PAYPAL_CLIENT_SECRET'}
+                    className="bg-yellow-600 hover:bg-yellow-700 text-white"
+                  >
+                    <Save className="w-4 h-4 mr-2" />
+                    {loading === 'PAYPAL_CLIENT_SECRET' ? 'Saving...' : 'Save Secret'}
+                  </Button>
+                </div>
               </div>
 
               {/* Status Indicators */}

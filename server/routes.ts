@@ -98,7 +98,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Validate allowed keys
-      const allowedKeys = ['ANTHROPIC_API_KEY', 'PAYPAL_CLIENT_ID', 'PAYPAL_CLIENT_SECRET'];
+      const allowedKeys = [
+        'ANTHROPIC_API_KEY', 
+        'OPENAI_API_KEY', 
+        'ANSWER_SOCRATES_API_KEY', 
+        'PAYPAL_CLIENT_ID', 
+        'PAYPAL_CLIENT_SECRET'
+      ];
       if (!allowedKeys.includes(key)) {
         return res.status(400).json({ message: "Invalid secret key" });
       }
