@@ -2,6 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Global scroll behavior */
+html, body {
+  height: 100vh;
+  scroll-behavior: smooth;
+  overflow: hidden;
+}
+
+#root {
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
 :root {
   --background: hsl(222, 84%, 5%);
   --foreground: hsl(210, 40%, 98%);

@@ -31,10 +31,26 @@ export default function KeywordResearch() {
         throw new Error("Please enter a keyword to research");
       }
       
-      return await apiRequest("POST", "/api/keywords/research", {
-        keyword: searchKeyword.trim(),
-        country: "us"
-      });
+      try {
+        const response = await apiRequest("POST", "/api/keywords/research", {
+          keyword: searchKeyword.trim(),
+          country: "us"
+        });
+        return response;
+      } catch (error: any) {
+        // Handle specific error cases and re-throw with proper structure
+        if (error.message?.includes('401')) {
+          const authError = new Error("Authentication required");
+          (authError as any).status = 401;
+          throw authError;
+        }
+        if (error.message?.includes('429')) {
+          const rateLimitError = new Error("Rate limit exceeded");
+          (rateLimitError as any).status = 429;
+          throw rateLimitError;
+        }
+        throw error;
+      }
     },
     onSuccess: async (response) => {
       const results = await response.json();
@@ -46,11 +62,13 @@ export default function KeywordResearch() {
       // Clear search input
       setSearchKeyword("");
     },
-    onError: (error) => {
-      if (isUnauthorizedError(error)) {
+    onError: (error: any) => {
+      console.error('Keyword research error:', error);
+      
+      if (isUnauthorizedError(error) || error?.status === 401) {
         toast({
-          title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
+          title: "Authentication Required",
+          description: "Please log in to perform keyword research.",
           variant: "destructive",
         });
         setTimeout(() => {
@@ -59,9 +77,18 @@ export default function KeywordResearch() {
         return;
       }
       
+      if (error?.status === 429) {
+        toast({
+          title: "Rate Limit Exceeded",
+          description: "Please try again later.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
       toast({
         title: "Research Failed",
-        description: error.message,
+        description: error?.message || "An unexpected error occurred",
         variant: "destructive",
       });
     },

@@ -58,15 +58,15 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-dark text-text-primary">
+    <div className="h-screen bg-dark text-text-primary flex flex-col">
       <Navigation />
       
-      <div className="flex" style={{ height: 'calc(100vh - 4rem)' }}>
+      <div className="flex flex-1 overflow-hidden">
         <Sidebar />
         
         {/* Main Content Area */}
-        <main className="flex-1 overflow-y-auto">
-          <div className="p-6 space-y-6 pb-20">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar">
+          <div className="p-6 space-y-6 pb-32">
             
             {/* Sofeia Agent Brain */}
             <SofeiaAgentBrain />
