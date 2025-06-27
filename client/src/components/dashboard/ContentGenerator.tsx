@@ -19,8 +19,8 @@ export default function ContentGenerator() {
   const queryClient = useQueryClient();
 
   // Get user data for credit display
-  const { data: user } = useQuery({
-    queryKey: ['/api/user'],
+  const { data: user } = useQuery<{ credits: number }>({
+    queryKey: ['/api/auth/user'],
   });
 
   // Debug function to test state
@@ -120,7 +120,7 @@ export default function ContentGenerator() {
             <Bot className="w-5 h-5 text-primary" />
             <span>AI Content Generation Hub</span>
           </div>
-          <div className="text-sm text-muted-foreground font-normal">
+          <div className="text-sm text-green-400 font-normal">
             {user?.credits || 0}/3
           </div>
         </CardTitle>
@@ -148,15 +148,12 @@ export default function ContentGenerator() {
                   generateMutation.mutate();
                 }
               }}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm pr-28"
+              className="w-full h-12 px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               autoComplete="off"
               style={{
-                pointerEvents: "auto",
-                userSelect: "text",
-                WebkitUserSelect: "text",
-                backgroundColor: "#1e293b",
-                color: "#f8fafc",
-                border: "1px solid #475569"
+                zIndex: 999,
+                position: "relative",
+                fontSize: "16px"
               }}
             />
             <button
