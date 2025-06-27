@@ -15,6 +15,13 @@ export default function ContentGenerator() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  // Debug function to test state
+  const handleInputChange = (value: string) => {
+    console.log('Setting topic to:', value);
+    setTopic(value);
+    console.log('Topic state after set:', topic);
+  };
+
   const generateMutation = useMutation({
     mutationFn: async () => {
       if (!topic.trim()) {
@@ -97,40 +104,91 @@ export default function ContentGenerator() {
       <CardContent className="p-8 space-y-6">
         {/* Topic Input */}
         <div>
-          <Label className="text-sm font-medium text-text-secondary mb-2">Enter Topic or Keywords</Label>
+          <label className="text-sm font-medium text-gray-300 mb-2 block">Enter Topic or Keywords</label>
+          <div style={{ fontSize: '12px', color: '#9CA3AF', marginBottom: '4px' }}>
+            Current topic: "{topic}" (length: {topic.length})
+          </div>
           <div className="relative">
             <input
               type="text"
               placeholder="e.g., Cybersecurity best practices for SMBs"
               value={topic}
-              onChange={(e) => setTopic(e.target.value)}
+              onChange={(e) => handleInputChange(e.target.value)}
+              onInput={(e) => {
+                const target = e.target as HTMLInputElement;
+                console.log('Input event:', target.value);
+                handleInputChange(target.value);
+              }}
               onKeyDown={(e) => {
+                console.log('Key pressed:', e.key);
                 if (e.key === 'Enter' && !generateMutation.isPending && topic.trim()) {
+                  console.log('Enter pressed, generating content');
                   generateMutation.mutate();
                 }
               }}
-              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white focus:border-blue-500 focus:outline-none pr-32 placeholder:text-gray-400"
-              disabled={generateMutation.isPending}
+              onFocus={() => console.log('Input focused')}
+              onBlur={() => console.log('Input blurred')}
+              autoComplete="off"
+              spellCheck="false"
+              style={{
+                width: '100%',
+                padding: '12px 120px 12px 16px',
+                backgroundColor: '#1F2937',
+                border: '2px solid #374151',
+                borderRadius: '8px',
+                color: '#FFFFFF',
+                fontSize: '16px',
+                outline: 'none',
+                fontFamily: 'system-ui, sans-serif',
+                WebkitAppearance: 'none',
+                appearance: 'none'
+              }}
+              disabled={false}
             />
-            <Button 
-              size="sm"
-              onClick={() => generateMutation.mutate()}
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                console.log('Generate button clicked, topic:', topic);
+                console.log('Topic length:', topic.length);
+                if (topic.trim()) {
+                  console.log('Calling generateMutation.mutate()');
+                  generateMutation.mutate();
+                } else {
+                  console.log('Topic is empty, not generating');
+                }
+              }}
               disabled={generateMutation.isPending || !topic.trim()}
-              className="absolute right-1 top-1 bg-primary hover:bg-primary/90 text-white font-medium px-3 py-1.5 shadow-sm border border-primary/20"
-              title="Generate AI content from your topic"
+              style={{
+                position: 'absolute',
+                right: '6px',
+                top: '6px',
+                backgroundColor: topic.trim() ? '#3B82F6' : '#6B7280',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                padding: '8px 12px',
+                fontSize: '14px',
+                cursor: topic.trim() ? 'pointer' : 'not-allowed',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                fontWeight: '500',
+                transition: 'all 0.2s ease'
+              }}
+              title={topic.trim() ? "Generate AI content from your topic" : "Enter a topic first"}
             >
               {generateMutation.isPending ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin mr-1" />
-                  <span className="text-xs">Generating</span>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Generating</span>
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-4 h-4 mr-1" />
-                  <span className="text-xs">Generate</span>
+                  <Sparkles className="w-4 h-4" />
+                  <span>Generate</span>
                 </>
               )}
-            </Button>
+            </button>
           </div>
         </div>
         
@@ -153,46 +211,63 @@ export default function ContentGenerator() {
         </div>
         
         {/* AI Preview */}
-        <div className="bg-dark p-4 rounded-lg">
-          <div className="flex items-center space-x-2 mb-3">
-            <div className="w-2 h-2 bg-accent rounded-full animate-pulse"></div>
-            <span className="text-text-secondary text-sm">AI Preview</span>
+        <div style={{ backgroundColor: '#374151', padding: '16px', borderRadius: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+            <div style={{ width: '8px', height: '8px', backgroundColor: '#10B981', borderRadius: '50%', animation: 'pulse 2s infinite' }}></div>
+            <span style={{ color: '#9CA3AF', fontSize: '14px' }}>AI Preview</span>
           </div>
-          <div className="text-white text-sm leading-relaxed max-h-32 overflow-y-auto pr-2" style={{ scrollbarWidth: 'thin', scrollbarColor: '#4B5563 #1F2937' }}>
+          <div style={{ 
+            color: '#FFFFFF', 
+            fontSize: '14px', 
+            lineHeight: '1.5', 
+            maxHeight: '128px', 
+            overflowY: 'auto',
+            paddingRight: '8px',
+            scrollbarWidth: 'thin',
+            scrollbarColor: '#6B7280 #374151'
+          }}>
             {generateMutation.isPending ? (
-              <div className="space-y-2">
-                <div className="h-4 bg-surface-light rounded animate-pulse"></div>
-                <div className="h-4 bg-surface-light rounded animate-pulse w-3/4"></div>
-                <div className="h-4 bg-surface-light rounded animate-pulse w-1/2"></div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={{ height: '16px', backgroundColor: '#4B5563', borderRadius: '4px', animation: 'pulse 2s infinite' }}></div>
+                <div style={{ height: '16px', backgroundColor: '#4B5563', borderRadius: '4px', width: '75%', animation: 'pulse 2s infinite' }}></div>
+                <div style={{ height: '16px', backgroundColor: '#4B5563', borderRadius: '4px', width: '50%', animation: 'pulse 2s infinite' }}></div>
               </div>
             ) : topic ? (
-              <div className="space-y-3">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <div>
-                  <strong className="text-accent">Title:</strong>
-                  <p className="mt-1">"Essential {topic} Practices Every Business Must Implement in 2025"</p>
+                  <strong style={{ color: '#10B981' }}>Title:</strong>
+                  <p style={{ marginTop: '4px' }}>"Essential {topic} Practices Every Business Must Implement in 2025"</p>
                 </div>
                 <div>
-                  <strong className="text-secondary">Meta Description:</strong>
-                  <p className="mt-1">Discover proven {topic} strategies that protect businesses. Learn implementation steps, costs, and ROI for immediate impact.</p>
+                  <strong style={{ color: '#8B5CF6' }}>Meta Description:</strong>
+                  <p style={{ marginTop: '4px' }}>Discover proven {topic} strategies that protect businesses. Learn implementation steps, costs, and ROI for immediate impact.</p>
                 </div>
                 <div>
-                  <strong className="text-primary">Keywords:</strong>
-                  <div className="mt-1 space-y-1">
-                    <p><span className="text-primary">{topic}</span>, <span className="text-secondary">{topic} best practices</span>, <span className="text-accent">{topic} guide</span></p>
-                    <p><span className="text-neural">{topic} implementation</span>, <span className="text-primary">{topic} strategy</span>, <span className="text-secondary">{topic} checklist</span></p>
+                  <strong style={{ color: '#3B82F6' }}>Keywords:</strong>
+                  <div style={{ marginTop: '4px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <p><span style={{ color: '#3B82F6' }}>{topic}</span>, <span style={{ color: '#8B5CF6' }}>{topic} best practices</span>, <span style={{ color: '#10B981' }}>{topic} guide</span></p>
+                    <p><span style={{ color: '#F59E0B' }}>{topic} implementation</span>, <span style={{ color: '#3B82F6' }}>{topic} strategy</span>, <span style={{ color: '#8B5CF6' }}>{topic} checklist</span></p>
                   </div>
                 </div>
                 <div>
-                  <strong className="text-accent">AI Overview Potential:</strong>
-                  <p className="mt-1 text-text-secondary">High - This content is optimized for AI search engines and features rich, actionable information that search algorithms prefer.</p>
+                  <strong style={{ color: '#10B981' }}>AI Overview Potential:</strong>
+                  <p style={{ marginTop: '4px', color: '#9CA3AF' }}>High - This content is optimized for AI search engines and features rich, actionable information that search algorithms prefer.</p>
                 </div>
                 <div>
-                  <strong className="text-primary">SEO Score:</strong>
-                  <p className="mt-1 text-text-secondary">Estimated 85/100 - Well-structured with target keywords, meta optimization, and user-focused content.</p>
+                  <strong style={{ color: '#3B82F6' }}>SEO Score:</strong>
+                  <p style={{ marginTop: '4px', color: '#9CA3AF' }}>Estimated 85/100 - Well-structured with target keywords, meta optimization, and user-focused content.</p>
+                </div>
+                <div>
+                  <strong style={{ color: '#F59E0B' }}>Content Length:</strong>
+                  <p style={{ marginTop: '4px', color: '#9CA3AF' }}>1,200-1,500 words with proper heading structure, bullet points, and actionable insights for maximum engagement.</p>
+                </div>
+                <div>
+                  <strong style={{ color: '#8B5CF6' }}>Target Audience:</strong>
+                  <p style={{ marginTop: '4px', color: '#9CA3AF' }}>Business owners, IT managers, and decision-makers looking for practical {topic} solutions.</p>
                 </div>
               </div>
             ) : (
-              <p className="text-text-secondary italic">Enter a topic to see AI-generated preview...</p>
+              <p style={{ color: '#9CA3AF', fontStyle: 'italic' }}>Enter a topic to see AI-generated preview...</p>
             )}
           </div>
         </div>
