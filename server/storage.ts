@@ -111,6 +111,9 @@ export interface IStorage {
   cleanupExpiredIPBlocks(now: Date): Promise<void>;
   cleanupExpiredFingerprintBlocks(now: Date): Promise<void>;
   cleanupOldSecurityEvents(cutoffDate: Date): Promise<void>;
+  
+  // Data deletion operations
+  deleteAllUserData(userId: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -499,14 +502,14 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getSecurityEventCount(userId?: string, ipAddress?: string, fingerprint?: string, eventType?: string, since?: Date): Promise<number> {
-    let query = db.select({ count: sql<number>`count(*)` }).from(securityEvents);
-    
     const conditions = [];
     if (userId) conditions.push(eq(securityEvents.userId, userId));
     if (ipAddress) conditions.push(eq(securityEvents.ipAddress, ipAddress));
     if (fingerprint) conditions.push(eq(securityEvents.fingerprint, fingerprint));
     if (eventType) conditions.push(eq(securityEvents.eventType, eventType));
     if (since) conditions.push(gte(securityEvents.createdAt, since));
+    
+    let query = db.select({ count: sql<number>`count(*)`.as('count') }).from(securityEvents);
     
     if (conditions.length > 0) {
       query = query.where(and(...conditions));
@@ -611,6 +614,25 @@ export class DatabaseStorage implements IStorage {
 
   async cleanupOldSecurityEvents(cutoffDate: Date): Promise<void> {
     await db.delete(securityEvents).where(lt(securityEvents.createdAt, cutoffDate));
+  }
+
+  async deleteAllUserData(userId: string): Promise<void> {
+    try {
+      // Delete user data in order (respecting foreign key constraints)
+      await db.delete(activities).where(eq(activities.userId, userId));
+      await db.delete(achievements).where(eq(achievements.userId, userId));
+      await db.delete(content).where(eq(content.userId, userId));
+      await db.delete(keywords).where(eq(keywords.userId, userId));
+      await db.delete(csvBatches).where(eq(csvBatches.userId, userId));
+      await db.delete(referrals).where(eq(referrals.userId, userId));
+      await db.delete(securityEvents).where(eq(securityEvents.userId, userId));
+      
+      // Finally delete the user
+      await db.delete(users).where(eq(users.id, userId));
+    } catch (error) {
+      console.error('Error deleting user data:', error);
+      throw error;
+    }
   }
 }
 
