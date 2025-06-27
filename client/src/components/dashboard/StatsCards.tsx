@@ -36,48 +36,48 @@ export default function StatsCards() {
       value: stats?.contentGeneratedToday || 0,
       change: `+${Math.floor((stats?.contentGeneratedToday || 0) * 0.5)} from yesterday`,
       icon: FileText,
-      color: "primary",
-      bgColor: "bg-primary bg-opacity-20"
+      iconColor: "text-blue-500",
+      bgColor: "bg-blue-500 bg-opacity-20"
     },
     {
       title: "Keywords Researched",
       value: stats?.keywordsResearched || 0,
-      change: "via Answer Socrates",
+      change: "via AI Research",
       icon: Search,
-      color: "secondary", 
-      bgColor: "bg-secondary bg-opacity-20"
+      iconColor: "text-purple-500", 
+      bgColor: "bg-purple-500 bg-opacity-20"
     },
     {
       title: "Referral Conversions",
       value: stats?.referralConversions || 0,
       change: `${(stats?.creditsEarned || 0)} credits earned`,
       icon: Users,
-      color: "accent",
-      bgColor: "bg-accent bg-opacity-20"
+      iconColor: "text-green-500",
+      bgColor: "bg-green-500 bg-opacity-20"
     },
     {
       title: "Avg SEO Score",
       value: stats?.avgSeoScore || 0,
       change: "RankMath optimized",
       icon: TrendingUp,
-      color: "neural",
-      bgColor: "bg-neural bg-opacity-20"
+      iconColor: "text-orange-500",
+      bgColor: "bg-orange-500 bg-opacity-20"
     }
   ];
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       {statsData.map((stat, index) => (
-        <Card key={index} className={`bg-surface border-surface-light card-hover hover:border-${stat.color} transition-colors`}>
+        <Card key={index} className="bg-surface border-surface-light card-hover hover:border-blue-500 transition-colors">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-text-secondary text-sm">{stat.title}</p>
                 <p className="text-2xl font-bold text-text-primary">{stat.value}</p>
-                <p className={`text-${stat.color} text-xs`}>{stat.change}</p>
+                <p className={`${stat.iconColor} text-xs`}>{stat.change}</p>
               </div>
               <div className={`w-12 h-12 ${stat.bgColor} rounded-lg flex items-center justify-center`}>
-                <stat.icon className={`w-6 h-6 text-${stat.color}`} />
+                <stat.icon className={`w-6 h-6 ${stat.iconColor}`} />
               </div>
             </div>
           </CardContent>
