@@ -294,20 +294,20 @@ export default function Landing() {
                   Cybersecurity Expertise
                 </h3>
                 <p className="text-gray-400 mb-4 group-hover:text-gray-300 transition-colors">
-                  Specialized training for cybersecurity consultancy and threat analysis content.
+                  Advanced security monitoring with fingerprint tracking and IP analysis for threat prevention.
                 </p>
                 <ul className="text-sm text-gray-400 space-y-2 group-hover:text-gray-300 transition-colors">
                   <li className="flex items-center space-x-2">
                     <div className="w-1.5 h-1.5 bg-red-400 rounded-full animate-pulse"></div>
-                    <span>Threat assessment content</span>
+                    <span>Fingerprint tracking & device analysis</span>
                   </li>
                   <li className="flex items-center space-x-2">
                     <div className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-pulse delay-200"></div>
-                    <span>Security audit templates</span>
+                    <span>Real-time IP monitoring & blocking</span>
                   </li>
                   <li className="flex items-center space-x-2">
                     <div className="w-1.5 h-1.5 bg-pink-400 rounded-full animate-pulse delay-400"></div>
-                    <span>Compliance documentation</span>
+                    <span>Behavioral threat assessment</span>
                   </li>
                 </ul>
               </CardContent>
