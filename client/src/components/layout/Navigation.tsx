@@ -1,5 +1,6 @@
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
+import { Rocket, Brain } from "lucide-react";
 
 export default function Navigation() {
   const { user } = useAuth();
@@ -13,15 +14,18 @@ export default function Navigation() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-primary to-secondary rounded-lg flex items-center justify-center">
-                <i className="fas fa-brain text-white text-sm"></i>
+            <div className="flex items-center space-x-3">
+              {/* ContentScale Rocket Logo */}
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center transform rotate-12 hover:rotate-0 transition-transform duration-300">
+                <Rocket className="w-4 h-4 text-white" />
               </div>
-              <h1 className="text-xl font-bold">ContentScale Agent</h1>
+              <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+                ContentScale
+              </h1>
             </div>
-            <div className="hidden md:flex items-center space-x-1 text-sm text-text-secondary">
-              <i className="fas fa-robot text-neural animate-pulse-slow"></i>
-              <span>Sofeia Agent Active</span>
+            <div className="hidden md:flex items-center space-x-2 text-sm text-gray-400">
+              <Brain className="w-4 h-4 text-blue-400 animate-pulse" />
+              <span>Sofeia AI Active</span>
             </div>
           </div>
           
