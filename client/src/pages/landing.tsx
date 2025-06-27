@@ -354,7 +354,7 @@ export default function Landing() {
             Ready to Launch Your Content Rocket?
           </h2>
           <p className="text-gray-300 text-lg mb-8 max-w-2xl mx-auto">
-            Join content creators using AI-powered automation to dominate search rankings and boost conversions.
+            Join the world's first autonomous AI content writing system trusted by content creators worldwide.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-6 justify-center mb-8">
@@ -454,7 +454,7 @@ export default function Landing() {
                   <span className="text-white font-bold text-sm">OF</span>
                 </div>
                 <div className="ml-3">
-                  <p className="text-white font-semibold">Ottmar F.</p>
+                  <p className="text-white font-semibold">Ottmar Francisca</p>
                   <p className="text-gray-400 text-sm">Founder, ContentScale</p>
                 </div>
               </div>
