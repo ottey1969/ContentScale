@@ -626,8 +626,28 @@ export default function Landing() {
               <p>We collect minimal data necessary for service functionality including email, usage analytics, and content generation metrics.</p>
               <h3 className="text-lg font-semibold text-white">GDPR Compliance</h3>
               <p>We are fully GDPR compliant. You have the right to access, modify, or delete your personal data at any time.</p>
-              <h3 className="text-lg font-semibold text-white">Data Security</h3>
-              <p>All data is encrypted and stored securely. We never share personal information with third parties.</p>
+              <h3 className="text-lg font-semibold text-white">Data Storage and Security</h3>
+              <div className="space-y-3">
+                <p><strong>Database Location:</strong></p>
+                <ul className="list-disc list-inside ml-4 space-y-1 text-sm">
+                  <li>All data is stored in a PostgreSQL database provided by Neon (serverless)</li>
+                  <li>Database URL is securely stored in environment variables</li>
+                  <li>Data is encrypted in transit and at rest</li>
+                </ul>
+                
+                <p><strong>Data Types Stored:</strong></p>
+                <ul className="list-disc list-inside ml-4 space-y-1 text-sm">
+                  <li>User profiles (email, name, profile image)</li>
+                  <li>Content generations (blog posts, SEO scores)</li>
+                  <li>Keywords research results</li>
+                  <li>Referral tracking data</li>
+                  <li>Achievement progress</li>
+                  <li>Activity logs</li>
+                  <li>Session data</li>
+                </ul>
+                
+                <p>We never share personal information with third parties and implement enterprise-grade security measures including fingerprint tracking and IP monitoring for abuse prevention.</p>
+              </div>
               <h3 className="text-lg font-semibold text-white">Contact</h3>
               <p>For privacy concerns, contact us via WhatsApp: +31 628073996</p>
             </div>
