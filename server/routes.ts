@@ -15,6 +15,7 @@ import csv from "csv-parser";
 import { Readable } from "stream";
 import express from "express";
 import path from "path";
+import { createPaypalOrder, capturePaypalOrder, loadPaypalDefault } from "./paypal";
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -225,16 +226,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Content generation with rate limiting
+  // Content generation with free first article + $2 payment system
   app.post("/api/content/generate", isAuthenticated, rateLimitMiddleware('content_generation'), async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const body = insertContentSchema.parse(req.body);
       
-      // Check user credits
+      // Check user status and content count
       const user = await storage.getUser(userId);
-      if (!user || (user.credits || 0) < 1) {
-        return res.status(402).json({ message: "Insufficient credits" });
+      const stats = await storage.getDashboardStats(userId);
+      
+      // Free first article for new users
+      if (stats.contentGenerated === 0) {
+        // First article is free - proceed without payment check
+      } else if (!user || (user.credits || 0) < 1) {
+        return res.status(402).json({ 
+          message: "Generate your next article for $2.00",
+          requiresPayment: true,
+          pricing: {
+            amount: "2.00",
+            currency: "USD",
+            description: "AI Content Generation Article"
+          }
+        });
       }
 
       // Generate content using AI
@@ -243,8 +257,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId,
       });
 
-      // Deduct credits
-      await storage.updateUserCredits(userId, (user.credits || 0) - 1);
+      // Deduct credits only if not first free article
+      if (stats.contentGenerated > 0 && user) {
+        await storage.updateUserCredits(userId, (user.credits || 0) - 1);
+      }
 
       // Create activity
       await storage.createActivity({
@@ -387,6 +403,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching CSV batch:", error);
       res.status(500).json({ message: "Failed to fetch batch status" });
+    }
+  });
+
+  // PayPal payment routes for $2 content generation
+  app.get("/api/paypal/setup", async (req, res) => {
+    await loadPaypalDefault(req, res);
+  });
+
+  app.post("/api/paypal/order", async (req, res) => {
+    // Request body should contain: { intent, amount, currency }
+    await createPaypalOrder(req, res);
+  });
+
+  app.post("/api/paypal/order/:orderID/capture", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      
+      // Capture PayPal payment
+      await capturePaypalOrder(req, res);
+      
+      // If payment successful, add 1 credit to user account
+      const user = await storage.getUser(userId);
+      await storage.updateUserCredits(userId, (user?.credits || 0) + 1);
+      
+      // Create activity for payment
+      await storage.createActivity({
+        userId,
+        type: "payment_completed",
+        title: "Payment Successful - $2.00",
+        description: "1 content generation credit added to account",
+        metadata: { orderId: req.params.orderID, amount: "2.00" },
+      });
+      
+    } catch (error) {
+      console.error("Error capturing PayPal order:", error);
+      res.status(500).json({ error: "Failed to capture payment" });
     }
   });
 

@@ -7,11 +7,14 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
-import { Bot, Loader2, Sparkles, FileText, Newspaper, HelpCircle, Share2 } from "lucide-react";
+import { Bot, Loader2, Sparkles, FileText, Newspaper, HelpCircle, Share2, CreditCard, DollarSign } from "lucide-react";
+import PayPalButton from "@/components/PayPalButton";
 
 export default function ContentGenerator() {
   const [topic, setTopic] = useState("");
   const [contentType, setContentType] = useState("blog");
+  const [showPayment, setShowPayment] = useState(false);
+  const [paymentAmount, setPaymentAmount] = useState("2.00");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -70,16 +73,31 @@ export default function ContentGenerator() {
       }
       
       // Handle specific error cases
-      let errorMessage = error.message || "An unexpected error occurred";
       if (error.status === 402) {
-        errorMessage = "Insufficient credits. Please upgrade your plan.";
+        // Payment required - show PayPal interface
+        const errorData = await error.response?.json?.() || {};
+        if (errorData.requiresPayment) {
+          setShowPayment(true);
+          setPaymentAmount(errorData.pricing?.amount || "2.00");
+          toast({
+            title: "Payment Required",
+            description: "Generate your next article for $2.00",
+            variant: "default",
+          });
+          return;
+        }
       } else if (error.status === 429) {
-        errorMessage = "Rate limit exceeded. Please try again later.";
+        toast({
+          title: "Rate Limit Exceeded",
+          description: "Please try again later.",
+          variant: "destructive",
+        });
+        return;
       }
       
       toast({
         title: "Content Generation Failed",
-        description: errorMessage,
+        description: error.message || "An unexpected error occurred",
         variant: "destructive",
       });
     },
