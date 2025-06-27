@@ -80,7 +80,7 @@ export default function ContentGenerator() {
         </CardTitle>
       </CardHeader>
       
-      <CardContent className="p-6 space-y-4">
+      <CardContent className="p-8 space-y-6">
         {/* Topic Input */}
         <div>
           <Label className="text-sm font-medium text-text-secondary mb-2">Enter Topic or Keywords</Label>

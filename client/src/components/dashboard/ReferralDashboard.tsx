@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import ProgressRing from "@/components/ui/progress-ring";
+import { Rocket } from "lucide-react";
 
 interface ReferralStats {
   totalReferrals: number;
@@ -76,12 +77,12 @@ export default function ReferralDashboard() {
     <Card className="bg-surface border-surface-light overflow-hidden">
       <CardHeader className="border-b border-surface-light">
         <CardTitle className="flex items-center space-x-2">
-          <i className="fas fa-rocket text-accent"></i>
+          <Rocket className="w-5 h-5 text-accent" />
           <span>Viral Referrals</span>
         </CardTitle>
       </CardHeader>
       
-      <CardContent className="p-6 space-y-4">
+      <CardContent className="p-8 space-y-6">
         {/* Progress to Next Reward */}
         <div className="text-center">
           <ProgressRing 

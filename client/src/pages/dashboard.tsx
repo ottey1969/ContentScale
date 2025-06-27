@@ -73,17 +73,17 @@ export default function Dashboard() {
             <StatsCards />
 
             {/* Main Dashboard Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               
               {/* Left Column - Content Generation & Research */}
-              <div className="lg:col-span-2 space-y-6">
+              <div className="space-y-8">
                 <ContentGenerator />
                 <KeywordResearch />
                 <CSVUploader />
               </div>
 
               {/* Right Column - Referrals & Achievements */}
-              <div className="space-y-6">
+              <div className="space-y-8">
                 <ReferralDashboard />
                 <AchievementSystem />
                 
