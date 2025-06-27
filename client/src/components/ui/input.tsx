@@ -12,6 +12,14 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
           className
         )}
         ref={ref}
+        style={{
+          pointerEvents: "auto",
+          userSelect: "text",
+          WebkitUserSelect: "text",
+          position: "relative",
+          zIndex: 10,
+          ...props.style
+        }}
         {...props}
       />
     )

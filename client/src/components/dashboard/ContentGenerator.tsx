@@ -106,21 +106,37 @@ export default function ContentGenerator() {
         <div>
           <label className="text-sm font-medium text-gray-300 mb-2 block">Enter Topic or Keywords</label>
           <div style={{ fontSize: '12px', color: '#9CA3AF', marginBottom: '4px' }}>
-            Current topic: "{topic}" (length: {topic.length})
+            Current topic: "{topic}" (length: {topic.length}) - Last updated: {new Date().toLocaleTimeString()}
           </div>
           <div className="relative">
             <Input
               type="text"
               placeholder="e.g., Cybersecurity best practices for SMBs"
               value={topic}
-              onChange={(e) => setTopic(e.target.value)}
+              onChange={(e) => {
+                console.log('Input onChange triggered:', e.target.value);
+                setTopic(e.target.value);
+              }}
+              onInput={(e) => {
+                console.log('Input onInput triggered:', e.currentTarget.value);
+              }}
               onKeyDown={(e) => {
+                console.log('Key pressed:', e.key);
                 if (e.key === 'Enter' && !generateMutation.isPending && topic.trim()) {
                   generateMutation.mutate();
                 }
               }}
+              onClick={() => console.log('Input clicked')}
+              onFocus={() => console.log('Input focused')}
               className="pr-28 bg-background border-border text-foreground"
               autoComplete="off"
+              style={{
+                pointerEvents: "auto",
+                userSelect: "text",
+                WebkitUserSelect: "text",
+                position: "relative",
+                zIndex: 10
+              }}
             />
             <button
               onClick={(e) => {

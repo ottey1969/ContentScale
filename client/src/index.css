@@ -232,7 +232,7 @@
   }
 }
 
-/* Fix input field interactions - Critical */
+/* Fix input field interactions - Critical Fix */
 input, textarea, select {
   pointer-events: auto !important;
   user-select: text !important;
@@ -240,21 +240,45 @@ input, textarea, select {
   -webkit-user-select: text !important;
   -moz-user-select: text !important;
   -ms-user-select: text !important;
+  position: relative !important;
+  z-index: 10 !important;
 }
 
 input:focus, textarea:focus, select:focus {
   outline: 2px solid hsl(207, 90%, 54%) !important;
   outline-offset: 2px !important;
+  z-index: 20 !important;
 }
 
-/* Ensure all form elements are interactive */
-button, input, textarea, select {
+/* Force form elements to be interactive */
+input[type="text"], input[type="password"], input[type="email"], textarea, select {
+  pointer-events: auto !important;
   -webkit-touch-callout: default !important;
-  -webkit-user-select: auto !important;
-  -khtml-user-select: auto !important;
-  -moz-user-select: auto !important;
-  -ms-user-select: auto !important;
-  user-select: auto !important;
+  -webkit-user-select: text !important;
+  -khtml-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  user-select: text !important;
+  background-color: hsl(217, 32%, 17%) !important;
+  color: hsl(210, 40%, 98%) !important;
+  border: 1px solid hsl(215, 25%, 27%) !important;
+}
+
+/* Override any conflicting styles */
+.bg-surface input, .bg-dark input, .card input {
+  pointer-events: auto !important;
+  user-select: text !important;
+}
+
+/* Button interaction fix */
+button {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+button:disabled {
+  pointer-events: none !important;
+  cursor: not-allowed !important;
 }
 
 /* Mobile responsive adjustments */

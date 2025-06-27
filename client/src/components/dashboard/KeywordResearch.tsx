@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
+import { Search, Loader2, TrendingUp, BarChart3 } from "lucide-react";
 
 interface Keyword {
   id: string;
@@ -90,7 +91,7 @@ export default function KeywordResearch() {
     <Card className="bg-surface border-surface-light overflow-hidden">
       <CardHeader className="border-b border-surface-light">
         <CardTitle className="flex items-center space-x-2">
-          <i className="fas fa-search text-secondary"></i>
+          <Search className="w-5 h-5 text-secondary" />
           <span>Answer Socrates Integration</span>
           <Badge className="bg-secondary bg-opacity-20 text-secondary border-none">Live</Badge>
         </CardTitle>
@@ -114,7 +115,7 @@ export default function KeywordResearch() {
               className="bg-secondary hover:bg-purple-600 text-white"
             >
               {researchMutation.isPending ? (
-                <i className="fas fa-spinner animate-spin"></i>
+                <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
                 "Research"
               )}
