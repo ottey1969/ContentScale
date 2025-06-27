@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add API Keys - ContentScale</title>
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            background: #1a1a1a;
+            color: white;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #2a2a2a;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #3B82F6;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .api-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #333;
+            border-radius: 8px;
+            border-left: 4px solid #3B82F6;
+        }
+        .api-section h3 {
+            color: #10B981;
+            margin-bottom: 10px;
+        }
+        .api-section p {
+            color: #9CA3AF;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            background: #1a1a1a;
+            border: 1px solid #555;
+            border-radius: 6px;
+            color: white;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #3B82F6;
+        }
+        .add-button {
+            background: #3B82F6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        .add-button:hover {
+            background: #2563EB;
+        }
+        .success {
+            color: #10B981;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        .instructions {
+            background: #1e3a8a;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .instructions h3 {
+            color: #60A5FA;
+            margin-bottom: 10px;
+        }
+        .instructions ul {
+            color: #BFDBFE;
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Add API Keys to ContentScale</h1>
+        
+        <div class="instructions">
+            <h3>How to get your API keys:</h3>
+            <ul>
+                <li><strong>Anthropic API:</strong> Visit console.anthropic.com → API Keys → Create new key</li>
+                <li><strong>PayPal API:</strong> Visit developer.paypal.com → Create App → Get Client ID & Secret</li>
+            </ul>
+        </div>
+
+        <div class="api-section">
+            <h3>🤖 Anthropic API Key</h3>
+            <p>Powers AI content generation, SEO optimization, and keyword research</p>
+            <input type="text" id="anthropicKey" placeholder="sk-ant-api03-xxxxx..." />
+            <button class="add-button" onclick="addAnthropicKey()">Add Anthropic Key</button>
+            <div id="anthropicStatus"></div>
+        </div>
+
+        <div class="api-section">
+            <h3>💳 PayPal Client ID</h3>
+            <p>Enables payment processing for your $2/article service</p>
+            <input type="text" id="paypalClientId" placeholder="AXxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxZ" />
+            <button class="add-button" onclick="addPayPalClientId()">Add Client ID</button>
+            <div id="paypalClientStatus"></div>
+        </div>
+
+        <div class="api-section">
+            <h3>🔐 PayPal Client Secret</h3>
+            <p>Secret key for PayPal API authentication</p>
+            <input type="text" id="paypalSecret" placeholder="EXxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxZ" />
+            <button class="add-button" onclick="addPayPalSecret()">Add Client Secret</button>
+            <div id="paypalSecretStatus"></div>
+        </div>
+    </div>
+
+    <script>
+        async function addAnthropicKey() {
+            const key = document.getElementById('anthropicKey').value;
+            if (!key) return alert('Please enter the API key');
+            
+            try {
+                const response = await fetch('/api/admin/add-secret', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ key: 'ANTHROPIC_API_KEY', value: key })
+                });
+                
+                if (response.ok) {
+                    document.getElementById('anthropicStatus').innerHTML = '<div class="success">✅ Anthropic API key added successfully!</div>';
+                    document.getElementById('anthropicKey').value = '';
+                } else {
+                    alert('Failed to add key. Make sure you are logged in as admin.');
+                }
+            } catch (error) {
+                alert('Error adding key: ' + error.message);
+            }
+        }
+
+        async function addPayPalClientId() {
+            const key = document.getElementById('paypalClientId').value;
+            if (!key) return alert('Please enter the Client ID');
+            
+            try {
+                const response = await fetch('/api/admin/add-secret', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ key: 'PAYPAL_CLIENT_ID', value: key })
+                });
+                
+                if (response.ok) {
+                    document.getElementById('paypalClientStatus').innerHTML = '<div class="success">✅ PayPal Client ID added successfully!</div>';
+                    document.getElementById('paypalClientId').value = '';
+                } else {
+                    alert('Failed to add key. Make sure you are logged in as admin.');
+                }
+            } catch (error) {
+                alert('Error adding key: ' + error.message);
+            }
+        }
+
+        async function addPayPalSecret() {
+            const key = document.getElementById('paypalSecret').value;
+            if (!key) return alert('Please enter the Client Secret');
+            
+            try {
+                const response = await fetch('/api/admin/add-secret', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ key: 'PAYPAL_CLIENT_SECRET', value: key })
+                });
+                
+                if (response.ok) {
+                    document.getElementById('paypalSecretStatus').innerHTML = '<div class="success">✅ PayPal Client Secret added successfully!</div>';
+                    document.getElementById('paypalSecret').value = '';
+                } else {
+                    alert('Failed to add key. Make sure you are logged in as admin.');
+                }
+            } catch (error) {
+                alert('Error adding key: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>

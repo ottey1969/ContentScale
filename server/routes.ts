@@ -79,6 +79,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin route to add API secrets
+  app.post("/api/admin/add-secret", isAuthenticated, adminSecurityMiddleware(), async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const userEmail = req.user.claims.email;
+      
+      // Check admin privileges
+      if (userId !== 'admin' && userEmail !== 'admin@contentscale.site') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { key, value } = req.body;
+      
+      if (!key || !value) {
+        return res.status(400).json({ message: "Key and value are required" });
+      }
+
+      // Validate allowed keys
+      const allowedKeys = ['ANTHROPIC_API_KEY', 'PAYPAL_CLIENT_ID', 'PAYPAL_CLIENT_SECRET'];
+      if (!allowedKeys.includes(key)) {
+        return res.status(400).json({ message: "Invalid secret key" });
+      }
+
+      // Set environment variable
+      process.env[key] = value;
+      
+      console.log(`Admin ${userEmail} added secret: ${key}`);
+      
+      res.json({ message: "Secret added successfully", key });
+    } catch (error) {
+      console.error("Error adding secret:", error);
+      res.status(500).json({ message: "Failed to add secret" });
+    }
+  });
+
   // Data deletion request (GDPR compliance)
   app.delete("/api/data/delete", isAuthenticated, async (req: any, res) => {
     try {
