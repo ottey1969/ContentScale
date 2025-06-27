@@ -36,8 +36,6 @@ export default function Dashboard() {
   
   // API Configuration state
   const [anthropicKey, setAnthropicKey] = useState("");
-  const [openaiKey, setOpenaiKey] = useState("");
-  const [answerSocratesKey, setAnswerSocratesKey] = useState("");
   const [paypalClientId, setPaypalClientId] = useState("");
   const [paypalSecret, setPaypalSecret] = useState("");
   const [loading, setLoading] = useState("");
@@ -72,8 +70,6 @@ export default function Dashboard() {
         
         // Clear the input based on key type
         if (key === 'ANTHROPIC_API_KEY') setAnthropicKey("");
-        if (key === 'OPENAI_API_KEY') setOpenaiKey("");
-        if (key === 'ANSWER_SOCRATES_API_KEY') setAnswerSocratesKey("");
         if (key === 'PAYPAL_CLIENT_ID') setPaypalClientId("");
         if (key === 'PAYPAL_CLIENT_SECRET') setPaypalSecret("");
         
@@ -248,61 +244,22 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              {/* OpenAI API Key */}
+              {/* AI Agent Info */}
               <div className="space-y-3">
                 <div className="flex items-center space-x-2">
-                  <Brain className="w-4 h-4 text-blue-500" />
-                  <h3 className="font-medium">OpenAI API Key</h3>
-                  <span className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full">Optional</span>
+                  <Brain className="w-4 h-4 text-green-500" />
+                  <h3 className="font-medium">AI Agent Research</h3>
+                  <span className="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">Active</span>
                 </div>
                 <p className="text-sm text-text-secondary">
-                  Additional AI capabilities • Get your key from <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">platform.openai.com</a>
+                  The AI agent performs real-time keyword research and content analysis without requiring external APIs. All research is done intelligently by the system.
                 </p>
-                <div className="flex space-x-2">
-                  <Input
-                    type="password"
-                    placeholder="sk-xxxxx..."
-                    value={openaiKey}
-                    onChange={(e) => setOpenaiKey(e.target.value)}
-                    className="flex-1 bg-dark border-surface-light"
-                  />
-                  <Button 
-                    onClick={() => saveApiKey('OPENAI_API_KEY', openaiKey, 'OpenAI API Key')}
-                    disabled={loading === 'OPENAI_API_KEY'}
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
-                  >
-                    <Save className="w-4 h-4 mr-2" />
-                    {loading === 'OPENAI_API_KEY' ? 'Saving...' : 'Save'}
-                  </Button>
-                </div>
-              </div>
-
-              {/* Answer Socrates API Key */}
-              <div className="space-y-3">
-                <div className="flex items-center space-x-2">
-                  <Search className="w-4 h-4 text-purple-500" />
-                  <h3 className="font-medium">Answer Socrates API Key</h3>
-                  <span className="text-xs px-2 py-1 bg-purple-100 text-purple-800 rounded-full">Optional</span>
-                </div>
-                <p className="text-sm text-text-secondary">
-                  Enhanced keyword research data • Get your key from <a href="https://answersocrates.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">answersocrates.com</a>
-                </p>
-                <div className="flex space-x-2">
-                  <Input
-                    type="password"
-                    placeholder="as_xxxxx..."
-                    value={answerSocratesKey}
-                    onChange={(e) => setAnswerSocratesKey(e.target.value)}
-                    className="flex-1 bg-dark border-surface-light"
-                  />
-                  <Button 
-                    onClick={() => saveApiKey('ANSWER_SOCRATES_API_KEY', answerSocratesKey, 'Answer Socrates API Key')}
-                    disabled={loading === 'ANSWER_SOCRATES_API_KEY'}
-                    className="bg-purple-600 hover:bg-purple-700 text-white"
-                  >
-                    <Save className="w-4 h-4 mr-2" />
-                    {loading === 'ANSWER_SOCRATES_API_KEY' ? 'Saving...' : 'Save'}
-                  </Button>
+                <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                  <p className="text-sm text-green-800">
+                    ✓ Real-time keyword research enabled<br/>
+                    ✓ Content generation with built-in SEO analysis<br/>
+                    ✓ No additional API keys required
+                  </p>
                 </div>
               </div>
 
@@ -361,18 +318,14 @@ export default function Dashboard() {
               {/* Status Indicators */}
               <div className="border-t border-surface-light pt-4">
                 <h4 className="font-medium mb-3">Service Status</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <div className="flex items-center space-x-2">
                     <div className="w-2 h-2 bg-red-500 rounded-full"></div>
                     <span className="text-sm">Anthropic: Not configured</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                    <span className="text-sm">OpenAI: Not configured</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                    <span className="text-sm">Keywords: Demo mode</span>
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="text-sm">AI Research: Active</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <div className="w-2 h-2 bg-red-500 rounded-full"></div>
