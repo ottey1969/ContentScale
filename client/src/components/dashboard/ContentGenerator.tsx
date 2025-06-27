@@ -99,7 +99,7 @@ export default function ContentGenerator() {
         <div>
           <Label className="text-sm font-medium text-text-secondary mb-2">Enter Topic or Keywords</Label>
           <div className="relative">
-            <Input
+            <input
               type="text"
               placeholder="e.g., Cybersecurity best practices for SMBs"
               value={topic}
@@ -109,7 +109,7 @@ export default function ContentGenerator() {
                   generateMutation.mutate();
                 }
               }}
-              className="bg-dark border-surface-light text-text-primary focus:border-primary pr-32 placeholder:text-text-secondary"
+              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white focus:border-blue-500 focus:outline-none pr-32 placeholder:text-gray-400"
               disabled={generateMutation.isPending}
             />
             <Button 
@@ -158,7 +158,7 @@ export default function ContentGenerator() {
             <div className="w-2 h-2 bg-accent rounded-full animate-pulse"></div>
             <span className="text-text-secondary text-sm">AI Preview</span>
           </div>
-          <div className="text-text-primary text-sm leading-relaxed max-h-32 overflow-y-auto custom-scrollbar pr-2">
+          <div className="text-white text-sm leading-relaxed max-h-32 overflow-y-auto pr-2" style={{ scrollbarWidth: 'thin', scrollbarColor: '#4B5563 #1F2937' }}>
             {generateMutation.isPending ? (
               <div className="space-y-2">
                 <div className="h-4 bg-surface-light rounded animate-pulse"></div>
