@@ -101,23 +101,24 @@ export default function KeywordResearch() {
         {/* Search Input */}
         <div className="mb-4">
           <div className="flex space-x-3">
-            <input
+            <Input
               type="text"
               placeholder="Enter seed keyword..."
               value={searchKeyword}
               onChange={(e) => setSearchKeyword(e.target.value)}
-              className="flex-1 h-12 px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              onKeyPress={(e) => e.key === 'Enter' && researchMutation.mutate()}
-              style={{
-                zIndex: 999,
-                position: "relative",
-                fontSize: "16px"
+              className="flex-1 h-12 bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !researchMutation.isPending && searchKeyword.trim()) {
+                  e.preventDefault();
+                  researchMutation.mutate();
+                }
               }}
             />
             <Button 
+              type="button"
               onClick={() => researchMutation.mutate()}
-              disabled={researchMutation.isPending}
-              className="bg-secondary hover:bg-purple-600 text-white"
+              disabled={researchMutation.isPending || !searchKeyword.trim()}
+              className="bg-secondary hover:bg-purple-600 text-white px-6 h-12"
             >
               {researchMutation.isPending ? (
                 <Loader2 className="w-4 h-4 animate-spin" />

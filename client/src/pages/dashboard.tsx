@@ -66,7 +66,7 @@ export default function Dashboard() {
         
         {/* Main Content Area */}
         <main className="flex-1 overflow-y-auto">
-          <div className="p-6 space-y-6 pb-32 min-h-full">
+          <div className="p-6 space-y-6 pb-20">
             
             {/* Sofeia Agent Brain */}
             <SofeiaAgentBrain />

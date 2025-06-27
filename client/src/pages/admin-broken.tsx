@@ -34,7 +34,7 @@ export default function Admin() {
   });
 
   // Check if user is admin (you can modify this logic as needed)
-  const isAdmin = user?.email === "admin@contentscale.site" || user?.id === "admin";
+  const isAdmin = user?.email === "ottmar.francisca1969@gmail.com" || user?.id === "admin";
 
   // Fetch admin settings
   const { data: adminSettings } = useQuery({

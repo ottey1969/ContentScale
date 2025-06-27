@@ -87,7 +87,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userEmail = req.user.claims.email;
       
       // Check admin privileges  
-      if (userId !== 'admin' && userEmail !== 'ottmar.francisca19@gmail.com') {
+      if (userId !== 'admin' && userEmail !== 'ottmar.francisca1969@gmail.com') {
         return res.status(403).json({ message: "Admin access required" });
       }
 
@@ -141,7 +141,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const user = await storage.getUser(userId);
       
       // Check if user is admin (you can modify this logic)
-      if (user?.email !== "admin@contentscale.site" && userId !== "admin") {
+      if (user?.email !== "ottmar.francisca1969@gmail.com" && userId !== "admin") {
         return res.status(403).json({ message: "Admin access required" });
       }
       
@@ -159,7 +159,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const user = await storage.getUser(userId);
       
       // Check if user is admin
-      if (user?.email !== "admin@contentscale.site" && userId !== "admin") {
+      if (user?.email !== "ottmar.francisca1969@gmail.com" && userId !== "admin") {
         return res.status(403).json({ message: "Admin access required" });
       }
       
@@ -195,7 +195,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userEmail = req.user.claims.email;
       
       // Check admin privileges
-      if (userId !== 'admin' && userEmail !== 'admin@contentscale.site') {
+      if (userId !== 'admin' && userEmail !== 'ottmar.francisca1969@gmail.com') {
         return res.status(403).json({ message: "Admin access required" });
       }
 
@@ -213,7 +213,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userEmail = req.user.claims.email;
       
       // Check admin privileges
-      if (userId !== 'admin' && userEmail !== 'admin@contentscale.site') {
+      if (userId !== 'admin' && userEmail !== 'ottmar.francisca1969@gmail.com') {
         return res.status(403).json({ message: "Admin access required" });
       }
 

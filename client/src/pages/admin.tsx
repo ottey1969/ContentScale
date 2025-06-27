@@ -27,7 +27,7 @@ export default function Admin() {
   const queryClient = useQueryClient();
 
   // Check if user is admin
-  const isAdmin = user && (user.id === 'admin' || user.email === 'admin@contentscale.site');
+  const isAdmin = user && ((user as any)?.id === 'admin' || (user as any)?.email === 'ottmar.francisca1969@gmail.com');
 
   const [settings, setSettings] = useState<AdminSettings>({
     demoVideoId: '',

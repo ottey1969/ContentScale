@@ -44,8 +44,28 @@ export default function ContentGenerator() {
         userId: "", // Will be set by backend from auth
       };
       
-      console.log('Generating content with payload:', payload);
-      return await apiRequest("POST", "/api/content/generate", payload);
+      try {
+        const response = await apiRequest("POST", "/api/content/generate", payload);
+        return response;
+      } catch (error: any) {
+        // Handle specific error cases and re-throw with proper structure
+        if (error.message?.includes('402')) {
+          const paymentError = new Error("Payment required");
+          (paymentError as any).status = 402;
+          throw paymentError;
+        }
+        if (error.message?.includes('429')) {
+          const rateLimitError = new Error("Rate limit exceeded");
+          (rateLimitError as any).status = 429;
+          throw rateLimitError;
+        }
+        if (error.message?.includes('401')) {
+          const authError = new Error("Authentication required");
+          (authError as any).status = 401;
+          throw authError;
+        }
+        throw error;
+      }
     },
     onSuccess: async (response) => {
       const content = await response.json();
@@ -128,44 +148,35 @@ export default function ContentGenerator() {
       
       <CardContent className="p-8 space-y-6">
         {/* Topic Input */}
-        <div>
-          <label className="text-sm font-medium text-gray-300 mb-2 block">Enter Topic or Keywords</label>
-          <div style={{ fontSize: '12px', color: '#9CA3AF', marginBottom: '4px' }}>
-            Current topic: "{topic}" (length: {topic.length}) - Last updated: {new Date().toLocaleTimeString()}
-          </div>
+        <div className="space-y-2">
+          <Label htmlFor="topic" className="text-sm font-medium text-gray-300">
+            Enter Topic or Keywords
+          </Label>
           <div className="relative">
-            <input
+            <Input
+              id="topic"
               type="text"
               placeholder="e.g., Cybersecurity best practices for SMBs"
               value={topic}
-              onChange={(e) => {
-                console.log('Input onChange triggered:', e.target.value);
-                setTopic(e.target.value);
-              }}
+              onChange={(e) => setTopic(e.target.value)}
               onKeyDown={(e) => {
-                console.log('Key pressed:', e.key);
                 if (e.key === 'Enter' && !generateMutation.isPending && topic.trim()) {
+                  e.preventDefault();
                   generateMutation.mutate();
                 }
               }}
-              className="w-full h-12 px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-24"
+              className="pr-24 h-12 bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               autoComplete="off"
-              style={{
-                zIndex: 999,
-                position: "relative",
-                fontSize: "16px"
-              }}
             />
             <Button
+              type="button"
               onClick={() => {
-                console.log('Generate button clicked, topic:', topic);
                 if (topic.trim()) {
                   generateMutation.mutate();
                 }
               }}
               disabled={generateMutation.isPending || !topic.trim()}
-              className="absolute right-2 top-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2"
-              style={{ zIndex: 1000 }}
+              className="absolute right-2 top-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 h-8"
             >
               {generateMutation.isPending ? (
                 <>
