@@ -6,6 +6,7 @@ import {
   achievements,
   activities,
   csvBatches,
+  adminSettings,
   type User,
   type UpsertUser,
   type InsertContent,
@@ -20,6 +21,8 @@ import {
   type Activity,
   type InsertCsvBatch,
   type CsvBatch,
+  type InsertAdminSettings,
+  type AdminSettings,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, sql } from "drizzle-orm";
@@ -80,6 +83,10 @@ export interface IStorage {
     contentGeneratedToday: number;
     creditsEarned: number;
   }>;
+
+  // Admin settings operations
+  getAdminSettings(): Promise<AdminSettings | undefined>;
+  updateAdminSettings(settings: Partial<InsertAdminSettings>): Promise<AdminSettings>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -435,6 +442,27 @@ export class DatabaseStorage implements IStorage {
       contentGeneratedToday: contentTodayResult[0]?.count || 0,
       creditsEarned: user?.referralCreditsEarned || 0,
     };
+  }
+
+  // Admin settings operations
+  async getAdminSettings(): Promise<AdminSettings | undefined> {
+    const [settings] = await db.select().from(adminSettings).where(eq(adminSettings.id, "default"));
+    return settings;
+  }
+
+  async updateAdminSettings(newSettings: Partial<InsertAdminSettings>): Promise<AdminSettings> {
+    const [settings] = await db
+      .insert(adminSettings)
+      .values({ id: "default", ...newSettings })
+      .onConflictDoUpdate({
+        target: adminSettings.id,
+        set: {
+          ...newSettings,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+    return settings;
   }
 }
 

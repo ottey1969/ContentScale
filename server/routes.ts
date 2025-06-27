@@ -88,6 +88,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin settings endpoints
+  app.get("/api/admin/settings", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      // Check if user is admin (you can modify this logic)
+      if (user?.email !== "admin@contentscale.site" && userId !== "admin") {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+      
+      const settings = await storage.getAdminSettings();
+      res.json(settings);
+    } catch (error) {
+      console.error("Error fetching admin settings:", error);
+      res.status(500).json({ message: "Failed to fetch admin settings" });
+    }
+  });
+
+  app.post("/api/admin/settings", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      // Check if user is admin
+      if (user?.email !== "admin@contentscale.site" && userId !== "admin") {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+      
+      const settings = await storage.updateAdminSettings(req.body);
+      res.json(settings);
+    } catch (error) {
+      console.error("Error updating admin settings:", error);
+      res.status(500).json({ message: "Failed to update admin settings" });
+    }
+  });
+
+  // Public endpoint to get current video settings for landing page
+  app.get("/api/public/video-settings", async (req, res) => {
+    try {
+      const settings = await storage.getAdminSettings();
+      res.json({
+        demoVideoId: settings?.demoVideoId || "",
+        demoVideoTitle: settings?.demoVideoTitle || "ContentScale Demo"
+      });
+    } catch (error) {
+      console.error("Error fetching video settings:", error);
+      res.json({
+        demoVideoId: "",
+        demoVideoTitle: "ContentScale Demo"
+      });
+    }
+  });
+
   // Content generation
   app.post("/api/content/generate", isAuthenticated, async (req: any, res) => {
     try {

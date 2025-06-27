@@ -122,6 +122,18 @@ export const csvBatches = pgTable("csv_batches", {
   completedAt: timestamp("completed_at"),
 });
 
+// Admin settings table
+export const adminSettings = pgTable("admin_settings", {
+  id: varchar("id").primaryKey().notNull().default("default"),
+  demoVideoId: varchar("demo_video_id").default(""),
+  demoVideoTitle: varchar("demo_video_title").default("ContentScale Demo"),
+  maintenanceMode: boolean("maintenance_mode").default(false),
+  welcomeMessage: text("welcome_message").default("Welcome to ContentScale!"),
+  maxCreditsPerUser: integer("max_credits_per_user").default(100),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   content: many(content),
@@ -219,6 +231,11 @@ export const insertCsvBatchSchema = createInsertSchema(csvBatches).omit({
   completedAt: true,
 });
 
+export const insertAdminSettingsSchema = createInsertSchema(adminSettings).omit({
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -234,3 +251,5 @@ export type InsertActivity = z.infer<typeof insertActivitySchema>;
 export type Activity = typeof activities.$inferSelect;
 export type InsertCsvBatch = z.infer<typeof insertCsvBatchSchema>;
 export type CsvBatch = typeof csvBatches.$inferSelect;
+export type InsertAdminSettings = z.infer<typeof insertAdminSettingsSchema>;
+export type AdminSettings = typeof adminSettings.$inferSelect;

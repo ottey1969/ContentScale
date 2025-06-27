@@ -2,7 +2,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Rocket, Brain, Search, Users, TrendingUp, Shield, Trophy, CheckCircle, Play, ArrowRight, Cookie, FileText, Shield as ShieldIcon } from "lucide-react";
 
 export default function Landing() {
@@ -12,6 +13,12 @@ export default function Landing() {
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
 
+  // Fetch video settings from admin panel
+  const { data: videoSettings } = useQuery({
+    queryKey: ["/api/public/video-settings"],
+    retry: false,
+  });
+
   const handleLogin = () => {
     window.location.href = "/api/login";
   };
@@ -20,6 +27,9 @@ export default function Landing() {
     setShowCookieConsent(false);
     localStorage.setItem('cookieConsent', 'accepted');
   };
+
+  const demoVideoId = videoSettings?.demoVideoId || "YOUR_VIDEO_ID_HERE";
+  const demoVideoTitle = videoSettings?.demoVideoTitle || "ContentScale Demo";
 
   return (
     <div className="min-h-screen bg-dark text-text-primary">
@@ -112,8 +122,8 @@ export default function Landing() {
                   <iframe
                     width="100%"
                     height="100%"
-                    src="https://www.youtube.com/embed/YOUR_VIDEO_ID_HERE"
-                    title="ContentScale Demo"
+                    src={`https://www.youtube.com/embed/${demoVideoId}`}
+                    title={demoVideoTitle}
                     className="rounded-lg"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
