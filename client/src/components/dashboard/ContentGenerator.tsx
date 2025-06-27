@@ -131,7 +131,7 @@ export default function ContentGenerator() {
             <div className="w-2 h-2 bg-accent rounded-full animate-pulse"></div>
             <span className="text-text-secondary text-sm">AI Preview</span>
           </div>
-          <div className="text-text-primary text-sm leading-relaxed max-h-32 overflow-y-auto custom-scrollbar">
+          <div className="text-text-primary text-sm leading-relaxed min-h-[8rem] max-h-48 overflow-y-auto custom-scrollbar pr-2 space-y-2">
             {generateMutation.isPending ? (
               <div className="space-y-2">
                 <div className="h-4 bg-surface-light rounded animate-pulse"></div>
