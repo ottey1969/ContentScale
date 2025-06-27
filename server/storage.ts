@@ -34,7 +34,7 @@ import {
   type BlockedFingerprint,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and, sql, gte, lt, gt, isNotNull } from "drizzle-orm";
+import { eq, desc, and, or, sql, gte, lt, gt, isNotNull } from "drizzle-orm";
 
 export interface IStorage {
   // User operations (mandatory for Replit Auth)
@@ -624,7 +624,10 @@ export class DatabaseStorage implements IStorage {
       await db.delete(content).where(eq(content.userId, userId));
       await db.delete(keywords).where(eq(keywords.userId, userId));
       await db.delete(csvBatches).where(eq(csvBatches.userId, userId));
-      await db.delete(referrals).where(eq(referrals.userId, userId));
+      await db.delete(referrals).where(or(
+        eq(referrals.referrerId, userId),
+        eq(referrals.referredUserId, userId)
+      ));
       await db.delete(securityEvents).where(eq(securityEvents.userId, userId));
       
       // Finally delete the user
