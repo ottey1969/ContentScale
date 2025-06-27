@@ -129,9 +129,6 @@ export async function setupAuth(app: Express) {
 }
 
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
-  // TEMPORARY: Authentication disabled for debugging
-  return next();
-  
   const user = req.user as any;
 
   if (!req.isAuthenticated() || !user.expires_at) {
