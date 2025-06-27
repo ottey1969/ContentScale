@@ -4,7 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import Navigation from "@/components/layout/Navigation";
 import Sidebar from "@/components/layout/Sidebar";
 import SofeiaAgentBrain from "@/components/dashboard/SofeiaAgentBrain";
-import StatsCards from "@/components/dashboard/StatsCards";
+
 import ContentGenerator from "@/components/dashboard/ContentGenerator";
 import KeywordResearch from "@/components/dashboard/KeywordResearch";
 import CSVUploader from "@/components/dashboard/CSVUploader";
@@ -134,12 +134,7 @@ export default function Dashboard() {
             {/* Sofeia Agent Brain */}
             <SofeiaAgentBrain />
 
-            {/* Stats Cards */}
-            <div className="mb-6">
-              <StatsCards />
-            </div>
-
-            {/* API Configuration */}
+            {/* Dashboard & API Configuration (includes stats cards) */}
             <APIKeyManager />
 
             {/* Main Dashboard Grid */}
