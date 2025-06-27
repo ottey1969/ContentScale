@@ -12,6 +12,15 @@ import ReferralDashboard from "@/components/dashboard/ReferralDashboard";
 import AchievementSystem from "@/components/dashboard/AchievementSystem";
 import ActivityFeed from "@/components/dashboard/ActivityFeed";
 import { Button } from "@/components/ui/button";
+import { 
+  Plus, 
+  MessageSquare, 
+  Gauge, 
+  FileText, 
+  Search, 
+  Users, 
+  Settings 
+} from "lucide-react";
 
 export default function Dashboard() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -92,7 +101,7 @@ export default function Dashboard() {
                       className="w-full bg-green-600 hover:bg-green-700 text-white"
                       onClick={() => window.open('https://wa.me/31628073996', '_blank')}
                     >
-                      <i className="fab fa-whatsapp mr-2"></i>
+                      <MessageSquare className="w-4 h-4 mr-2" />
                       WhatsApp Support
                     </Button>
                     <p className="text-xs text-text-secondary text-center">+31 628073996</p>
@@ -128,7 +137,7 @@ export default function Dashboard() {
         <Button 
           className="w-14 h-14 bg-gradient-to-r from-primary to-secondary hover:from-blue-600 hover:to-purple-600 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 p-0"
         >
-          <i className="fas fa-plus text-white text-xl group-hover:rotate-90 transition-transform duration-300"></i>
+          <Plus className="w-6 h-6 text-white group-hover:rotate-90 transition-transform duration-300" />
         </Button>
       </div>
 
@@ -136,23 +145,23 @@ export default function Dashboard() {
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-surface-light">
         <div className="flex items-center justify-around py-2">
           <button className="flex flex-col items-center p-2 text-primary">
-            <i className="fas fa-tachometer-alt text-lg"></i>
+            <Gauge className="w-5 h-5" />
             <span className="text-xs mt-1">Dashboard</span>
           </button>
           <button className="flex flex-col items-center p-2 text-text-secondary">
-            <i className="fas fa-file-alt text-lg"></i>
+            <FileText className="w-5 h-5" />
             <span className="text-xs mt-1">Content</span>
           </button>
           <button className="flex flex-col items-center p-2 text-text-secondary">
-            <i className="fas fa-search text-lg"></i>
+            <Search className="w-5 h-5" />
             <span className="text-xs mt-1">Research</span>
           </button>
           <button className="flex flex-col items-center p-2 text-text-secondary">
-            <i className="fas fa-users text-lg"></i>
+            <Users className="w-5 h-5" />
             <span className="text-xs mt-1">Referrals</span>
           </button>
           <button className="flex flex-col items-center p-2 text-text-secondary">
-            <i className="fas fa-cog text-lg"></i>
+            <Settings className="w-5 h-5" />
             <span className="text-xs mt-1">Settings</span>
           </button>
         </div>

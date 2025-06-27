@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
+import { FileText, Search, Users, TrendingUp } from "lucide-react";
 
 interface DashboardStats {
   contentGenerated: number;
@@ -34,7 +35,7 @@ export default function StatsCards() {
       title: "Content Generated",
       value: stats?.contentGeneratedToday || 0,
       change: `+${Math.floor((stats?.contentGeneratedToday || 0) * 0.5)} from yesterday`,
-      icon: "fas fa-file-alt",
+      icon: FileText,
       color: "primary",
       bgColor: "bg-primary bg-opacity-20"
     },
@@ -42,15 +43,15 @@ export default function StatsCards() {
       title: "Keywords Researched",
       value: stats?.keywordsResearched || 0,
       change: "via Answer Socrates",
-      icon: "fas fa-search",
-      color: "secondary",
+      icon: Search,
+      color: "secondary", 
       bgColor: "bg-secondary bg-opacity-20"
     },
     {
       title: "Referral Conversions",
       value: stats?.referralConversions || 0,
       change: `${(stats?.creditsEarned || 0)} credits earned`,
-      icon: "fas fa-users",
+      icon: Users,
       color: "accent",
       bgColor: "bg-accent bg-opacity-20"
     },
@@ -58,7 +59,7 @@ export default function StatsCards() {
       title: "Avg SEO Score",
       value: stats?.avgSeoScore || 0,
       change: "RankMath optimized",
-      icon: "fas fa-chart-line",
+      icon: TrendingUp,
       color: "neural",
       bgColor: "bg-neural bg-opacity-20"
     }
@@ -76,7 +77,7 @@ export default function StatsCards() {
                 <p className={`text-${stat.color} text-xs`}>{stat.change}</p>
               </div>
               <div className={`w-12 h-12 ${stat.bgColor} rounded-lg flex items-center justify-center`}>
-                <i className={`${stat.icon} text-${stat.color} text-xl`}></i>
+                <stat.icon className={`w-6 h-6 text-${stat.color}`} />
               </div>
             </div>
           </CardContent>

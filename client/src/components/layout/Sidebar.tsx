@@ -1,5 +1,16 @@
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { 
+  Sparkles, 
+  Search, 
+  Gauge, 
+  FileText, 
+  BarChart3, 
+  Users, 
+  Settings,
+  Shield,
+  Zap
+} from "lucide-react";
 
 export default function Sidebar() {
   return (
@@ -10,11 +21,11 @@ export default function Sidebar() {
         <div className="space-y-3">
           <h3 className="text-xs font-semibold text-text-secondary uppercase tracking-wide">Quick Actions</h3>
           <Button className="w-full bg-primary hover:bg-blue-600 text-white font-medium transition-all duration-200 transform hover:scale-105">
-            <i className="fas fa-magic mr-3"></i>
+            <Sparkles className="w-4 h-4 mr-3" />
             Generate Content
           </Button>
           <Button className="w-full bg-secondary hover:bg-purple-600 text-white font-medium transition-all duration-200 transform hover:scale-105">
-            <i className="fas fa-search mr-3"></i>
+            <Search className="w-4 h-4 mr-3" />
             Keyword Research
           </Button>
         </div>
@@ -22,23 +33,23 @@ export default function Sidebar() {
         {/* Navigation Menu */}
         <nav className="space-y-2">
           <a href="#" className="flex items-center space-x-3 p-3 rounded-lg bg-primary bg-opacity-20 text-primary">
-            <i className="fas fa-tachometer-alt"></i>
+            <Gauge className="w-4 h-4" />
             <span>Dashboard</span>
           </a>
           <a href="#" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-surface-light text-text-secondary hover:text-text-primary transition-colors">
-            <i className="fas fa-file-alt"></i>
+            <FileText className="w-4 h-4" />
             <span>Content Library</span>
           </a>
           <a href="#" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-surface-light text-text-secondary hover:text-text-primary transition-colors">
-            <i className="fas fa-chart-line"></i>
+            <BarChart3 className="w-4 h-4" />
             <span>Analytics</span>
           </a>
           <a href="#" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-surface-light text-text-secondary hover:text-text-primary transition-colors">
-            <i className="fas fa-users"></i>
+            <Users className="w-4 h-4" />
             <span>Referrals</span>
           </a>
           <a href="#" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-surface-light text-text-secondary hover:text-text-primary transition-colors">
-            <i className="fas fa-cog"></i>
+            <Settings className="w-4 h-4" />
             <span>Settings</span>
           </a>
         </nav>

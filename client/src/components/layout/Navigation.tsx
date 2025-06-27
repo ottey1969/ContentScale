@@ -1,6 +1,6 @@
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Rocket, Brain } from "lucide-react";
+import { Rocket, Brain, Coins, Bell, LogOut } from "lucide-react";
 
 export default function Navigation() {
   const { user } = useAuth();
@@ -32,32 +32,32 @@ export default function Navigation() {
           <div className="flex items-center space-x-4">
             {/* Credits Display */}
             <div className="flex items-center space-x-2 bg-surface-light px-3 py-1 rounded-full">
-              <i className="fas fa-coins text-neural"></i>
-              <span className="text-sm font-medium">{user?.credits || 0} Credits</span>
+              <Coins className="w-4 h-4 text-neural" />
+              <span className="text-sm font-medium">{(user as any)?.credits || 0} Credits</span>
             </div>
             
             {/* Notifications */}
             <Button variant="ghost" size="sm" className="p-2">
-              <i className="fas fa-bell text-text-secondary hover:text-text-primary"></i>
+              <Bell className="w-4 h-4 text-text-secondary hover:text-text-primary" />
             </Button>
             
             {/* Profile */}
             <div className="flex items-center space-x-2">
-              {user?.profileImageUrl ? (
+              {(user as any)?.profileImageUrl ? (
                 <img 
-                  src={user.profileImageUrl} 
+                  src={(user as any).profileImageUrl} 
                   alt="Profile" 
                   className="w-8 h-8 rounded-full object-cover"
                 />
               ) : (
                 <div className="w-8 h-8 bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center">
                   <span className="text-white text-sm font-semibold">
-                    {user?.firstName?.[0] || user?.email?.[0] || 'U'}
+                    {(user as any)?.firstName?.[0] || (user as any)?.email?.[0] || 'U'}
                   </span>
                 </div>
               )}
               <span className="text-sm font-medium hidden sm:block">
-                {user?.firstName || user?.email?.split('@')[0] || 'User'}
+                {(user as any)?.firstName || (user as any)?.email?.split('@')[0] || 'User'}
               </span>
               <Button 
                 variant="ghost" 
@@ -65,7 +65,7 @@ export default function Navigation() {
                 onClick={handleLogout}
                 className="text-text-secondary hover:text-text-primary"
               >
-                <i className="fas fa-sign-out-alt"></i>
+                <LogOut className="w-4 h-4" />
               </Button>
             </div>
           </div>
