@@ -13,6 +13,25 @@ import {
 } from "lucide-react";
 
 export default function Sidebar() {
+  
+  // Scroll to section handlers
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  // Focus on input field in a component
+  const focusInput = (inputId: string) => {
+    setTimeout(() => {
+      const input = document.getElementById(inputId);
+      if (input) {
+        input.focus();
+      }
+    }, 100);
+  };
+
   return (
     <aside className="w-64 bg-surface border-r border-surface-light hidden lg:block h-screen">
       <div className="p-6 space-y-6 h-full overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: '#6B7280 #374151' }}>
@@ -20,15 +39,32 @@ export default function Sidebar() {
         {/* Quick Actions */}
         <div className="space-y-3">
           <h3 className="text-xs font-semibold text-text-secondary uppercase tracking-wide">Quick Actions</h3>
-          <Button className="w-full bg-primary hover:bg-blue-600 text-white font-medium transition-all duration-200 transform hover:scale-105">
+          <Button 
+            onClick={() => {
+              scrollToSection('content-generator');
+              focusInput('topic');
+            }}
+            className="w-full bg-primary hover:bg-blue-600 text-white font-medium transition-all duration-200 transform hover:scale-105"
+          >
             <Sparkles className="w-4 h-4 mr-3" />
             Generate Content
           </Button>
-          <Button className="w-full bg-secondary hover:bg-purple-600 text-white font-medium transition-all duration-200 transform hover:scale-105">
+          <Button 
+            onClick={() => {
+              scrollToSection('keyword-research');
+              focusInput('keyword-input');
+            }}
+            className="w-full bg-secondary hover:bg-purple-600 text-white font-medium transition-all duration-200 transform hover:scale-105"
+          >
             <Search className="w-4 h-4 mr-3" />
             Keyword Research
           </Button>
-          <Button className="w-full bg-accent hover:bg-green-600 text-white font-medium transition-all duration-200 transform hover:scale-105">
+          <Button 
+            onClick={() => {
+              scrollToSection('csv-uploader');
+            }}
+            className="w-full bg-accent hover:bg-green-600 text-white font-medium transition-all duration-200 transform hover:scale-105"
+          >
             <FileText className="w-4 h-4 mr-3" />
             CSV Upload
           </Button>

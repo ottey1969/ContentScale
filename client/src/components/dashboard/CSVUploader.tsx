@@ -143,7 +143,7 @@ export default function CSVUploader() {
   const progress = batchStatus ? (batchStatus.processedRows / batchStatus.totalRows) * 100 : 0;
 
   return (
-    <Card className="bg-surface border-surface-light overflow-hidden">
+    <Card id="csv-uploader" className="bg-surface border-surface-light overflow-hidden">
       <CardHeader className="border-b border-surface-light">
         <CardTitle className="flex items-center space-x-2">
           <Upload className="w-5 h-5 text-neural" />

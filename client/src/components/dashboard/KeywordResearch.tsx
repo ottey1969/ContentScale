@@ -115,7 +115,7 @@ export default function KeywordResearch() {
   const recentKeywords = keywords?.slice(0, 5) || [];
 
   return (
-    <Card className="bg-surface border-surface-light overflow-hidden">
+    <Card id="keyword-research" className="bg-surface border-surface-light overflow-hidden">
       <CardHeader className="border-b border-surface-light">
         <CardTitle className="flex items-center space-x-2">
           <Search className="w-5 h-5 text-secondary" />
@@ -129,6 +129,7 @@ export default function KeywordResearch() {
         <div className="mb-4">
           <div className="flex space-x-3">
             <Input
+              id="keyword-input"
               type="text"
               placeholder="Enter seed keyword..."
               value={searchKeyword}

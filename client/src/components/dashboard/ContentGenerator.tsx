@@ -133,7 +133,7 @@ export default function ContentGenerator() {
   ];
 
   return (
-    <Card className="bg-surface border-surface-light overflow-hidden">
+    <Card id="content-generator" className="bg-surface border-surface-light overflow-hidden">
       <CardHeader className="border-b border-surface-light">
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
