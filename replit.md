@@ -135,7 +135,17 @@ ContentScale Agent is a full-stack web application designed for AI-powered conte
 - June 27, 2025. Custom rocket favicon and tabbed admin panel with security dashboard
 - June 27, 2025. Comprehensive SEO optimization with 50+ AI-focused keywords targeting USA, Canada, UK, Australia, New Zealand, Europe for Google AI Overview and AI search engines
 - June 27, 2025. UI/UX improvements: replaced FontAwesome with Lucide React icons, enhanced card layouts with 2-column grid, improved spacing and padding for better user experience
+- June 27, 2025. Critical issue: Platform has persistent UI functionality problems - buttons not responding, input fields not working properly, user requesting new agent for comprehensive debugging
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+
+## Current Issues (Priority: CRITICAL)
+- User experiencing persistent UI functionality problems
+- Generate button, Keyword Research button, CSV Upload button not responding properly
+- Input fields not working consistently 
+- Multiple debugging attempts by previous agents unsuccessful
+- User requesting new agent for fresh approach to comprehensive debugging
+- Admin email: ottmar.francisca1969@gmail.com (must use this exact email)
+- PayPal integration: $2 per article, free first article for new users, 85% profit margin ($1.70 profit per article)
