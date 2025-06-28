@@ -87,6 +87,13 @@ ContentScale Agent is a full-stack web application designed for AI-powered conte
 - **typescript**: Type safety
 - **tsx**: TypeScript execution for development
 
+## Installation Instructions
+
+Upload contentscale-complete-fixes.tar.gz to your Replit project
+Extract the contents, overwriting existing files
+Restart your Replit application
+Test all functionality with the browser console open (F12) for debugging
+
 ## Deployment Strategy
 
 ### Development Environment
