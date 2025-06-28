@@ -29,19 +29,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
 
-  // Auth routes - return mock admin user
+  // Auth routes
   app.get('/api/auth/user', async (req: any, res) => {
     try {
-      // Return mock admin user without authentication
-      const mockUser = {
-        id: "44276721",
-        email: "ottmar.francisca1969@gmail.com",
-        name: "Admin User", 
-        credits: 1000,
-        profileImageUrl: null,
-        isAdmin: true
-      };
-      res.json(mockUser);
+      const userId = "44276721"; // Mock admin user
+      const user = await storage.getUser(userId);
+      res.json(user);
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
@@ -49,9 +42,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Dashboard stats
-  app.get("/api/dashboard/stats",  async (req: any, res) => {
+  app.get("/api/dashboard/stats", async (req: any, res) => {
     try {
-      const userId = "44276721"; // Mock admin user ID
+      const userId = "44276721"; // Mock admin user
       const stats = await storage.getDashboardStats(userId);
       res.json(stats);
     } catch (error) {
@@ -61,9 +54,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Data export (GDPR compliance)
-  app.get("/api/data/export",  async (req: any, res) => {
+  app.get("/api/data/export", async (req: any, res) => {
     try {
-      const userId = "44276721"; // Mock admin user ID
+      const userId = "44276721"; // Mock admin user
       
       // Collect all user data
       const userData = {
@@ -88,9 +81,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin route to add API secrets
-  app.post("/api/admin/add-secret",  adminSecurityMiddleware(), async (req: any, res) => {
+  app.post("/api/admin/add-secret", adminSecurityMiddleware(), async (req: any, res) => {
     try {
-      const userId = "44276721"; // Mock admin user ID
+      const userId = "44276721"; // Mock admin user
       const userEmail = "ottmar.francisca1969@gmail.com"; // Mock admin email
       
       // Check admin privileges  
@@ -129,9 +122,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Data deletion request (GDPR compliance)
-  app.delete("/api/data/delete",  async (req: any, res) => {
+  app.delete("/api/data/delete", async (req: any, res) => {
     try {
-      const userId = "44276721"; // Mock admin user ID
+      const userId = "44276721"; // Mock admin user
       
       // Delete all user data
       await storage.deleteAllUserData(userId);
@@ -148,9 +141,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin settings endpoints
-  app.get("/api/admin/settings",  async (req: any, res) => {
+  app.get("/api/admin/settings", async (req: any, res) => {
     try {
-      const userId = "44276721"; // Mock admin user ID
+      const userId = "44276721"; // Mock admin user
       const user = await storage.getUser(userId);
       
       // Check if user is admin (you can modify this logic)
@@ -166,9 +159,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/admin/settings",  async (req: any, res) => {
+  app.post("/api/admin/settings", async (req: any, res) => {
     try {
-      const userId = "44276721"; // Mock admin user ID
+      const userId = "44276721"; // Mock admin user
       const user = await storage.getUser(userId);
       
       // Check if user is admin
@@ -202,9 +195,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Security API routes for admin dashboard
-  app.get("/api/admin/security/metrics",  adminSecurityMiddleware(), async (req: any, res) => {
+  app.get("/api/admin/security/metrics", adminSecurityMiddleware(), async (req: any, res) => {
     try {
-      const userId = "44276721"; // Mock admin user ID
+      const userId = "44276721"; // Mock admin user
       const userEmail = "ottmar.francisca1969@gmail.com"; // Mock admin email
       
       // Check admin privileges
@@ -220,9 +213,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/admin/security/events",  adminSecurityMiddleware(), async (req: any, res) => {
+  app.get("/api/admin/security/events", adminSecurityMiddleware(), async (req: any, res) => {
     try {
-      const userId = "44276721"; // Mock admin user ID
+      const userId = "44276721"; // Mock admin user
       const userEmail = "ottmar.francisca1969@gmail.com"; // Mock admin email
       
       // Check admin privileges
@@ -240,9 +233,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Content generation with free first article + $2 payment system
-  app.post("/api/content/generate",  rateLimitMiddleware('content_generation'), async (req: any, res) => {
+  app.post("/api/content/generate", rateLimitMiddleware('content_generation'), async (req: any, res) => {
     try {
-      const userId = "44276721"; // Mock admin user ID
+      const userId = "44276721"; // Mock admin user
       const body = insertContentSchema.parse(req.body);
       
       // Check user status and content count
@@ -298,9 +291,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get user content
-  app.get("/api/content",  async (req: any, res) => {
+  app.get("/api/content", async (req: any, res) => {
     try {
-      const userId = "44276721"; // Mock admin user ID
+      const userId = "44276721"; // Mock admin user
       const content = await storage.getUserContent(userId);
       res.json(content);
     } catch (error) {
@@ -310,9 +303,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Keyword research
-  app.post("/api/keywords/research",  async (req: any, res) => {
+  app.post("/api/keywords/research", async (req: any, res) => {
     try {
-      const userId = "44276721"; // Mock admin user ID
+      const userId = "44276721"; // Mock admin user
       const { keyword, country = "us" } = req.body;
 
       if (!keyword) {
@@ -354,9 +347,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get user keywords
-  app.get("/api/keywords",  async (req: any, res) => {
+  app.get("/api/keywords", async (req: any, res) => {
     try {
-      const userId = "44276721"; // Mock admin user ID
+      const userId = "44276721"; // Mock admin user
       const keywords = await storage.getUserKeywords(userId);
       res.json(keywords);
     } catch (error) {
@@ -366,9 +359,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // CSV upload and processing
-  app.post("/api/csv/upload",  upload.single('csv'), async (req: any, res) => {
+  app.post("/api/csv/upload", upload.single('csv'), async (req: any, res) => {
     try {
-      const userId = "44276721"; // Mock admin user ID
+      const userId = "44276721"; // Mock admin user
       if (!req.file) {
         return res.status(400).json({ message: "No CSV file uploaded" });
       }
@@ -405,9 +398,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get CSV batch status
-  app.get("/api/csv/batch/:id",  async (req: any, res) => {
+  app.get("/api/csv/batch/:id", async (req: any, res) => {
     try {
-      const userId = "44276721"; // Mock admin user ID
+      const userId = "44276721"; // Mock admin user
       const batch = await storage.getCsvBatch(req.params.id, userId);
       if (!batch) {
         return res.status(404).json({ message: "Batch not found" });
@@ -429,9 +422,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     await createPaypalOrder(req, res);
   });
 
-  app.post("/api/paypal/order/:orderID/capture",  async (req: any, res) => {
+  app.post("/api/paypal/order/:orderID/capture", async (req: any, res) => {
     try {
-      const userId = "44276721"; // Mock admin user ID
+      const userId = "44276721"; // Mock admin user
       
       // Capture PayPal payment
       await capturePaypalOrder(req, res);
@@ -456,9 +449,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Referral system
-  app.get("/api/referrals/code",  async (req: any, res) => {
+  app.get("/api/referrals/code", async (req: any, res) => {
     try {
-      const userId = "44276721"; // Mock admin user ID
+      const userId = "44276721"; // Mock admin user
       const referralCode = await referralSystem.getReferralCode(userId);
       res.json({ referralCode });
     } catch (error) {
@@ -467,9 +460,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/referrals/stats",  async (req: any, res) => {
+  app.get("/api/referrals/stats", async (req: any, res) => {
     try {
-      const userId = "44276721"; // Mock admin user ID
+      const userId = "44276721"; // Mock admin user
       const stats = await storage.getReferralStats(userId);
       res.json(stats);
     } catch (error) {
@@ -493,9 +486,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Achievements
-  app.get("/api/achievements",  async (req: any, res) => {
+  app.get("/api/achievements", async (req: any, res) => {
     try {
-      const userId = "44276721"; // Mock admin user ID
+      const userId = "44276721"; // Mock admin user
       const achievements = await storage.getUserAchievements(userId);
       res.json(achievements);
     } catch (error) {
@@ -505,9 +498,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Activity feed
-  app.get("/api/activities",  async (req: any, res) => {
+  app.get("/api/activities", async (req: any, res) => {
     try {
-      const userId = "44276721"; // Mock admin user ID
+      const userId = "44276721"; // Mock admin user
       const activities = await storage.getUserActivities(userId);
       res.json(activities);
     } catch (error) {
