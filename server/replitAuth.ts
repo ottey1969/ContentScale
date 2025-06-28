@@ -23,6 +23,10 @@ const getOidcConfig = memoize(
 );
 
 export function getSession() {
+  // TEMPORARY: Session disabled for debugging
+  return (req: any, res: any, next: any) => next();
+  
+  /* Original session setup commented out
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
   const pgStore = connectPg(session);
   const sessionStore = new pgStore({
@@ -43,6 +47,7 @@ export function getSession() {
       sameSite: 'lax',
     },
   });
+  */
 }
 
 function updateUserSession(
@@ -68,6 +73,11 @@ async function upsertUser(
 }
 
 export async function setupAuth(app: Express) {
+  // TEMPORARY: Authentication setup disabled for debugging
+  console.log("Authentication system disabled for development");
+  return;
+  
+  /* Original auth setup commented out
   app.set("trust proxy", 1);
   app.use(getSession());
   app.use(passport.initialize());
@@ -102,21 +112,72 @@ export async function setupAuth(app: Express) {
   passport.serializeUser((user: Express.User, cb) => cb(null, user));
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
-  // All authentication routes disabled for development
-  app.get("/api/login", (req, res) => {
-    res.redirect("/");
+  app.get("/api/login", (req, res, next) => {
+    passport.authenticate(`replitauth:${req.hostname}`, {
+      prompt: "login consent",
+      scope: ["openid", "email", "profile", "offline_access"],
+    })(req, res, next);
   });
 
-  app.get("/api/callback", (req, res) => {
-    res.redirect("/");
+  app.get("/api/callback", (req, res, next) => {
+    passport.authenticate(`replitauth:${req.hostname}`, {
+      successReturnToOrRedirect: "/",
+      failureRedirect: "/api/login",
+    })(req, res, next);
   });
 
   app.get("/api/logout", (req, res) => {
-    res.redirect("/");
+    req.logout(() => {
+      res.redirect(
+        client.buildEndSessionUrl(config, {
+          client_id: process.env.REPL_ID!,
+          post_logout_redirect_uri: `${req.protocol}://${req.hostname}`,
+        }).href
+      );
+    });
   });
+  */
 }
 
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
-  // Authentication completely disabled - always allow access
+  // TEMPORARY: Authentication disabled for debugging
+  // Mock user data for development
+  req.user = {
+    claims: {
+      sub: "44276721",
+      email: "ottmar.francisca1969@gmail.com",
+      first_name: "Ottmar",
+      last_name: "Francisca"
+    }
+  };
   return next();
+  
+  /* Original authentication logic commented out
+  const user = req.user as any;
+
+  if (!req.isAuthenticated() || !user.expires_at) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  const now = Math.floor(Date.now() / 1000);
+  if (now <= user.expires_at) {
+    return next();
+  }
+
+  const refreshToken = user.refresh_token;
+  if (!refreshToken) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+
+  try {
+    const config = await getOidcConfig();
+    const tokenResponse = await client.refreshTokenGrant(config, refreshToken);
+    updateUserSession(user, tokenResponse);
+    return next();
+  } catch (error) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+  */
 };

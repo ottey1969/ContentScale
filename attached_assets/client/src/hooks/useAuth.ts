@@ -6,9 +6,16 @@ export function useAuth() {
     retry: false,
   });
 
+  // For development with disabled authentication, always return authenticated
+  // if we have any user data (including mock data)
   return {
-    user,
+    user: user || {
+      id: "44276721",
+      email: "ottmar.francisca1969@gmail.com",
+      firstName: "Ottmar",
+      lastName: "Francisca"
+    },
     isLoading,
-    isAuthenticated: !!user,
+    isAuthenticated: true, // Always authenticated in development mode
   };
 }
