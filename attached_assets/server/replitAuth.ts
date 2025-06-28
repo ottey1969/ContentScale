@@ -23,10 +23,6 @@ const getOidcConfig = memoize(
 );
 
 export function getSession() {
-  // TEMPORARY: Session disabled for debugging
-  return (req: any, res: any, next: any) => next();
-  
-  /* Original session setup commented out
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
   const pgStore = connectPg(session);
   const sessionStore = new pgStore({
@@ -47,7 +43,6 @@ export function getSession() {
       sameSite: 'lax',
     },
   });
-  */
 }
 
 function updateUserSession(
@@ -73,11 +68,6 @@ async function upsertUser(
 }
 
 export async function setupAuth(app: Express) {
-  // TEMPORARY: Authentication setup disabled for debugging
-  console.log("Authentication system disabled for development");
-  return;
-  
-  /* Original auth setup commented out
   app.set("trust proxy", 1);
   app.use(getSession());
   app.use(passport.initialize());
@@ -136,23 +126,9 @@ export async function setupAuth(app: Express) {
       );
     });
   });
-  */
 }
 
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
-  // TEMPORARY: Authentication disabled for debugging
-  // Mock user data for development
-  req.user = {
-    claims: {
-      sub: "44276721",
-      email: "ottmar.francisca1969@gmail.com",
-      first_name: "Ottmar",
-      last_name: "Francisca"
-    }
-  };
-  return next();
-  
-  /* Original authentication logic commented out
   const user = req.user as any;
 
   if (!req.isAuthenticated() || !user.expires_at) {
@@ -179,5 +155,5 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
     res.status(401).json({ message: "Unauthorized" });
     return;
   }
-  */
 };
+

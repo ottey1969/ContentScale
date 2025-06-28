@@ -4,6 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import Navigation from "@/components/layout/Navigation";
 import Sidebar from "@/components/layout/Sidebar";
 import SofeiaAgentBrain from "@/components/dashboard/SofeiaAgentBrain";
+import SofeiaChatHead from "@/components/chat/SofeiaChatHead";
 
 import ContentGenerator from "@/components/dashboard/ContentGenerator";
 import KeywordResearch from "@/components/dashboard/KeywordResearch";
@@ -231,6 +232,9 @@ export default function Dashboard() {
           </button>
         </div>
       </div>
+
+      {/* Sofeia AI Chat Head */}
+      <SofeiaChatHead />
     </div>
   );
 }
