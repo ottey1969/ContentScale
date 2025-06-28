@@ -10,13 +10,19 @@ import Admin from "@/pages/admin";
 import { useAuth } from "@/hooks/useAuth";
 
 function Router() {
-  // Authentication disabled - go directly to dashboard
+  const { isAuthenticated, isLoading } = useAuth();
+
   return (
     <Switch>
-      <Route path="/" component={Dashboard} />
-      <Route path="/dashboard" component={Dashboard} />
-      <Route path="/admin" component={Admin} />
-      <Route path="/landing" component={Landing} />
+      {isLoading || !isAuthenticated ? (
+        <Route path="/" component={Landing} />
+      ) : (
+        <>
+          <Route path="/" component={Dashboard} />
+          <Route path="/dashboard" component={Dashboard} />
+          <Route path="/admin" component={Admin} />
+        </>
+      )}
       <Route component={NotFound} />
     </Switch>
   );
