@@ -32,6 +32,7 @@ export default function ContentGenerator() {
 
   const generateMutation = useMutation({
     mutationFn: async () => {
+      console.log("Mutation function started");
       if (!topic.trim()) {
         throw new Error("Please enter a topic or keywords");
       }
@@ -44,10 +45,14 @@ export default function ContentGenerator() {
         userId: "", // Will be set by backend from auth
       };
       
+      console.log("Making API request with payload:", payload);
+      
       try {
         const response = await apiRequest("POST", "/api/content/generate", payload);
+        console.log("API response received:", response);
         return response;
       } catch (error: any) {
+        console.error("API request failed:", error);
         // Handle specific error cases and re-throw with proper structure
         if (error.message?.includes('402')) {
           const paymentError = new Error("Payment required");
@@ -171,8 +176,13 @@ export default function ContentGenerator() {
             <Button
               type="button"
               onClick={() => {
+                console.log("Generate button clicked!");
+                console.log("Topic value:", topic);
                 if (topic.trim()) {
+                  console.log("Starting mutation...");
                   generateMutation.mutate();
+                } else {
+                  console.log("Topic is empty, not generating");
                 }
               }}
               disabled={generateMutation.isPending || !topic.trim()}

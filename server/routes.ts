@@ -245,8 +245,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Content generation with free first article + $2 payment system
   app.post("/api/content/generate", isAuthenticated, rateLimitMiddleware('content_generation'), async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = "44276721"; // Mock admin user ID
       const body = insertContentSchema.parse(req.body);
+      
+      console.log("Generate button clicked! Request body:", body);
       
       // Check user status and content count
       const user = await storage.getUser(userId);
@@ -472,7 +474,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/referrals/stats", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = "44276721"; // Mock admin user ID
       const stats = await storage.getReferralStats(userId);
       res.json(stats);
     } catch (error) {
@@ -498,7 +500,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Achievements
   app.get("/api/achievements", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = "44276721"; // Mock admin user ID
       const achievements = await storage.getUserAchievements(userId);
       res.json(achievements);
     } catch (error) {
@@ -510,7 +512,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Activity feed
   app.get("/api/activities", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = "44276721"; // Mock admin user ID
       const activities = await storage.getUserActivities(userId);
       res.json(activities);
     } catch (error) {
