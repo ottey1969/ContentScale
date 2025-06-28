@@ -21,7 +21,7 @@ export default function Landing() {
   });
 
   const handleLogin = () => {
-    window.location.href = "/dashboard";
+    window.location.href = "/api/login";
   };
 
   const acceptCookies = () => {

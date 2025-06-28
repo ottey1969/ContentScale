@@ -42,7 +42,7 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
 
     try {
       const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-      const wsUrl = `${protocol}//${window.location.host}/ws`;
+      const wsUrl = `${protocol}//${window.location.hostname}${window.location.port ? ":" + window.location.port : ""}/ws`;
       
       websocketRef.current = new WebSocket(wsUrl);
 
