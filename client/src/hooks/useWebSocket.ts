@@ -16,6 +16,27 @@ interface UseWebSocketOptions {
 }
 
 export function useWebSocket(options: UseWebSocketOptions = {}) {
+  // WebSocket disabled for development to prevent connection errors
+  console.log('WebSocket hook called but disabled for development');
+  
+  return {
+    isConnected: false,
+    connectionStatus: 'disconnected' as const,
+    lastMessage: null,
+    sendMessage: (message: WebSocketMessage) => {
+      console.log('WebSocket sendMessage called but disabled:', message);
+    },
+    connect: () => {
+      console.log('WebSocket connect called but disabled');
+    },
+    disconnect: () => {
+      console.log('WebSocket disconnect called but disabled');
+    },
+  };
+}
+
+/* Original WebSocket implementation - disabled for development
+export function useWebSocket(options: UseWebSocketOptions = {}) {
   const {
     onMessage,
     onConnect,
@@ -141,3 +162,4 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
     disconnect,
   };
 }
+*/

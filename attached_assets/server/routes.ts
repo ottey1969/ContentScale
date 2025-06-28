@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { WebSocketServer, WebSocket } from "ws";
+// import { WebSocketServer, WebSocket } from "ws"; // Disabled for development
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { contentGenerator } from "./services/contentGenerator";
@@ -511,7 +511,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   const httpServer = createServer(app);
 
-  // WebSocket server for real-time updates
+  // WebSocket server disabled for development to prevent connection errors
+  /*
   const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
 
   wss.on('connection', (ws: WebSocket, req) => {
@@ -543,6 +544,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     // Send initial connection confirmation
     ws.send(JSON.stringify({ type: 'connected', timestamp: new Date().toISOString() }));
   });
+  */
 
   return httpServer;
 }
