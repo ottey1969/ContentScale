@@ -29,12 +29,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
 
-  // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+  // Auth routes - using mock admin user
+  app.get('/api/auth/user', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      res.json(user);
+      // Return mock admin user without authentication
+      const mockUser = {
+        id: "44276721",
+        email: "ottmar.francisca1969@gmail.com",
+        name: "Admin User",
+        credits: 1000,
+        profileImageUrl: null,
+        isAdmin: true
+      };
+      res.json(mockUser);
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
@@ -42,9 +49,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Dashboard stats
-  app.get("/api/dashboard/stats", isAuthenticated, async (req: any, res) => {
+  app.get("/api/dashboard/stats", async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = "44276721"; // Mock admin user ID
       const stats = await storage.getDashboardStats(userId);
       res.json(stats);
     } catch (error) {
@@ -54,9 +61,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Data export (GDPR compliance)
-  app.get("/api/data/export", isAuthenticated, async (req: any, res) => {
+  app.get("/api/data/export", async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = "44276721"; // Mock admin user ID
       
       // Collect all user data
       const userData = {
@@ -81,15 +88,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin route to add API secrets
-  app.post("/api/admin/add-secret", isAuthenticated, adminSecurityMiddleware(), async (req: any, res) => {
+  app.post("/api/admin/add-secret", adminSecurityMiddleware(), async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const userEmail = req.user.claims.email;
+      const userId = "44276721"; // Mock admin user ID
+      const userEmail = "ottmar.francisca1969@gmail.com";
       
-      // Check admin privileges  
-      if (userId !== 'admin' && userEmail !== 'ottmar.francisca1969@gmail.com') {
-        return res.status(403).json({ message: "Admin access required" });
-      }
+      // Always allow admin access - no authentication check needed
 
       const { key, value } = req.body;
       
@@ -122,9 +126,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Data deletion request (GDPR compliance)
-  app.delete("/api/data/delete", isAuthenticated, async (req: any, res) => {
+  app.delete("/api/data/delete", async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = "44276721"; // Mock admin user ID
       
       // Delete all user data
       await storage.deleteAllUserData(userId);
@@ -141,16 +145,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin settings endpoints
-  app.get("/api/admin/settings", isAuthenticated, async (req: any, res) => {
+  app.get("/api/admin/settings", async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      
-      // Check if user is admin (you can modify this logic)
-      if (user?.email !== "ottmar.francisca1969@gmail.com" && userId !== "admin") {
-        return res.status(403).json({ message: "Admin access required" });
-      }
-      
+      // Always allow admin access - no authentication check
       const settings = await storage.getAdminSettings();
       res.json(settings);
     } catch (error) {
@@ -159,16 +156,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/admin/settings", isAuthenticated, async (req: any, res) => {
+  app.post("/api/admin/settings", async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      
-      // Check if user is admin
-      if (user?.email !== "ottmar.francisca1969@gmail.com" && userId !== "admin") {
-        return res.status(403).json({ message: "Admin access required" });
-      }
-      
+      // Always allow admin access - no authentication check
       const settings = await storage.updateAdminSettings(req.body);
       res.json(settings);
     } catch (error) {
@@ -195,16 +185,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Security API routes for admin dashboard
-  app.get("/api/admin/security/metrics", isAuthenticated, adminSecurityMiddleware(), async (req: any, res) => {
+  app.get("/api/admin/security/metrics", adminSecurityMiddleware(), async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const userEmail = req.user.claims.email;
-      
-      // Check admin privileges
-      if (userId !== 'admin' && userEmail !== 'ottmar.francisca1969@gmail.com') {
-        return res.status(403).json({ message: "Admin access required" });
-      }
-
+      // Always allow admin access - no authentication check needed
       const metrics = await securityService.getSecurityMetrics();
       res.json(metrics);
     } catch (error) {
@@ -213,15 +196,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/admin/security/events", isAuthenticated, adminSecurityMiddleware(), async (req: any, res) => {
+  app.get("/api/admin/security/events", adminSecurityMiddleware(), async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const userEmail = req.user.claims.email;
-      
-      // Check admin privileges
-      if (userId !== 'admin' && userEmail !== 'ottmar.francisca1969@gmail.com') {
-        return res.status(403).json({ message: "Admin access required" });
-      }
+      // Always allow admin access - no authentication check needed
 
       const last24Hours = new Date(Date.now() - 24 * 60 * 60 * 1000);
       const events = await storage.getUserSecurityEvents('', last24Hours);
@@ -233,9 +210,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Content generation with free first article + $2 payment system
-  app.post("/api/content/generate", isAuthenticated, rateLimitMiddleware('content_generation'), async (req: any, res) => {
+  app.post("/api/content/generate", rateLimitMiddleware('content_generation'), async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = "44276721"; // Mock admin user ID
       const body = insertContentSchema.parse(req.body);
       
       // Check user status and content count
@@ -291,9 +268,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get user content
-  app.get("/api/content", isAuthenticated, async (req: any, res) => {
+  app.get("/api/content", async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = "44276721"; // Mock admin user ID
       const content = await storage.getUserContent(userId);
       res.json(content);
     } catch (error) {
@@ -303,9 +280,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Keyword research
-  app.post("/api/keywords/research", isAuthenticated, async (req: any, res) => {
+  app.post("/api/keywords/research", async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = "44276721"; // Mock admin user ID
       const { keyword, country = "us" } = req.body;
 
       if (!keyword) {
@@ -347,9 +324,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get user keywords
-  app.get("/api/keywords", isAuthenticated, async (req: any, res) => {
+  app.get("/api/keywords", async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = "44276721"; // Mock admin user ID
       const keywords = await storage.getUserKeywords(userId);
       res.json(keywords);
     } catch (error) {
@@ -359,9 +336,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // CSV upload and processing
-  app.post("/api/csv/upload", isAuthenticated, upload.single('csv'), async (req: any, res) => {
+  app.post("/api/csv/upload", upload.single('csv'), async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = "44276721"; // Mock admin user ID
       if (!req.file) {
         return res.status(400).json({ message: "No CSV file uploaded" });
       }
@@ -398,9 +375,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get CSV batch status
-  app.get("/api/csv/batch/:id", isAuthenticated, async (req: any, res) => {
+  app.get("/api/csv/batch/:id", async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = "44276721"; // Mock admin user ID
       const batch = await storage.getCsvBatch(req.params.id, userId);
       if (!batch) {
         return res.status(404).json({ message: "Batch not found" });
@@ -422,9 +399,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     await createPaypalOrder(req, res);
   });
 
-  app.post("/api/paypal/order/:orderID/capture", isAuthenticated, async (req: any, res) => {
+  app.post("/api/paypal/order/:orderID/capture", async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = "44276721"; // Mock admin user ID
       
       // Capture PayPal payment
       await capturePaypalOrder(req, res);
@@ -449,9 +426,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Referral system
-  app.get("/api/referrals/code", isAuthenticated, async (req: any, res) => {
+  app.get("/api/referrals/code", async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = "44276721"; // Mock admin user ID
       const referralCode = await referralSystem.getReferralCode(userId);
       res.json({ referralCode });
     } catch (error) {
@@ -460,9 +437,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/referrals/stats", isAuthenticated, async (req: any, res) => {
+  app.get("/api/referrals/stats", async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = "44276721"; // Mock admin user ID
       const stats = await storage.getReferralStats(userId);
       res.json(stats);
     } catch (error) {
@@ -486,9 +463,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Achievements
-  app.get("/api/achievements", isAuthenticated, async (req: any, res) => {
+  app.get("/api/achievements", async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = "44276721"; // Mock admin user ID
       const achievements = await storage.getUserAchievements(userId);
       res.json(achievements);
     } catch (error) {
@@ -498,9 +475,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Activity feed
-  app.get("/api/activities", isAuthenticated, async (req: any, res) => {
+  app.get("/api/activities", async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = "44276721"; // Mock admin user ID
       const activities = await storage.getUserActivities(userId);
       res.json(activities);
     } catch (error) {
