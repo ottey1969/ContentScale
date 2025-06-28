@@ -8,6 +8,7 @@ import { keywordResearch } from "./services/keywordResearch";
 import { referralSystem } from "./services/referralSystem";
 import { securityService } from "./services/securityService";
 import { securityMiddleware, rateLimitMiddleware, adminSecurityMiddleware } from "./middleware/securityMiddleware";
+import { registerSofeiaRoutes } from "./routes/sofeiaRoutes";
 import { insertContentSchema, insertKeywordSchema, insertActivitySchema } from "@shared/schema";
 import { z } from "zod";
 import multer from "multer";
@@ -28,6 +29,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Auth middleware
   await setupAuth(app);
+
+  // Register Sofeia AI routes
+  registerSofeiaRoutes(app);
 
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {

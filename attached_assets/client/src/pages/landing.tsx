@@ -155,6 +155,185 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Sofeia AI Standalone Section */}
+      <section className="py-20 bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 relative overflow-hidden">
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-10 left-10 w-32 h-32 bg-blue-500/20 rounded-full blur-xl animate-pulse"></div>
+          <div className="absolute top-40 right-20 w-24 h-24 bg-purple-500/20 rounded-full blur-lg animate-bounce delay-300"></div>
+          <div className="absolute bottom-20 left-1/4 w-40 h-40 bg-pink-500/20 rounded-full blur-2xl animate-pulse delay-700"></div>
+          <div className="absolute bottom-40 right-1/3 w-28 h-28 bg-cyan-500/20 rounded-full blur-lg animate-bounce delay-1000"></div>
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <Badge className="mb-6 bg-gradient-to-r from-purple-500/30 to-pink-500/30 text-white border-purple-400/50 hover:border-pink-400/70 transition-all duration-300 cursor-pointer transform hover:scale-110">
+              <Brain className="w-5 h-5 mr-2 animate-pulse" />
+              World's Most Advanced AI Assistant
+            </Badge>
+            
+            <h2 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-300 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+              Meet Sofeia AI
+            </h2>
+            
+            <p className="text-xl text-gray-200 mb-8 max-w-4xl mx-auto leading-relaxed">
+              The world's most advanced autonomous AI assistant. Superior to Manus AI and Replit agents. 
+              <span className="text-purple-300 font-semibold"> Chat about anything</span> - from complex problem-solving to creative brainstorming.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Left Side - Features */}
+            <div className="space-y-8">
+              <div className="space-y-6">
+                <div className="flex items-start space-x-4 group">
+                  <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                    <Brain className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-blue-300 transition-colors">
+                      Unrestricted Intelligence
+                    </h3>
+                    <p className="text-gray-300 group-hover:text-gray-200 transition-colors">
+                      Ask about anything - technology, business, science, creativity, philosophy. No topic limitations.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start space-x-4 group">
+                  <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                    <Trophy className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-purple-300 transition-colors">
+                      Superior Performance
+                    </h3>
+                    <p className="text-gray-300 group-hover:text-gray-200 transition-colors">
+                      Outperforms Manus AI and Replit agents with advanced reasoning, creativity, and problem-solving capabilities.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start space-x-4 group">
+                  <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                    <Shield className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-green-300 transition-colors">
+                      Autonomous Decision Making
+                    </h3>
+                    <p className="text-gray-300 group-hover:text-gray-200 transition-colors">
+                      Independent analysis and strategic thinking. Provides actionable insights and practical solutions.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Pricing Info */}
+              <div className="bg-gradient-to-r from-slate-800/50 to-slate-700/50 rounded-2xl p-6 border border-purple-500/30">
+                <h4 className="text-lg font-semibold text-white mb-4 flex items-center">
+                  <span className="w-2 h-2 bg-green-400 rounded-full mr-3 animate-pulse"></span>
+                  Simple Pricing
+                </h4>
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-300">First 5 questions</span>
+                    <span className="text-green-400 font-semibold">FREE</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-300">Additional questions</span>
+                    <span className="text-white font-semibold">$2.69 each</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-300">Credit packages</span>
+                    <span className="text-purple-400 font-semibold">Save up to 25%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Side - Chat Interface Preview */}
+            <div className="relative">
+              <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl p-8 border border-purple-500/30 shadow-2xl transform hover:scale-105 transition-all duration-500">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                      <Brain className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-white font-semibold">Sofeia AI</h3>
+                      <p className="text-green-400 text-sm flex items-center">
+                        <span className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>
+                        Online & Ready
+                      </p>
+                    </div>
+                  </div>
+                  <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/50">
+                    5 Free Questions
+                  </Badge>
+                </div>
+
+                <div className="space-y-4 mb-6">
+                  <div className="bg-slate-700/50 rounded-2xl p-4">
+                    <p className="text-gray-300 text-sm">
+                      "How can I optimize my business strategy for 2025?"
+                    </p>
+                  </div>
+                  <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-2xl p-4 border border-purple-500/30">
+                    <p className="text-white text-sm">
+                      I'll analyze current market trends and provide a comprehensive strategy framework. Let me break this down into key areas: digital transformation, customer experience optimization, and emerging technology adoption...
+                    </p>
+                    <div className="flex items-center mt-3 text-xs text-purple-300">
+                      <div className="w-1 h-1 bg-purple-400 rounded-full mr-2 animate-pulse"></div>
+                      Analyzing market data and trends...
+                    </div>
+                  </div>
+                </div>
+
+                <Button 
+                  onClick={handleLogin}
+                  className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold py-3 rounded-xl transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-purple-500/50"
+                >
+                  <Brain className="w-5 h-5 mr-2" />
+                  Start Chatting with Sofeia AI
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+              </div>
+
+              {/* Floating Elements */}
+              <div className="absolute -top-4 -right-4 w-8 h-8 bg-purple-500/30 rounded-full animate-bounce delay-500"></div>
+              <div className="absolute -bottom-4 -left-4 w-6 h-6 bg-pink-500/30 rounded-full animate-pulse delay-700"></div>
+            </div>
+          </div>
+
+          {/* Bottom CTA */}
+          <div className="text-center mt-16">
+            <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
+              Whether you need content creation, business strategy, technical solutions, or creative brainstorming - 
+              <span className="text-purple-300 font-semibold"> Sofeia AI delivers superior results</span> compared to any other AI assistant.
+            </p>
+            <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-400">
+              <div className="flex items-center space-x-2">
+                <CheckCircle className="w-4 h-4 text-green-400" />
+                <span>No content restrictions</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <CheckCircle className="w-4 h-4 text-green-400" />
+                <span>Advanced reasoning</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <CheckCircle className="w-4 h-4 text-green-400" />
+                <span>Real-time responses</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <CheckCircle className="w-4 h-4 text-green-400" />
+                <span>Superior to competitors</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Interactive Features Section */}
       <section className="py-20 bg-gradient-to-b from-slate-900 to-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
