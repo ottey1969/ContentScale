@@ -29,22 +29,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
 
-  // Redirect login attempts to dashboard when auth is disabled
-  app.get('/api/login', (req, res) => {
-    res.redirect('/');
-  });
-
   // Auth routes
-  app.get('/api/auth/user', async (req: any, res) => {
+  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
-      // Return mock admin user when authentication is disabled
-      const mockUser = {
-        id: "44276721",
-        email: "ottmar.francisca1969@gmail.com", 
-        name: "Admin User",
-        credits: 100
-      };
-      res.json(mockUser);
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      res.json(user);
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
@@ -245,10 +235,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Content generation with free first article + $2 payment system
   app.post("/api/content/generate", isAuthenticated, rateLimitMiddleware('content_generation'), async (req: any, res) => {
     try {
-      const userId = "44276721"; // Mock admin user ID
+      const userId = req.user.claims.sub;
       const body = insertContentSchema.parse(req.body);
-      
-      console.log("Generate button clicked! Request body:", body);
       
       // Check user status and content count
       const user = await storage.getUser(userId);
@@ -474,7 +462,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/referrals/stats", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = "44276721"; // Mock admin user ID
+      const userId = req.user.claims.sub;
       const stats = await storage.getReferralStats(userId);
       res.json(stats);
     } catch (error) {
@@ -500,7 +488,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Achievements
   app.get("/api/achievements", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = "44276721"; // Mock admin user ID
+      const userId = req.user.claims.sub;
       const achievements = await storage.getUserAchievements(userId);
       res.json(achievements);
     } catch (error) {
@@ -512,7 +500,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Activity feed
   app.get("/api/activities", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = "44276721"; // Mock admin user ID
+      const userId = req.user.claims.sub;
       const activities = await storage.getUserActivities(userId);
       res.json(activities);
     } catch (error) {

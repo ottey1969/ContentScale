@@ -25,7 +25,7 @@ export default function SofeiaAgentBrain() {
   }, [messages.length]);
 
   return (
-    <div className="relative bg-neural-gradient p-8 rounded-2xl overflow-hidden">
+    <div className="relative bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 p-8 rounded-2xl overflow-hidden z-10">
       <div className="absolute inset-0 opacity-10">
         {/* Neural network background pattern */}
         <svg className="w-full h-full" viewBox="0 0 400 200">

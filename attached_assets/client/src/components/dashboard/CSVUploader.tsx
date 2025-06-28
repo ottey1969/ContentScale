@@ -38,8 +38,12 @@ export default function CSVUploader() {
 
   const uploadMutation = useMutation({
     mutationFn: async (file: File) => {
+      console.log('CSV upload started for file:', file.name, 'Size:', file.size);
+      
       const formData = new FormData();
       formData.append('csv', file);
+
+      console.log('Sending CSV upload request to /api/csv/upload');
 
       const response = await fetch('/api/csv/upload', {
         method: 'POST',
@@ -47,12 +51,17 @@ export default function CSVUploader() {
         credentials: 'include',
       });
 
+      console.log('CSV upload response status:', response.status);
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        console.error('CSV upload failed:', errorData);
         throw new Error(errorData.message || `Upload failed: ${response.statusText}`);
       }
 
-      return response.json();
+      const result = await response.json();
+      console.log('CSV upload successful:', result);
+      return result;
     },
     onSuccess: (data) => {
       setCurrentBatchId(data.batchId);

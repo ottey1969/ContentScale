@@ -32,6 +32,8 @@ export default function ContentGenerator() {
 
   const generateMutation = useMutation({
     mutationFn: async () => {
+      console.log('Generate button clicked, topic:', topic);
+      
       if (!topic.trim()) {
         throw new Error("Please enter a topic or keywords");
       }
@@ -44,10 +46,15 @@ export default function ContentGenerator() {
         userId: "", // Will be set by backend from auth
       };
       
+      console.log('Sending API request with payload:', payload);
+      
       try {
         const response = await apiRequest("POST", "/api/content/generate", payload);
+        console.log('API response received:', response);
         return response;
       } catch (error: any) {
+        console.error('API request failed:', error);
+        
         // Handle specific error cases and re-throw with proper structure
         if (error.message?.includes('402')) {
           const paymentError = new Error("Payment required");
@@ -165,33 +172,37 @@ export default function ContentGenerator() {
                   generateMutation.mutate();
                 }
               }}
-              className="pr-24 h-12 bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="h-12 bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               autoComplete="off"
             />
-            <Button
-              type="button"
-              onClick={() => {
-                if (topic.trim()) {
-                  generateMutation.mutate();
-                }
-              }}
-              disabled={generateMutation.isPending || !topic.trim()}
-              className="absolute right-2 top-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 h-8"
-            >
-              {generateMutation.isPending ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin mr-1" />
-                  <span>Generating</span>
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-4 h-4 mr-1" />
-                  <span>Generate</span>
-                </>
-              )}
-            </Button>
           </div>
         </div>
+        <Button
+          type="button"
+          onClick={() => {
+            console.log('Generate button clicked, current topic:', topic);
+            if (topic.trim()) {
+              console.log('Topic is valid, calling generateMutation.mutate()');
+              generateMutation.mutate();
+            } else {
+              console.log('Topic is empty, button should be disabled');
+            }
+          }}
+          disabled={generateMutation.isPending || !topic.trim()}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 h-12"
+        >
+          {generateMutation.isPending ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin mr-1" />
+              <span>Generating</span>
+            </>
+          ) : (
+            <>
+              <Sparkles className="w-4 h-4 mr-1" />
+              <span>Generate</span>
+            </>
+          )}
+        </Button>
         
         {/* Content Type Selection */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

@@ -27,17 +27,26 @@ export default function KeywordResearch() {
 
   const researchMutation = useMutation({
     mutationFn: async () => {
+      console.log('Research button clicked, keyword:', searchKeyword);
+      
       if (!searchKeyword.trim()) {
         throw new Error("Please enter a keyword to research");
       }
       
+      const payload = {
+        keyword: searchKeyword.trim(),
+        country: "us"
+      };
+      
+      console.log('Sending keyword research API request with payload:', payload);
+      
       try {
-        const response = await apiRequest("POST", "/api/keywords/research", {
-          keyword: searchKeyword.trim(),
-          country: "us"
-        });
+        const response = await apiRequest("POST", "/api/keywords/research", payload);
+        console.log('Keyword research API response received:', response);
         return response;
       } catch (error: any) {
+        console.error('Keyword research API request failed:', error);
+        
         // Handle specific error cases and re-throw with proper structure
         if (error.message?.includes('401')) {
           const authError = new Error("Authentication required");
@@ -144,7 +153,15 @@ export default function KeywordResearch() {
             />
             <Button 
               type="button"
-              onClick={() => researchMutation.mutate()}
+              onClick={() => {
+                console.log('Research button clicked, current keyword:', searchKeyword);
+                if (searchKeyword.trim()) {
+                  console.log('Keyword is valid, calling researchMutation.mutate()');
+                  researchMutation.mutate();
+                } else {
+                  console.log('Keyword is empty, button should be disabled');
+                }
+              }}
               disabled={researchMutation.isPending || !searchKeyword.trim()}
               className="bg-secondary hover:bg-purple-600 text-white px-6 h-12"
             >

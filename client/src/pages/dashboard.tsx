@@ -128,8 +128,8 @@ export default function Dashboard() {
         <Sidebar />
         
         {/* Main Content Area */}
-        <main className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar">
-          <div className="p-6 space-y-6 pb-32">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar relative z-0">
+          <div className="p-6 space-y-6 pb-40 relative z-10">
             
             {/* Sofeia Agent Brain */}
             <SofeiaAgentBrain />
@@ -195,144 +195,6 @@ export default function Dashboard() {
             <ActivityFeed />
           </div>
         </main>
-      </div>
-
-      {/* API Configuration Section - Bottom of Page */}
-      <div className="bg-dark border-t border-surface-light">
-        <div className="max-w-7xl mx-auto p-6">
-          <div className="bg-surface rounded-xl border border-surface-light overflow-hidden">
-            <div className="p-6 border-b border-surface-light">
-              <h3 className="text-xl font-semibold flex items-center space-x-2">
-                <Key className="w-6 h-6 text-primary" />
-                <span>API Configuration</span>
-              </h3>
-              <p className="text-sm text-text-secondary mt-2">
-                Configure your API keys to enable AI-powered content generation and advanced features.
-              </p>
-            </div>
-            
-            <div className="p-6 space-y-6">
-              {/* Anthropic API Key */}
-              <div className="space-y-3">
-                <div className="flex items-center space-x-2">
-                  <Shield className="w-4 h-4 text-green-500" />
-                  <h3 className="font-medium">Anthropic API Key</h3>
-                  <span className="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">Required</span>
-                </div>
-                <p className="text-sm text-text-secondary">
-                  Powers AI content generation • Get your key from <a href="https://console.anthropic.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">console.anthropic.com</a>
-                </p>
-                <div className="flex space-x-2">
-                  <Input
-                    type="password"
-                    placeholder="sk-ant-api03-xxxxx..."
-                    value={anthropicKey}
-                    onChange={(e) => setAnthropicKey(e.target.value)}
-                    className="flex-1 bg-dark border-surface-light"
-                  />
-                  <Button 
-                    onClick={() => saveApiKey('ANTHROPIC_API_KEY', anthropicKey, 'Anthropic API Key')}
-                    disabled={loading === 'ANTHROPIC_API_KEY'}
-                    className="bg-green-600 hover:bg-green-700 text-white"
-                  >
-                    <Save className="w-4 h-4 mr-2" />
-                    {loading === 'ANTHROPIC_API_KEY' ? 'Saving...' : 'Save'}
-                  </Button>
-                </div>
-              </div>
-
-              {/* AI Agent Info */}
-              <div className="space-y-3">
-                <div className="flex items-center space-x-2">
-                  <Brain className="w-4 h-4 text-green-500" />
-                  <h3 className="font-medium">AI Agent Research</h3>
-                  <span className="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">Active</span>
-                </div>
-                <p className="text-sm text-text-secondary">
-                  The AI agent performs real-time keyword research and content analysis without requiring external APIs. All research is done intelligently by the system.
-                </p>
-                <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                  <p className="text-sm text-green-800">
-                    ✓ Real-time keyword research enabled<br/>
-                    ✓ Content generation with built-in SEO analysis<br/>
-                    ✓ No additional API keys required
-                  </p>
-                </div>
-              </div>
-
-              {/* PayPal Configuration */}
-              <div className="space-y-3">
-                <div className="flex items-center space-x-2">
-                  <CreditCard className="w-4 h-4 text-yellow-500" />
-                  <h3 className="font-medium">PayPal Configuration</h3>
-                  <span className="text-xs px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full">Payment</span>
-                </div>
-                <p className="text-sm text-text-secondary">
-                  Enable credit purchases • Configure PayPal Client ID and Secret
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Client ID</label>
-                    <Input
-                      type="password"
-                      placeholder="PayPal Client ID..."
-                      value={paypalClientId}
-                      onChange={(e) => setPaypalClientId(e.target.value)}
-                      className="bg-dark border-surface-light"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Client Secret</label>
-                    <Input
-                      type="password"
-                      placeholder="PayPal Client Secret..."
-                      value={paypalSecret}
-                      onChange={(e) => setPaypalSecret(e.target.value)}
-                      className="bg-dark border-surface-light"
-                    />
-                  </div>
-                </div>
-                <div className="flex space-x-2">
-                  <Button 
-                    onClick={() => saveApiKey('PAYPAL_CLIENT_ID', paypalClientId, 'PayPal Client ID')}
-                    disabled={loading === 'PAYPAL_CLIENT_ID'}
-                    className="bg-yellow-600 hover:bg-yellow-700 text-white"
-                  >
-                    <Save className="w-4 h-4 mr-2" />
-                    {loading === 'PAYPAL_CLIENT_ID' ? 'Saving...' : 'Save Client ID'}
-                  </Button>
-                  <Button 
-                    onClick={() => saveApiKey('PAYPAL_CLIENT_SECRET', paypalSecret, 'PayPal Client Secret')}
-                    disabled={loading === 'PAYPAL_CLIENT_SECRET'}
-                    className="bg-yellow-600 hover:bg-yellow-700 text-white"
-                  >
-                    <Save className="w-4 h-4 mr-2" />
-                    {loading === 'PAYPAL_CLIENT_SECRET' ? 'Saving...' : 'Save Secret'}
-                  </Button>
-                </div>
-              </div>
-
-              {/* Status Indicators */}
-              <div className="border-t border-surface-light pt-4">
-                <h4 className="font-medium mb-3">Service Status</h4>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                    <span className="text-sm">Anthropic: Not configured</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="text-sm">AI Research: Active</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                    <span className="text-sm">PayPal: Not configured</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Floating Action Button */}
