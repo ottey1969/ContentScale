@@ -158,3 +158,10 @@ Preferred communication style: Simple, everyday language.
 - User requesting new agent for fresh approach to comprehensive debugging
 - Admin email: ottmar.francisca1969@gmail.com (must use this exact email)
 - PayPal integration: $2 per article, free first article for new users, 85% profit margin ($1.70 profit per article)
+
+## Authentication System Status
+- **PERMANENTLY DISABLED** for development and testing purposes
+- All authentication middleware bypassed in `server/replitAuth.ts`
+- Mock admin user automatically provided (ID: "44276721", email: "ottmar.francisca1969@gmail.com")
+- Session handling completely disabled
+- Frontend routing shows dashboard directly without authentication checks
