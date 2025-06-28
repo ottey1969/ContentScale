@@ -26,8 +26,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Security middleware - track all requests
   app.use(securityMiddleware());
   
-  // Auth middleware
-  await setupAuth(app);
+  // Auth middleware - completely disabled
+  // await setupAuth(app);
 
   // Auth routes - using mock admin user
   app.get('/api/auth/user', async (req: any, res) => {
