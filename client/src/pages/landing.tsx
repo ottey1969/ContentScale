@@ -20,7 +20,7 @@ export default function Landing() {
     retry: false,
   });
 
-  const handleLogin = () => {
+  const handleGetStarted = () => {
     window.location.href = "/api/login";
   };
 
@@ -58,7 +58,7 @@ export default function Landing() {
               >
                 Privacy
               </Button>
-              <Button onClick={handleLogin} className="btn-primary">
+              <Button onClick={handleGetStarted} className="btn-primary">
                 Get Started
               </Button>
             </div>
@@ -100,7 +100,7 @@ export default function Landing() {
           {/* Interactive Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
             <Button 
-              onClick={handleLogin}
+              onClick={handleGetStarted}
               size="lg" 
               className="group bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold px-8 py-4 text-lg transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-2xl"
             >
@@ -291,7 +291,7 @@ export default function Landing() {
                 </div>
 
                 <Button 
-                  onClick={handleLogin}
+                  onClick={handleGetStarted}
                   className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold py-3 rounded-xl transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-purple-500/50"
                 >
                   <Brain className="w-5 h-5 mr-2" />
@@ -542,7 +542,7 @@ export default function Landing() {
           
           <div className="flex flex-col sm:flex-row gap-6 justify-center mb-8">
             <Button 
-              onClick={handleLogin}
+              onClick={handleGetStarted}
               size="lg"
               className="group bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold px-8 py-4 text-lg transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-2xl"
             >

@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/dashboard";
+import SimpleDashboard from "@/pages/simple-dashboard";
 import Landing from "@/pages/landing";
 import Admin from "@/pages/admin";
 import { useAuth } from "@/hooks/useAuth";
@@ -26,21 +27,12 @@ function Router() {
 
   return (
     <Switch>
-      {/* Public routes */}
-      <Route path="/" component={isAuthenticated ? Dashboard : Landing} />
+      {/* Landing page - first thing users see */}
+      <Route path="/" component={Landing} />
       
-      {/* Protected routes */}
-      {isAuthenticated ? (
-        <>
-          <Route path="/dashboard" component={Dashboard} />
-          <Route path="/admin" component={Admin} />
-        </>
-      ) : (
-        <>
-          <Route path="/dashboard" component={Landing} />
-          <Route path="/admin" component={Landing} />
-        </>
-      )}
+      {/* Dashboard - authenticated users see your HTML app */}
+      <Route path="/dashboard" component={isAuthenticated ? SimpleDashboard : Landing} />
+      <Route path="/admin" component={isAuthenticated ? Admin : Landing} />
       
       {/* 404 fallback */}
       <Route component={NotFound} />

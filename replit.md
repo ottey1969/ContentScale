@@ -153,12 +153,17 @@ Test all functionality with the browser console open (F12) for debugging
 
 Preferred communication style: Simple, everyday language.
 
-## Current Issues (Priority: CRITICAL)
-- User experiencing persistent UI functionality problems
-- Generate button, Keyword Research button, CSV Upload button not responding properly
-- Input fields not working consistently 
-- Multiple debugging attempts by previous agents unsuccessful
-- User requesting new agent for fresh approach to comprehensive debugging
+## URL Structure and User Flow
+- **Landing Page**: "/" - Marketing page for ContentScale with "Get Started" button
+- **Authentication**: "/api/login" - Users authenticate via Replit Auth
+- **Dashboard**: "/dashboard" - Main application (contentscale-simple.html after authentication)
+- **Admin Panel**: "/admin" - Administrative functions and settings
+- **User Flow**: Landing → Click "Get Started" → Authentication → Dashboard Application
+
+## Current Implementation Status
+- Landing page properly routes users to authentication
+- Dashboard serves standalone HTML application with guaranteed working features
+- Authentication integration maintained for real user management
 - Admin email: ottmar.francisca1969@gmail.com (must use this exact email)
 - PayPal integration: $2 per article, free first article for new users, 85% profit margin ($1.70 profit per article)
 
