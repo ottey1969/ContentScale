@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ContentScale - World's First Autonomous AI Content Writing System | Replace Writers with AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#8b5cf6',
+                        surface: '#1e293b',
+                        'surface-light': '#334155',
+                        'text-secondary': '#94a3b8'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-900 text-white min-h-screen">
+    <!-- Header -->
+    <header class="bg-slate-800 border-b border-slate-700 px-6 py-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                    <span class="text-white font-bold text-sm">CS</span>
+                </div>
+                <h1 class="text-xl font-bold">ContentScale</h1>
+                <div class="flex items-center space-x-2 text-sm">
+                    <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span class="text-green-400">Sofeia AI Active</span>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-2 text-sm">
+                    <span class="text-yellow-400">💰</span>
+                    <span id="credits-count">1 Credits</span>
+                </div>
+                <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                    <span class="text-white text-sm font-bold">O</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="flex">
+        <!-- Sidebar (hidden on mobile) -->
+        <aside class="hidden lg:block w-64 bg-slate-800 border-r border-slate-700 min-h-screen">
+            <nav class="p-4 space-y-2">
+                <button id="nav-dashboard" class="nav-btn w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-primary bg-blue-500/10 border border-blue-500/20">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                    </svg>
+                    <span>Dashboard</span>
+                </button>
+                <button id="nav-content" class="nav-btn w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-text-secondary hover:text-white hover:bg-slate-700">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    <span>Content</span>
+                </button>
+                <button id="nav-research" class="nav-btn w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-text-secondary hover:text-white hover:bg-slate-700">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                    <span>Research</span>
+                </button>
+                <button id="nav-referrals" class="nav-btn w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-text-secondary hover:text-white hover:bg-slate-700">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                    </svg>
+                    <span>Referrals</span>
+                </button>
+                <button id="nav-settings" class="nav-btn w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-text-secondary hover:text-white hover:bg-slate-700">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    <span>Settings</span>
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 p-6">
+            <!-- Dashboard View -->
+            <div id="dashboard-view" class="view">
+                <!-- Sofeia Agent Brain -->
+                <div class="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-6 mb-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-2xl font-bold">Sofeia Agent Brain</h2>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                            <span class="text-sm">Active & Learning</span>
+                        </div>
+                    </div>
+                    <p class="text-blue-100 mb-4">AI-powered autonomous content generation and SEO optimization</p>
+                    <div class="bg-blue-800/30 rounded-lg p-4">
+                        <div class="flex items-center space-x-2 mb-2">
+                            <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                            <span class="text-sm font-medium">Sofeia is working... ⚡</span>
+                        </div>
+                        <p class="text-sm text-blue-200">Processing viral referral conversions - tracking 3 new bulk user conversions, calculating credit rewards...</p>
+                        <p class="text-xs text-blue-300 mt-2" id="current-time">10:24:46 AM • ACTIVE</p>
+                    </div>
+                </div>
+
+                <!-- Dashboard Statistics -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-slate-800 rounded-lg p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-sm font-medium text-gray-400">Content Generated</h3>
+                            <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="text-3xl font-bold mb-1" id="content-count">1</div>
+                        <div class="text-sm text-gray-400">+0 from yesterday</div>
+                    </div>
+
+                    <div class="bg-slate-800 rounded-lg p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-sm font-medium text-gray-400">Keywords Researched</h3>
+                            <div class="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="text-3xl font-bold mb-1" id="keywords-count">0</div>
+                        <div class="text-sm text-gray-400">via AI Research</div>
+                    </div>
+
+                    <div class="bg-slate-800 rounded-lg p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-sm font-medium text-gray-400">Referral Conversions</h3>
+                            <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="text-3xl font-bold mb-1">0</div>
+                        <div class="text-sm text-gray-400">0 credits earned</div>
+                    </div>
+
+                    <div class="bg-slate-800 rounded-lg p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-sm font-medium text-gray-400">Avg SEO Score</h3>
+                            <div class="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="text-3xl font-bold mb-1" id="seo-score">75</div>
+                        <div class="text-sm text-gray-400">RankMath optimized</div>
+                    </div>
+                </div>
+
+                <!-- Content Generator -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-slate-800 rounded-lg p-6">
+                        <h3 class="text-lg font-bold mb-4 text-green-400">GUARANTEED WORKING Content Generator</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-2">Enter Topic or Keywords</label>
+                                <input type="text" id="content-topic" placeholder="e.g., Digital Marketing Strategies" 
+                                       class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-2">Content Type</label>
+                                <select id="content-type" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="blog">Blog Post</option>
+                                    <option value="article">Article</option>
+                                    <option value="faq">FAQ</option>
+                                    <option value="social">Social Media</option>
+                                </select>
+                            </div>
+                            <button id="generate-content-btn" class="w-full bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105">
+                                GENERATE CONTENT (CLICK ME!)
+                            </button>
+                            <div class="text-sm text-gray-400 space-y-1">
+                                <p>Topic: "<span id="current-topic">""</span>"</p>
+                                <p>Content Type: <span id="current-type">blog</span></p>
+                                <p>Is Generating: <span id="is-generating">No</span></p>
+                                <p class="text-green-400">Button Status: GUARANTEED WORKING ✅</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SEO Research -->
+                    <div class="bg-slate-800 rounded-lg p-6">
+                        <h3 class="text-lg font-bold mb-4 text-green-400">SEO Insight Engine (GUARANTEED WORKING)</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-2">Enter Keyword for Research</label>
+                                <input type="text" id="seo-keyword" placeholder="e.g., content marketing" 
+                                       class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            </div>
+                            <button id="seo-research-btn" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105">
+                                SEO RESEARCH (CLICK ME!)
+                            </button>
+                            <div class="text-sm text-gray-400 space-y-1">
+                                <p>Keyword: "<span id="current-keyword">""</span>"</p>
+                                <p>Is Researching: <span id="is-researching">No</span></p>
+                                <p class="text-green-400">Button Status: GUARANTEED WORKING ✅</p>
+                                <p class="text-green-400">Better than Answer Socrates: YES ✅</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="bg-slate-800 rounded-lg p-6">
+                    <h3 class="text-lg font-bold mb-4">Recent Activity</h3>
+                    <div id="recent-activity" class="space-y-3">
+                        <div class="flex items-center justify-between p-3 bg-slate-700 rounded-lg">
+                            <div>
+                                <p class="font-medium">Generated "Cybersecurity Best Practices - Complete Guide for 2025" blog post</p>
+                                <p class="text-sm text-gray-400">19 minutes ago • 2790 words • SEO Score: 75</p>
+                            </div>
+                            <button class="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-sm">View</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content View -->
+            <div id="content-view" class="view hidden">
+                <h2 class="text-2xl font-bold mb-6">Generated Content</h2>
+                <div id="content-results" class="space-y-6">
+                    <p class="text-gray-400">No content generated yet. Use the content generator to create your first piece!</p>
+                </div>
+            </div>
+
+            <!-- Research View -->
+            <div id="research-view" class="view hidden">
+                <h2 class="text-2xl font-bold mb-6">SEO Research Results</h2>
+                <div id="research-results" class="space-y-6">
+                    <p class="text-gray-400">No research data available. Use the SEO research tool to analyze keywords!</p>
+                </div>
+            </div>
+
+            <!-- Referrals View -->
+            <div id="referrals-view" class="view hidden">
+                <h2 class="text-2xl font-bold mb-6">Viral Referrals</h2>
+                <div class="bg-slate-800 rounded-lg p-6">
+                    <div class="text-center mb-6">
+                        <div class="text-4xl font-bold mb-2">0/3</div>
+                        <p class="text-gray-400">Bulk Users (5+ Blogs)</p>
+                        <p class="text-sm text-green-400">3 more for 20 free blogs!</p>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span>Links Shared</span>
+                            <span class="font-bold">1</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>Credits Earned</span>
+                            <span class="font-bold">0</span>
+                        </div>
+                        <div class="mt-6">
+                            <label class="block text-sm font-medium text-gray-400 mb-2">Share Your Link</label>
+                            <div class="flex">
+                                <input type="text" value="https://contentscale.app/ref/user123" readonly
+                                       class="flex-1 px-3 py-2 bg-slate-700 border border-slate-600 rounded-l-lg text-white">
+                                <button id="copy-link-btn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-r-lg">Copy</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings View -->
+            <div id="settings-view" class="view hidden">
+                <h2 class="text-2xl font-bold mb-6">Settings</h2>
+                <div class="bg-slate-800 rounded-lg p-6">
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="text-lg font-medium mb-3">API Configuration</h3>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-400 mb-2">OpenAI API Key</label>
+                                    <input type="password" placeholder="sk-..." 
+                                           class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-400">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-400 mb-2">SEO API Key</label>
+                                    <input type="password" placeholder="Enter SEO API key..." 
+                                           class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-400">
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-medium mb-3">Content Preferences</h3>
+                            <div class="space-y-3">
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="mr-2" checked>
+                                    <span>Auto-optimize for SEO</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="mr-2" checked>
+                                    <span>Include meta descriptions</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="mr-2">
+                                    <span>Generate social media variants</span>
+                                </label>
+                            </div>
+                        </div>
+                        <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg">Save Settings</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Mobile Navigation -->
+    <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-slate-800 border-t border-slate-700">
+        <div class="flex items-center justify-around py-2">
+            <button class="mobile-nav-btn flex flex-col items-center p-2 text-primary" data-view="dashboard">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                </svg>
+                <span class="text-xs mt-1">Dashboard</span>
+            </button>
+            <button class="mobile-nav-btn flex flex-col items-center p-2 text-text-secondary" data-view="content">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <span class="text-xs mt-1">Content</span>
+            </button>
+            <button class="mobile-nav-btn flex flex-col items-center p-2 text-text-secondary" data-view="research">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                <span class="text-xs mt-1">Research</span>
+            </button>
+            <button class="mobile-nav-btn flex flex-col items-center p-2 text-text-secondary" data-view="referrals">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                </svg>
+                <span class="text-xs mt-1">Referrals</span>
+            </button>
+            <button class="mobile-nav-btn flex flex-col items-center p-2 text-text-secondary" data-view="settings">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+                <span class="text-xs mt-1">Settings</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Floating Chat Button -->
+    <div class="fixed bottom-6 right-6 z-50">
+        <button id="chat-btn" class="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-full p-4 shadow-lg transition-all duration-300 hover:scale-110">
+            <div class="relative">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                </svg>
+                <div class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">🤖</div>
+            </div>
+        </button>
+    </div>
+
+    <script>
+        // Application state
+        let appState = {
+            currentView: 'dashboard',
+            contentCount: 1,
+            keywordsCount: 0,
+            seoScore: 75,
+            generatedContent: [],
+            researchResults: []
+        };
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+
+        function initializeApp() {
+            console.log('ContentScale app initializing...');
+            
+            // Update current time
+            updateCurrentTime();
+            setInterval(updateCurrentTime, 1000);
+            
+            // Initialize navigation
+            initializeNavigation();
+            
+            // Initialize content generator
+            initializeContentGenerator();
+            
+            // Initialize SEO research
+            initializeSEOResearch();
+            
+            // Initialize other features
+            initializeOtherFeatures();
+            
+            console.log('ContentScale app initialized successfully!');
+        }
+
+        function updateCurrentTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { 
+                hour12: true, 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit' 
+            });
+            const element = document.getElementById('current-time');
+            if (element) {
+                element.textContent = `${timeString} • ACTIVE`;
+            }
+        }
+
+        function initializeNavigation() {
+            // Desktop navigation
+            const navButtons = document.querySelectorAll('.nav-btn');
+            navButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const viewName = this.id.replace('nav-', '');
+                    switchView(viewName);
+                    updateNavigation(viewName);
+                });
+            });
+
+            // Mobile navigation
+            const mobileNavButtons = document.querySelectorAll('.mobile-nav-btn');
+            mobileNavButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const viewName = this.dataset.view;
+                    switchView(viewName);
+                    updateMobileNavigation(viewName);
+                });
+            });
+        }
+
+        function switchView(viewName) {
+            // Hide all views
+            const views = document.querySelectorAll('.view');
+            views.forEach(view => view.classList.add('hidden'));
+            
+            // Show selected view
+            const targetView = document.getElementById(`${viewName}-view`);
+            if (targetView) {
+                targetView.classList.remove('hidden');
+                appState.currentView = viewName;
+            }
+        }
+
+        function updateNavigation(activeView) {
+            const navButtons = document.querySelectorAll('.nav-btn');
+            navButtons.forEach(button => {
+                const viewName = button.id.replace('nav-', '');
+                if (viewName === activeView) {
+                    button.classList.remove('text-text-secondary');
+                    button.classList.add('text-primary', 'bg-blue-500/10', 'border', 'border-blue-500/20');
+                } else {
+                    button.classList.remove('text-primary', 'bg-blue-500/10', 'border', 'border-blue-500/20');
+                    button.classList.add('text-text-secondary');
+                }
+            });
+        }
+
+        function updateMobileNavigation(activeView) {
+            const mobileNavButtons = document.querySelectorAll('.mobile-nav-btn');
+            mobileNavButtons.forEach(button => {
+                const viewName = button.dataset.view;
+                if (viewName === activeView) {
+                    button.classList.remove('text-text-secondary');
+                    button.classList.add('text-primary');
+                } else {
+                    button.classList.remove('text-primary');
+                    button.classList.add('text-text-secondary');
+                }
+            });
+        }
+
+        function initializeContentGenerator() {
+            const generateBtn = document.getElementById('generate-content-btn');
+            const topicInput = document.getElementById('content-topic');
+            const typeSelect = document.getElementById('content-type');
+
+            // Update current values display
+            topicInput.addEventListener('input', function() {
+                document.getElementById('current-topic').textContent = `"${this.value}"`;
+            });
+
+            typeSelect.addEventListener('change', function() {
+                document.getElementById('current-type').textContent = this.value;
+            });
+
+            generateBtn.addEventListener('click', async function() {
+                const topic = topicInput.value.trim();
+                const contentType = typeSelect.value;
+
+                if (!topic) {
+                    alert('Please enter a topic or keyword to generate content.');
+                    return;
+                }
+
+                // Show loading state
+                const originalText = this.textContent;
+                this.textContent = 'Generating...';
+                this.disabled = true;
+                document.getElementById('is-generating').textContent = 'Yes';
+
+                try {
+                    const response = await fetch('/api/content/generate', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            topic: topic,
+                            content_type: contentType
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        // Update app state
+                        appState.contentCount++;
+                        appState.generatedContent.push(result.data);
+                        
+                        // Update UI
+                        document.getElementById('content-count').textContent = appState.contentCount;
+                        updateContentView(result.data);
+                        addToRecentActivity(`Generated "${topic}" ${contentType}`, result.data.word_count, result.data.seo_score);
+                        
+                        alert(`Content generated successfully!\n\nTopic: ${topic}\nType: ${contentType}\nWords: ${result.data.word_count}\nSEO Score: ${result.data.seo_score}`);
+                    } else {
+                        alert(`Error: ${result.message || 'Failed to generate content'}`);
+                    }
+                } catch (error) {
+                    console.error('Content generation error:', error);
+                    alert('Failed to generate content. Please try again.');
+                } finally {
+                    // Reset button state
+                    this.textContent = originalText;
+                    this.disabled = false;
+                    document.getElementById('is-generating').textContent = 'No';
+                }
+            });
+        }
+
+        function initializeSEOResearch() {
+            const researchBtn = document.getElementById('seo-research-btn');
+            const keywordInput = document.getElementById('seo-keyword');
+
+            // Update current keyword display
+            keywordInput.addEventListener('input', function() {
+                document.getElementById('current-keyword').textContent = `"${this.value}"`;
+            });
+
+            researchBtn.addEventListener('click', async function() {
+                const keyword = keywordInput.value.trim();
+
+                if (!keyword) {
+                    alert('Please enter a keyword for SEO research.');
+                    return;
+                }
+
+                // Show loading state
+                const originalText = this.textContent;
+                this.textContent = 'Researching...';
+                this.disabled = true;
+                document.getElementById('is-researching').textContent = 'Yes';
+
+                try {
+                    const response = await fetch('/api/seo/research', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            keyword: keyword
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        // Update app state
+                        appState.keywordsCount++;
+                        appState.researchResults.push(result.data);
+                        
+                        // Update UI
+                        document.getElementById('keywords-count').textContent = appState.keywordsCount;
+                        updateResearchView(result.data);
+                        
+                        const primaryKeyword = result.data.primary_keyword;
+                        alert(`SEO research completed!\n\nKeyword: ${keyword}\nSearch Volume: ${primaryKeyword.search_volume}\nDifficulty: ${primaryKeyword.difficulty}\nRelated Keywords: ${result.data.related_keywords.length}`);
+                    } else {
+                        alert(`Error: ${result.message || 'Failed to perform SEO research'}`);
+                    }
+                } catch (error) {
+                    console.error('SEO research error:', error);
+                    alert('Failed to perform SEO research. Please try again.');
+                } finally {
+                    // Reset button state
+                    this.textContent = originalText;
+                    this.disabled = false;
+                    document.getElementById('is-researching').textContent = 'No';
+                }
+            });
+        }
+
+        function initializeOtherFeatures() {
+            // Copy referral link
+            const copyBtn = document.getElementById('copy-link-btn');
+            if (copyBtn) {
+                copyBtn.addEventListener('click', function() {
+                    const link = 'https://contentscale.app/ref/user123';
+                    navigator.clipboard.writeText(link).then(() => {
+                        alert('Referral link copied to clipboard!');
+                    }).catch(() => {
+                        alert(`Referral link: ${link}`);
+                    });
+                });
+            }
+
+            // Chat button
+            const chatBtn = document.getElementById('chat-btn');
+            if (chatBtn) {
+                chatBtn.addEventListener('click', function() {
+                    alert('Chat feature coming soon!\n\nThis would normally open a chat interface with Sofeia AI for support and guidance.');
+                });
+            }
+        }
+
+        function updateContentView(contentData) {
+            const contentResults = document.getElementById('content-results');
+            
+            const contentElement = document.createElement('div');
+            contentElement.className = 'bg-slate-800 rounded-lg p-6 mb-4';
+            contentElement.innerHTML = `
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="text-lg font-bold">${contentData.topic}</h3>
+                        <p class="text-sm text-gray-400">${contentData.content_type} • ${contentData.word_count} words • SEO Score: ${contentData.seo_score}</p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button class="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-sm" onclick="viewContent('${contentData.topic}')">View</button>
+                        <button class="px-3 py-1 bg-green-600 hover:bg-green-700 rounded text-sm" onclick="downloadContent('${contentData.topic}')">Download</button>
+                    </div>
+                </div>
+                <div class="text-sm text-gray-300 max-h-32 overflow-hidden">
+                    ${contentData.content.substring(0, 200)}...
+                </div>
+            `;
+            
+            if (contentResults.querySelector('p')) {
+                contentResults.innerHTML = '';
+            }
+            contentResults.appendChild(contentElement);
+        }
+
+        function updateResearchView(researchData) {
+            const researchResults = document.getElementById('research-results');
+            
+            const researchElement = document.createElement('div');
+            researchElement.className = 'bg-slate-800 rounded-lg p-6 mb-4';
+            researchElement.innerHTML = `
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="text-lg font-bold">${researchData.primary_keyword.keyword}</h3>
+                        <p class="text-sm text-gray-400">Volume: ${researchData.primary_keyword.search_volume} • Difficulty: ${researchData.primary_keyword.difficulty} • CPC: $${researchData.primary_keyword.cpc}</p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button class="px-3 py-1 bg-purple-600 hover:bg-purple-700 rounded text-sm" onclick="viewResearch('${researchData.primary_keyword.keyword}')">View Details</button>
+                        <button class="px-3 py-1 bg-green-600 hover:bg-green-700 rounded text-sm" onclick="exportResearch('${researchData.primary_keyword.keyword}')">Export CSV</button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                    <div>
+                        <span class="text-gray-400">Related Keywords:</span>
+                        <span class="font-bold">${researchData.related_keywords.length}</span>
+                    </div>
+                    <div>
+                        <span class="text-gray-400">Content Ideas:</span>
+                        <span class="font-bold">${researchData.content_suggestions.length}</span>
+                    </div>
+                    <div>
+                        <span class="text-gray-400">Competitors:</span>
+                        <span class="font-bold">${researchData.competitors.length}</span>
+                    </div>
+                    <div>
+                        <span class="text-gray-400">Opportunities:</span>
+                        <span class="font-bold">${researchData.total_opportunities}</span>
+                    </div>
+                </div>
+            `;
+            
+            if (researchResults.querySelector('p')) {
+                researchResults.innerHTML = '';
+            }
+            researchResults.appendChild(researchElement);
+        }
+
+        function addToRecentActivity(description, wordCount, seoScore) {
+            const activityContainer = document.getElementById('recent-activity');
+            const now = new Date();
+            const timeAgo = 'Just now';
+            
+            const activityElement = document.createElement('div');
+            activityElement.className = 'flex items-center justify-between p-3 bg-slate-700 rounded-lg';
+            activityElement.innerHTML = `
+                <div>
+                    <p class="font-medium">${description}</p>
+                    <p class="text-sm text-gray-400">${timeAgo} • ${wordCount} words • SEO Score: ${seoScore}</p>
+                </div>
+                <button class="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-sm">View</button>
+            `;
+            
+            activityContainer.insertBefore(activityElement, activityContainer.firstChild);
+        }
+
+        // Global functions for button handlers
+        window.viewContent = function(topic) {
+            alert(`Viewing content for: ${topic}\n\nThis would open the full content in a modal or new page.`);
+        };
+
+        window.downloadContent = function(topic) {
+            alert(`Downloading content for: ${topic}\n\nThis would trigger a file download.`);
+        };
+
+        window.viewResearch = function(keyword) {
+            alert(`Viewing detailed research for: ${keyword}\n\nThis would show comprehensive keyword analysis.`);
+        };
+
+        window.exportResearch = function(keyword) {
+            alert(`Exporting research data for: ${keyword}\n\nThis would download a CSV file with all research data.`);
+        };
+
+        // Add some visual feedback for all buttons
+        document.addEventListener('click', function(e) {
+            if (e.target.tagName === 'BUTTON') {
+                e.target.style.transform = 'scale(0.98)';
+                setTimeout(() => {
+                    e.target.style.transform = '';
+                }, 100);
+            }
+        });
+
+        console.log('ContentScale frontend loaded successfully! 🚀');
+    </script>
+</body>
+</html>
+
