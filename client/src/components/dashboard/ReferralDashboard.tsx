@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import ProgressRing from "@/components/ui/progress-ring";
-import { Rocket } from "lucide-react";
+import { Rocket, Twitter, Linkedin, MessageSquare, Copy, Info } from "lucide-react";
 
 interface ReferralStats {
   totalReferrals: number;
@@ -127,6 +127,7 @@ export default function ReferralDashboard() {
               onClick={copyReferralLink}
               className="bg-primary hover:bg-blue-600 text-white"
             >
+              <Copy className="w-4 h-4 mr-1" />
               Copy
             </Button>
           </div>
@@ -136,7 +137,7 @@ export default function ReferralDashboard() {
               onClick={() => shareOnPlatform('twitter')}
               className="flex-1 bg-blue-500 hover:bg-blue-600 text-white"
             >
-              <i className="fab fa-twitter mr-1"></i>
+              <Twitter className="w-4 h-4 mr-1" />
               <span className="text-xs">Twitter</span>
             </Button>
             <Button
@@ -144,7 +145,7 @@ export default function ReferralDashboard() {
               onClick={() => shareOnPlatform('linkedin')}
               className="flex-1 bg-blue-700 hover:bg-blue-800 text-white"
             >
-              <i className="fab fa-linkedin mr-1"></i>
+              <Linkedin className="w-4 h-4 mr-1" />
               <span className="text-xs">LinkedIn</span>
             </Button>
             <Button
@@ -152,7 +153,7 @@ export default function ReferralDashboard() {
               onClick={() => shareOnPlatform('whatsapp')}
               className="flex-1 bg-green-600 hover:bg-green-700 text-white"
             >
-              <i className="fab fa-whatsapp mr-1"></i>
+              <MessageSquare className="w-4 h-4 mr-1" />
               <span className="text-xs">WhatsApp</span>
             </Button>
           </div>
@@ -184,7 +185,7 @@ export default function ReferralDashboard() {
         {/* How It Works Section */}
         <div className="bg-surface-light p-4 rounded-lg mt-4">
           <h4 className="text-sm font-semibold mb-2 flex items-center">
-            <i className="fas fa-info-circle text-blue-400 mr-2"></i>
+            <Info className="w-4 h-4 text-blue-400 mr-2" />
             How Conversions Work
           </h4>
           <div className="text-xs text-text-secondary space-y-1">

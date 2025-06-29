@@ -292,7 +292,7 @@ export default function CSVUploader() {
       <CardContent className="space-y-6">
         {/* Upload Area */}
         <div
-          className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+          className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${
             dragActive 
               ? 'border-primary bg-primary/10' 
               : 'border-muted-foreground/25 hover:border-primary/50'
@@ -301,6 +301,7 @@ export default function CSVUploader() {
           onDragLeave={handleDrag}
           onDragOver={handleDrag}
           onDrop={handleDrop}
+          onClick={() => fileInputRef.current?.click()}
         >
           <input
             ref={fileInputRef}
