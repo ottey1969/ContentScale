@@ -6,8 +6,8 @@ import Sidebar from "@/components/layout/Sidebar";
 import SofeiaAgentBrain from "@/components/dashboard/SofeiaAgentBrain";
 import SofeiaChatHead from "@/components/chat/SofeiaChatHead";
 
-import ContentGenerator from "@/components/dashboard/ContentGenerator";
-import KeywordResearch from "@/components/dashboard/KeywordResearch";
+import ContentGenerator from "@/components/dashboard/ContentGeneratorWorking";
+import KeywordResearch from "@/components/dashboard/KeywordResearchWorking";
 import CSVUploader from "@/components/dashboard/CSVUploader";
 import ReferralDashboard from "@/components/dashboard/ReferralDashboard";
 import AchievementSystem from "@/components/dashboard/AchievementSystem";

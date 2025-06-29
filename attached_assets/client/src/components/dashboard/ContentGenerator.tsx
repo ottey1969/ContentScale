@@ -439,17 +439,33 @@ export default function ContentGenerator() {
         </div>
         <Button
           type="button"
-          onClick={() => {
-            console.log('Generate button clicked, current topic:', topic);
-            if (topic.trim()) {
-              console.log('Topic is valid, calling generateMutation.mutate()');
+          onClick={(e) => {
+            console.log('🔥 BUTTON CLICK EVENT FIRED!');
+            console.log('Event object:', e);
+            console.log('Current topic value:', topic);
+            console.log('Topic length:', topic.length);
+            console.log('Topic trimmed:', topic.trim());
+            console.log('Topic trimmed length:', topic.trim().length);
+            console.log('generateMutation.isPending:', generateMutation.isPending);
+            console.log('Button should be disabled:', generateMutation.isPending || !topic.trim());
+            
+            // Force enable for debugging
+            if (!topic.trim()) {
+              console.log('⚠️ Topic is empty, but proceeding for debug...');
+              setTopic('Debug test topic');
+            }
+            
+            console.log('🚀 Calling generateMutation.mutate()');
+            try {
               generateMutation.mutate();
-            } else {
-              console.log('Topic is empty, button should be disabled');
+              console.log('✅ generateMutation.mutate() called successfully');
+            } catch (error) {
+              console.error('❌ Error calling generateMutation.mutate():', error);
             }
           }}
-          disabled={generateMutation.isPending || !topic.trim()}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 h-12"
+          disabled={false} // Force enable for debugging
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 h-12 cursor-pointer"
+          style={{ pointerEvents: 'auto', zIndex: 1000 }}
         >
           {generateMutation.isPending ? (
             <>
