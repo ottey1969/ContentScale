@@ -4,14 +4,10 @@
 
 /* Global scroll behavior */
 html, body {
-  height: 100vh;
   scroll-behavior: smooth;
-  overflow: hidden;
 }
 
 #root {
-  height: 100vh;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
 }

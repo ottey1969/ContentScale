@@ -1,14 +1,7 @@
 // Load environment variables
 import dotenv from 'dotenv';
-// Try to load from .env files if they exist, but don't fail if they don't
-try {
-  dotenv.config({ path: '.env.local' });
-  dotenv.config({ path: '.env.production' });
-  dotenv.config(); // Also try default .env file
-} catch (error) {
-  // Replit secrets are already available as environment variables
-  console.log('Using Replit environment variables');
-}
+dotenv.config({ path: '.env.local' });
+dotenv.config({ path: '.env.production' });
 
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";

@@ -145,6 +145,7 @@ Test all functionality with the browser console open (F12) for debugging
 - June 27, 2025. Fixed critical UI functionality issues: non-responsive buttons, broken input fields, scrolling problems, and API configuration visibility
 - June 27, 2025. API Configuration section relocated to bottom of dashboard page with fully functional save buttons for Anthropic API and PayPal configuration
 - June 27, 2025. System designed to work without OpenAI or Answer Socrates APIs - AI agent performs real-time research and content generation using only Anthropic API
+- June 29, 2025. Applied SEO insight engine scrolling fixes for improved user interface navigation
 
 ## User Preferences
 
