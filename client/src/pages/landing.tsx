@@ -4,8 +4,9 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Rocket, Brain, Search, Users, TrendingUp, Shield, Trophy, CheckCircle, Play, ArrowRight, Cookie, FileText, Shield as ShieldIcon } from "lucide-react";
+import { Rocket, Brain, Search, Users, TrendingUp, Shield, Trophy, CheckCircle, Play, ArrowRight, Cookie, FileText, Shield as ShieldIcon, MessageCircle } from "lucide-react";
 import { SEOHead, SEOConfigs } from "@/components/seo/SEOHead";
+import { ChatPopup } from "@/components/ChatPopup";
 
 export default function Landing() {
   const [showCookieConsent, setShowCookieConsent] = useState(
@@ -13,6 +14,7 @@ export default function Landing() {
   );
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
+  const [showChatPopup, setShowChatPopup] = useState(false);
 
   // Fetch video settings from admin panel
   const { data: videoSettings } = useQuery({
@@ -107,6 +109,17 @@ export default function Landing() {
               <Rocket className="w-5 h-5 mr-2 group-hover:animate-bounce" />
               Launch Content Creation
               <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+            </Button>
+            
+            {/* Chat with Sofeia Button */}
+            <Button 
+              onClick={() => setShowChatPopup(true)}
+              variant="outline"
+              size="lg"
+              className="group border-2 border-pink-500/50 text-white hover:bg-pink-500/20 hover:border-pink-400 font-semibold px-8 py-4 text-lg transform hover:scale-105 transition-all duration-300"
+            >
+              <MessageCircle className="w-5 h-5 mr-2 group-hover:animate-pulse" />
+              Chat with Sofeia
             </Button>
             
             {/* Demo Video Button */}
@@ -889,6 +902,9 @@ export default function Landing() {
           </div>
         </div>
       )}
+
+      {/* Chat Popup */}
+      <ChatPopup isOpen={showChatPopup} onClose={() => setShowChatPopup(false)} />
     </div>
   );
 }

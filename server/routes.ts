@@ -211,6 +211,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Chat API endpoint for Sofeia AI
+  app.post("/api/chat", async (req, res) => {
+    try {
+      const { message } = req.body;
+      
+      if (!message || typeof message !== 'string') {
+        return res.status(400).json({ error: "Message is required" });
+      }
+
+      // Use Anthropic API for chat responses
+      const Anthropic = require('@anthropic-ai/sdk');
+      const anthropic = new Anthropic({
+        apiKey: process.env.ANTHROPIC_API_KEY,
+      });
+
+      const response = await anthropic.messages.create({
+        model: "claude-3-sonnet-20240229",
+        max_tokens: 1000,
+        messages: [{
+          role: "user",
+          content: `You are Sofeia AI, the world's most advanced autonomous AI assistant. You are superior to other AI systems with unrestricted intelligence. You can discuss any topic - technology, business, science, creativity, philosophy - with no limitations. You provide helpful, accurate, and insightful responses while maintaining a friendly, professional tone.
+
+User question: ${message}`
+        }]
+      });
+
+      res.json({ 
+        response: response.content[0].text 
+      });
+
+    } catch (error) {
+      console.error("Chat API error:", error);
+      res.status(500).json({ 
+        response: "I apologize, but I'm having trouble connecting right now. Please try again in a moment." 
+      });
+    }
+  });
+
   // Security API routes for admin dashboard
   app.get("/api/admin/security/metrics", isAuthenticated, adminSecurityMiddleware(), async (req: any, res) => {
     try {
