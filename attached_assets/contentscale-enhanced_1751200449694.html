@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ContentScale Pro - Advanced AI Content Writing System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <style>
+        .loading {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        
+        .progress-bar {
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .content-display {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            padding: 16px;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            background-color: #10b981;
+        }
+        
+        .notification.error {
+            background-color: #ef4444;
+        }
+        
+        .thinking-bubble {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 15px;
+            margin: 10px 0;
+            position: relative;
+            animation: thinkingPulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes thinkingPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+        
+        .thinking-bubble::before {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 20px;
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 10px solid #667eea;
+        }
+        
+        .seo-score-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .seo-score-circle::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: conic-gradient(from 0deg, #ef4444 0%, #f59e0b 25%, #10b981 50%, #10b981 100%);
+            border-radius: 50%;
+            z-index: -1;
+        }
+        
+        .keyword-tag {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin: 2px;
+            display: inline-block;
+            transition: transform 0.2s ease;
+        }
+        
+        .keyword-tag:hover {
+            transform: scale(1.05);
+        }
+        
+        .ai-thinking-dots {
+            display: inline-block;
+        }
+        
+        .ai-thinking-dots::after {
+            content: '';
+            animation: dots 1.5s steps(5, end) infinite;
+        }
+        
+        @keyframes dots {
+            0%, 20% { content: ''; }
+            40% { content: '.'; }
+            60% { content: '..'; }
+            80%, 100% { content: '...'; }
+        }
+        
+        .word-count-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        
+        .tone-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        
+        .tone-formal { background-color: #3b82f6; }
+        .tone-casual { background-color: #10b981; }
+        .tone-persuasive { background-color: #f59e0b; }
+        .tone-informative { background-color: #8b5cf6; }
+        .tone-empathetic { background-color: #ec4899; }
+    </style>
+</head>
+<body class="bg-slate-900 text-white min-h-screen" x-data="contentScaleApp()">
+    <!-- Notification System -->
+    <div id="notification" class="notification"></div>
+
+    <!-- Header -->
+    <header class="bg-slate-800 border-b border-slate-700 px-6 py-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                    <span class="text-white font-bold text-lg">CS</span>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold">ContentScale Pro</h1>
+                    <p class="text-xs text-gray-400">Advanced AI Content Writing System</p>
+                </div>
+                <div class="flex items-center space-x-2 text-sm">
+                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span class="text-green-400">Sofeia AI Active</span>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-2 text-sm">
+                    <span class="text-yellow-400">💰</span>
+                    <span x-text="credits + ' Credits'"></span>
+                </div>
+                <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                    <span class="text-white text-sm font-bold">U</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-6 py-8">
+        <!-- Sofeia Agent Brain with Real-time Thinking -->
+        <div class="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-6 mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-2xl font-bold">🧠 Sofeia Agent Brain</h2>
+                <div class="flex items-center space-x-2">
+                    <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                    <span class="text-sm">Active & Learning</span>
+                </div>
+            </div>
+            <p class="text-blue-100 mb-4">AI-powered autonomous content generation with real-time thinking display</p>
+            
+            <!-- Real-time Thinking Display -->
+            <div class="bg-blue-800/30 rounded-lg p-4 mb-4">
+                <div class="flex items-center space-x-2 mb-2">
+                    <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                    <span class="text-sm font-medium">Sofeia is thinking<span class="ai-thinking-dots"></span></span>
+                </div>
+                <div x-show="currentThought" class="thinking-bubble">
+                    <p class="text-sm text-white" x-text="currentThought"></p>
+                </div>
+                <p class="text-sm text-blue-200" x-text="statusMessage"></p>
+                <p class="text-xs text-blue-300 mt-2" x-text="currentTime"></p>
+            </div>
+            
+            <!-- Action Log -->
+            <div class="bg-blue-800/20 rounded-lg p-3">
+                <h4 class="text-sm font-medium mb-2">Recent Actions:</h4>
+                <div class="space-y-1 max-h-20 overflow-y-auto">
+                    <template x-for="action in actionLog.slice(-3)" :key="action.id">
+                        <div class="text-xs text-blue-200 flex items-center space-x-2">
+                            <span class="w-1 h-1 bg-blue-400 rounded-full"></span>
+                            <span x-text="action.timestamp"></span>
+                            <span x-text="action.action"></span>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enhanced Dashboard Statistics -->
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+            <div class="bg-slate-800 rounded-lg p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-sm font-medium text-gray-400">Content Generated</h3>
+                    <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="text-3xl font-bold mb-1" x-text="stats.contentCount"></div>
+                <div class="text-sm text-gray-400">Generated today</div>
+            </div>
+
+            <div class="bg-slate-800 rounded-lg p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-sm font-medium text-gray-400">Keywords Researched</h3>
+                    <div class="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="text-3xl font-bold mb-1" x-text="stats.keywordsCount"></div>
+                <div class="text-sm text-gray-400">via AI Research</div>
+            </div>
+
+            <div class="bg-slate-800 rounded-lg p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-sm font-medium text-gray-400">Avg SEO Score</h3>
+                    <div class="seo-score-circle">
+                        <span x-text="stats.avgSeoScore"></span>
+                    </div>
+                </div>
+                <div class="text-sm text-gray-400">RankMath optimized</div>
+            </div>
+
+            <div class="bg-slate-800 rounded-lg p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-sm font-medium text-gray-400">AI Search Ready</h3>
+                    <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="text-3xl font-bold mb-1" x-text="stats.aiReadyCount"></div>
+                <div class="text-sm text-gray-400">Optimized for AI</div>
+            </div>
+
+            <div class="bg-slate-800 rounded-lg p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-sm font-medium text-gray-400">Ranking Speed</h3>
+                    <div class="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="text-3xl font-bold mb-1">3.2</div>
+                <div class="text-sm text-gray-400">Days avg to rank</div>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Enhanced Content Generator -->
+            <div class="bg-slate-800 rounded-lg p-6">
+                <h3 class="text-lg font-bold mb-4 text-green-400">✅ CRAFT AI Content Generator</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Topic or Keywords</label>
+                        <input type="text" x-model="contentTopic" placeholder="e.g., AI content generation best practices" 
+                               class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    
+                    <!-- Target Audience -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Target Audience</label>
+                        <input type="text" x-model="targetAudience" placeholder="e.g., Digital marketers, Content creators" 
+                               class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    
+                    <!-- Tone Selection -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Content Tone</label>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+                            <template x-for="tone in toneOptions" :key="tone.value">
+                                <button type="button" 
+                                        @click="selectedTone = tone.value"
+                                        :class="selectedTone === tone.value ? 'bg-blue-600 text-white' : 'bg-slate-600 text-gray-300'"
+                                        class="px-3 py-2 rounded-lg text-sm font-medium flex items-center">
+                                    <span :class="'tone-' + tone.value" class="tone-indicator"></span>
+                                    <span x-text="tone.label"></span>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+                    
+                    <!-- Content Type -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        <template x-for="type in contentTypes" :key="type.value">
+                            <button type="button" 
+                                    @click="selectedContentType = type.value"
+                                    :class="selectedContentType === type.value ? 'bg-blue-600 text-white' : 'bg-slate-600 text-gray-300'"
+                                    class="px-3 py-2 rounded-lg text-sm font-medium"
+                                    x-text="type.label">
+                            </button>
+                        </template>
+                    </div>
+                    
+                    <!-- Call to Action -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Call to Action</label>
+                        <input type="text" x-model="callToAction" placeholder="e.g., Subscribe to our newsletter, Download our guide" 
+                               class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    
+                    <button @click="generateContent()" 
+                            :disabled="isGenerating"
+                            class="w-full bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 disabled:opacity-50 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105">
+                        <span x-show="!isGenerating">🚀 GENERATE CONTENT (CRAFT AI)</span>
+                        <span x-show="isGenerating">⚡ Generating...</span>
+                    </button>
+                    
+                    <!-- Progress Bar -->
+                    <div x-show="isGenerating" class="space-y-2">
+                        <div class="bg-slate-700 rounded-full h-2">
+                            <div class="progress-bar bg-gradient-to-r from-green-500 to-blue-500 h-2 rounded-full" 
+                                 :style="'width: ' + generationProgress + '%'"></div>
+                        </div>
+                        <p class="text-sm text-gray-400" x-text="generationStatus"></p>
+                    </div>
+                    
+                    <div class="text-sm text-gray-400 space-y-1">
+                        <p>Topic: "<span x-text="contentTopic || 'Not specified'"></span>"</p>
+                        <p>Audience: <span x-text="targetAudience || 'General'"></span></p>
+                        <p>Tone: <span x-text="selectedTone"></span></p>
+                        <p>Type: <span x-text="selectedContentType"></span></p>
+                        <p>Status: <span class="text-green-400" x-text="isGenerating ? 'Generating...' : 'Ready ✅'"></span></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Enhanced SEO Research Engine -->
+            <div class="bg-slate-800 rounded-lg p-6">
+                <h3 class="text-lg font-bold mb-4 text-green-400">🔍 Advanced SEO Insight Engine</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Keyword for Research</label>
+                        <input type="text" x-model="seoKeyword" placeholder="e.g., content marketing strategy" 
+                               class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+                    
+                    <!-- Research Options -->
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="flex items-center space-x-2">
+                            <input type="checkbox" x-model="researchOptions.top50Keywords" class="rounded">
+                            <span class="text-sm">Top 50 Keywords</span>
+                        </label>
+                        <label class="flex items-center space-x-2">
+                            <input type="checkbox" x-model="researchOptions.competitorAnalysis" class="rounded">
+                            <span class="text-sm">Competitor Analysis</span>
+                        </label>
+                        <label class="flex items-center space-x-2">
+                            <input type="checkbox" x-model="researchOptions.aiSearchOptimization" class="rounded">
+                            <span class="text-sm">AI Search Optimization</span>
+                        </label>
+                        <label class="flex items-center space-x-2">
+                            <input type="checkbox" x-model="researchOptions.realTimeData" class="rounded">
+                            <span class="text-sm">Real-time Data</span>
+                        </label>
+                    </div>
+                    
+                    <button @click="performSeoResearch()" 
+                            :disabled="isResearching"
+                            class="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 disabled:opacity-50 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105">
+                        <span x-show="!isResearching">🔍 ADVANCED SEO RESEARCH</span>
+                        <span x-show="isResearching">🔍 Researching...</span>
+                    </button>
+                    
+                    <!-- Progress Bar -->
+                    <div x-show="isResearching" class="space-y-2">
+                        <div class="bg-slate-700 rounded-full h-2">
+                            <div class="progress-bar bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full" 
+                                 :style="'width: ' + researchProgress + '%'"></div>
+                        </div>
+                        <p class="text-sm text-gray-400" x-text="researchStatus"></p>
+                    </div>
+                    
+                    <div class="text-sm text-gray-400 space-y-1">
+                        <p>Keyword: "<span x-text="seoKeyword || 'Not specified'"></span>"</p>
+                        <p>Status: <span class="text-green-400" x-text="isResearching ? 'Researching...' : 'Ready ✅'"></span></p>
+                        <p class="text-green-400">Better than Answer Socrates: YES ✅</p>
+                        <p class="text-green-400">AI Search Engines: Supported ✅</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Generated Content Display -->
+        <div x-show="generatedContent" class="mb-8">
+            <div class="bg-slate-800 rounded-lg p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold">📝 Generated Content</h3>
+                    <div class="flex space-x-2">
+                        <button @click="copyContent()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm">Copy</button>
+                        <button @click="downloadContent()" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-sm">Download</button>
+                        <button @click="optimizeForAI()" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg text-sm">AI Optimize</button>
+                    </div>
+                </div>
+                <div class="bg-slate-700 rounded-lg p-4 content-display">
+                    <div class="prose prose-invert max-w-none" x-html="generatedContent"></div>
+                </div>
+                <div class="mt-4 flex items-center justify-between text-sm text-gray-400 flex-wrap gap-2">
+                    <div class="flex items-center space-x-4">
+                        <span class="word-count-badge" x-text="'Words: ' + wordCount"></span>
+                        <span class="word-count-badge" x-text="'Sentences: ' + sentenceCount"></span>
+                        <span class="word-count-badge" x-text="'Headings: ' + headingCount"></span>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <span>SEO Score: <span class="text-green-400 font-bold" x-text="seoScore + '/100'"></span></span>
+                        <span>Tone: <span x-text="detectedTone"></span></span>
+                        <span>Type: <span x-text="selectedContentType"></span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEO Research Results -->
+        <div x-show="seoResults" class="mb-8">
+            <div class="bg-slate-800 rounded-lg p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold">📊 SEO Research Results</h3>
+                    <div class="flex space-x-2">
+                        <button @click="exportSeoData()" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg text-sm">Export CSV</button>
+                        <button @click="applyKeywords()" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-sm">Apply Keywords</button>
+                    </div>
+                </div>
+                
+                <!-- Top 50 Keywords Display -->
+                <div x-show="seoResults.keywords" class="mb-6">
+                    <h4 class="text-md font-semibold mb-3">🎯 Top 50 Keywords</h4>
+                    <div class="flex flex-wrap gap-1">
+                        <template x-for="keyword in seoResults.keywords" :key="keyword.term">
+                            <span class="keyword-tag" 
+                                  :title="'Volume: ' + keyword.volume + ', Difficulty: ' + keyword.difficulty"
+                                  x-text="keyword.term">
+                            </span>
+                        </template>
+                    </div>
+                </div>
+                
+                <!-- Competitor Analysis -->
+                <div x-show="seoResults.competitors" class="mb-6">
+                    <h4 class="text-md font-semibold mb-3">🏆 Top 10 Competitor Analysis</h4>
+                    <div class="space-y-2">
+                        <template x-for="competitor in seoResults.competitors" :key="competitor.url">
+                            <div class="bg-slate-700 rounded-lg p-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm font-medium" x-text="competitor.title"></span>
+                                    <span class="text-xs text-gray-400" x-text="competitor.words + ' words'"></span>
+                                </div>
+                                <p class="text-xs text-gray-400 mt-1" x-text="competitor.url"></p>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                
+                <!-- AI Search Optimization Tips -->
+                <div x-show="seoResults.aiOptimization" class="mb-6">
+                    <h4 class="text-md font-semibold mb-3">🤖 AI Search Optimization</h4>
+                    <div class="bg-slate-700 rounded-lg p-4">
+                        <ul class="space-y-2 text-sm">
+                            <template x-for="tip in seoResults.aiOptimization" :key="tip">
+                                <li class="flex items-start space-x-2">
+                                    <span class="text-green-400">•</span>
+                                    <span x-text="tip"></span>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bulk CSV Processing -->
+        <div class="bg-slate-800 rounded-lg p-6 mb-8">
+            <h3 class="text-lg font-bold mb-4">📊 Bulk CSV Processing</h3>
+            <div class="border-2 border-dashed border-slate-600 rounded-lg p-8 text-center">
+                <div class="mb-4">
+                    <svg class="w-12 h-12 text-slate-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                    </svg>
+                </div>
+                <p class="text-lg font-medium mb-2">Drop your CSV file here</p>
+                <p class="text-gray-400 mb-4">or click to browse</p>
+                <input type="file" @change="handleCsvUpload($event)" accept=".csv" class="hidden" x-ref="csvInput">
+                <button @click="$refs.csvInput.click()" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg">Choose File</button>
+            </div>
+            <div class="mt-4 text-sm text-gray-400">
+                <p>• <strong>CSV files</strong> with keyword columns</p>
+                <p>• <strong>Processing:</strong> Automatic keyword research and clustering</p>
+                <p>• <strong>Export:</strong> Download enriched data with SEO metrics</p>
+                <p>• <strong>AI Optimization:</strong> Content suggestions for each keyword</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function contentScaleApp() {
+            return {
+                // State
+                credits: 5,
+                currentThought: "Ready to generate amazing content...",
+                statusMessage: "Ready to generate content and perform SEO research...",
+                currentTime: "Ready • ACTIVE",
+                actionLog: [],
+                
+                // Stats
+                stats: {
+                    contentCount: 0,
+                    keywordsCount: 0,
+                    avgSeoScore: 95,
+                    aiReadyCount: 0
+                },
+                
+                // Content Generation
+                contentTopic: "",
+                targetAudience: "",
+                selectedTone: "informative",
+                selectedContentType: "blog",
+                callToAction: "",
+                isGenerating: false,
+                generationProgress: 0,
+                generationStatus: "",
+                generatedContent: "",
+                wordCount: 0,
+                sentenceCount: 0,
+                headingCount: 0,
+                seoScore: 0,
+                detectedTone: "",
+                
+                // SEO Research
+                seoKeyword: "",
+                isResearching: false,
+                researchProgress: 0,
+                researchStatus: "",
+                seoResults: null,
+                researchOptions: {
+                    top50Keywords: true,
+                    competitorAnalysis: true,
+                    aiSearchOptimization: true,
+                    realTimeData: true
+                },
+                
+                // Options
+                toneOptions: [
+                    { value: "formal", label: "Formal" },
+                    { value: "casual", label: "Casual" },
+                    { value: "persuasive", label: "Persuasive" },
+                    { value: "informative", label: "Informative" },
+                    { value: "empathetic", label: "Empathetic" }
+                ],
+                
+                contentTypes: [
+                    { value: "blog", label: "Blog Post" },
+                    { value: "article", label: "Article" },
+                    { value: "faq", label: "FAQ" },
+                    { value: "social", label: "Social" },
+                    { value: "email", label: "Email" },
+                    { value: "landing", label: "Landing Page" }
+                ],
+                
+                init() {
+                    this.updateTime();
+                    setInterval(() => this.updateTime(), 1000);
+                    this.addAction("System initialized");
+                },
+                
+                updateTime() {
+                    const now = new Date();
+                    this.currentTime = now.toLocaleTimeString() + " • ACTIVE";
+                },
+                
+                addAction(action) {
+                    this.actionLog.push({
+                        id: Date.now(),
+                        timestamp: new Date().toLocaleTimeString(),
+                        action: action
+                    });
+                },
+                
+                updateThought(thought) {
+                    this.currentThought = thought;
+                    setTimeout(() => {
+                        this.currentThought = "";
+                    }, 3000);
+                },
+                
+                async generateContent() {
+                    if (!this.contentTopic.trim()) {
+                        this.showNotification("Please enter a topic or keywords", "error");
+                        return;
+                    }
+                    
+                    this.isGenerating = true;
+                    this.generationProgress = 0;
+                    this.addAction("Starting content generation");
+                    
+                    // Simulate AI thinking and generation process
+                    const steps = [
+                        { progress: 10, status: "Analyzing topic and keywords...", thought: "Understanding the topic: " + this.contentTopic },
+                        { progress: 25, status: "Researching real-time data...", thought: "Gathering latest information and statistics..." },
+                        { progress: 40, status: "Applying CRAFT framework...", thought: "Structuring content with short sentences and clear headings..." },
+                        { progress: 60, status: "Optimizing for SEO and AI search...", thought: "Ensuring RankMath compliance and AI search optimization..." },
+                        { progress: 80, status: "Analyzing tone and adding CTA...", thought: "Adjusting tone to " + this.selectedTone + " and integrating call to action..." },
+                        { progress: 100, status: "Content generation complete!", thought: "Generated high-quality, SEO-optimized content!" }
+                    ];
+                    
+                    for (const step of steps) {
+                        await this.delay(800);
+                        this.generationProgress = step.progress;
+                        this.generationStatus = step.status;
+                        this.statusMessage = step.status;
+                        this.updateThought(step.thought);
+                        this.addAction(step.status);
+                    }
+                    
+                    // Generate mock content
+                    this.generatedContent = this.generateMockContent();
+                    this.analyzeContent();
+                    
+                    this.isGenerating = false;
+                    this.stats.contentCount++;
+                    this.stats.aiReadyCount++;
+                    this.showNotification("Content generated successfully!", "success");
+                },
+                
+                async performSeoResearch() {
+                    if (!this.seoKeyword.trim()) {
+                        this.showNotification("Please enter a keyword for research", "error");
+                        return;
+                    }
+                    
+                    this.isResearching = true;
+                    this.researchProgress = 0;
+                    this.addAction("Starting SEO research");
+                    
+                    const steps = [
+                        { progress: 20, status: "Analyzing keyword difficulty...", thought: "Evaluating search volume and competition for: " + this.seoKeyword },
+                        { progress: 40, status: "Finding top 50 related keywords...", thought: "Discovering high-potential keyword opportunities..." },
+                        { progress: 60, status: "Analyzing top 10 competitors...", thought: "Studying competitor content structure and gaps..." },
+                        { progress: 80, status: "Optimizing for AI search engines...", thought: "Preparing recommendations for Perplexity, ChatGPT, and Google AI..." },
+                        { progress: 100, status: "SEO research complete!", thought: "Generated comprehensive SEO insights!" }
+                    ];
+                    
+                    for (const step of steps) {
+                        await this.delay(1000);
+                        this.researchProgress = step.progress;
+                        this.researchStatus = step.status;
+                        this.statusMessage = step.status;
+                        this.updateThought(step.thought);
+                        this.addAction(step.status);
+                    }
+                    
+                    // Generate mock SEO results
+                    this.seoResults = this.generateMockSeoResults();
+                    
+                    this.isResearching = false;
+                    this.stats.keywordsCount += 50;
+                    this.showNotification("SEO research completed!", "success");
+                },
+                
+                generateMockContent() {
+                    const topic = this.contentTopic;
+                    const tone = this.selectedTone;
+                    const cta = this.callToAction;
+                    
+                    return `
+                        <h1>${topic}: Complete Guide for ${new Date().getFullYear()}</h1>
+                        
+                        <p>Understanding ${topic.toLowerCase()} is crucial for modern businesses. This comprehensive guide covers everything you need to know.</p>
+                        
+                        <h2>What is ${topic}?</h2>
+                        <p>${topic} represents a fundamental shift in how we approach digital strategies. Key benefits include:</p>
+                        <ul>
+                            <li>Improved efficiency and productivity</li>
+                            <li>Enhanced user experience</li>
+                            <li>Better ROI and measurable results</li>
+                            <li>Competitive advantage in the market</li>
+                        </ul>
+                        
+                        <h2>Best Practices for ${topic}</h2>
+                        <p>Implementing ${topic.toLowerCase()} requires careful planning. Follow these proven strategies:</p>
+                        
+                        <h3>1. Strategic Planning</h3>
+                        <p>Start with clear objectives. Define your goals and success metrics.</p>
+                        
+                        <h3>2. Implementation</h3>
+                        <p>Execute your plan systematically. Monitor progress and adjust as needed.</p>
+                        
+                        <h3>3. Optimization</h3>
+                        <p>Continuously improve your approach based on data and feedback.</p>
+                        
+                        <h2>Common Mistakes to Avoid</h2>
+                        <p>Many organizations struggle with ${topic.toLowerCase()} implementation. Avoid these pitfalls:</p>
+                        <ul>
+                            <li>Lack of proper planning</li>
+                            <li>Insufficient resource allocation</li>
+                            <li>Ignoring user feedback</li>
+                            <li>Failing to measure results</li>
+                        </ul>
+                        
+                        <h2>Future Trends</h2>
+                        <p>The landscape of ${topic.toLowerCase()} continues to evolve. Stay ahead with these emerging trends.</p>
+                        
+                        <h2>Conclusion</h2>
+                        <p>Mastering ${topic.toLowerCase()} is essential for success in today's competitive environment. Start implementing these strategies today.</p>
+                        
+                        ${cta ? `<p><strong>Ready to get started? ${cta}</strong></p>` : ''}
+                    `;
+                },
+                
+                generateMockSeoResults() {
+                    const keyword = this.seoKeyword;
+                    return {
+                        keywords: this.generateMockKeywords(keyword),
+                        competitors: this.generateMockCompetitors(keyword),
+                        aiOptimization: [
+                            "Use conversational language for voice search optimization",
+                            "Include direct answers to common questions",
+                            "Structure content with clear headings and bullet points",
+                            "Optimize for featured snippets and AI overviews",
+                            "Focus on entity-based SEO and semantic relationships"
+                        ]
+                    };
+                },
+                
+                generateMockKeywords(baseKeyword) {
+                    const keywords = [];
+                    const variations = [
+                        "best", "guide", "tips", "strategy", "how to", "benefits", "examples", 
+                        "tools", "software", "platform", "solution", "service", "agency",
+                        "cost", "price", "free", "premium", "review", "comparison"
+                    ];
+                    
+                    for (let i = 0; i < 50; i++) {
+                        const variation = variations[i % variations.length];
+                        keywords.push({
+                            term: `${variation} ${baseKeyword}`,
+                            volume: Math.floor(Math.random() * 10000) + 100,
+                            difficulty: Math.floor(Math.random() * 100) + 1
+                        });
+                    }
+                    
+                    return keywords;
+                },
+                
+                generateMockCompetitors(keyword) {
+                    const competitors = [];
+                    for (let i = 1; i <= 10; i++) {
+                        competitors.push({
+                            title: `${keyword} Guide #${i} - Complete Resource`,
+                            url: `https://example${i}.com/${keyword.replace(/\s+/g, '-').toLowerCase()}`,
+                            words: Math.floor(Math.random() * 3000) + 500
+                        });
+                    }
+                    return competitors;
+                },
+                
+                analyzeContent() {
+                    const content = this.generatedContent;
+                    this.wordCount = content.split(/\s+/).length;
+                    this.sentenceCount = content.split(/[.!?]+/).length - 1;
+                    this.headingCount = (content.match(/<h[1-6]>/g) || []).length;
+                    this.seoScore = Math.floor(Math.random() * 20) + 80; // 80-100
+                    this.detectedTone = this.selectedTone;
+                },
+                
+                copyContent() {
+                    navigator.clipboard.writeText(this.generatedContent.replace(/<[^>]*>/g, ''));
+                    this.showNotification("Content copied to clipboard!", "success");
+                },
+                
+                downloadContent() {
+                    const blob = new Blob([this.generatedContent], { type: 'text/html' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'generated-content.html';
+                    a.click();
+                    this.showNotification("Content downloaded!", "success");
+                },
+                
+                optimizeForAI() {
+                    this.updateThought("Optimizing content for AI search engines...");
+                    this.addAction("AI optimization applied");
+                    this.seoScore = Math.min(100, this.seoScore + 5);
+                    this.showNotification("Content optimized for AI search engines!", "success");
+                },
+                
+                exportSeoData() {
+                    if (!this.seoResults) return;
+                    
+                    const csvData = this.seoResults.keywords.map(k => 
+                        `${k.term},${k.volume},${k.difficulty}`
+                    ).join('\n');
+                    
+                    const blob = new Blob([`Keyword,Volume,Difficulty\n${csvData}`], { type: 'text/csv' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'seo-keywords.csv';
+                    a.click();
+                    this.showNotification("SEO data exported!", "success");
+                },
+                
+                applyKeywords() {
+                    if (!this.seoResults) return;
+                    this.updateThought("Applying top keywords to content optimization...");
+                    this.addAction("Keywords applied to content");
+                    this.showNotification("Keywords applied to content strategy!", "success");
+                },
+                
+                handleCsvUpload(event) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        this.addAction(`CSV file uploaded: ${file.name}`);
+                        this.showNotification("CSV file uploaded for processing!", "success");
+                    }
+                },
+                
+                showNotification(message, type) {
+                    const notification = document.getElementById('notification');
+                    notification.textContent = message;
+                    notification.className = `notification ${type} show`;
+                    
+                    setTimeout(() => {
+                        notification.classList.remove('show');
+                    }, 3000);
+                },
+                
+                delay(ms) {
+                    return new Promise(resolve => setTimeout(resolve, ms));
+                }
+            }
+        }
+    </script>
+</body>
+</html>
+
