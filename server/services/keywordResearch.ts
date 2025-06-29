@@ -7,7 +7,7 @@ interface KeywordResult {
 }
 
 class SEOInsightEngine {
-  private seoInsightApiKey = process.env.SEO_INSIGHT_API_KEY || process.env.VITE_SEO_INSIGHT_API_KEY || 'demo_key';
+  // Internal SEO insights - no external API needed
 
   async researchKeywords(seedKeyword: string, country: string = 'us'): Promise<KeywordResult[]> {
     try {
