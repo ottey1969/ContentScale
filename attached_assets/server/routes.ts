@@ -4,7 +4,8 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { contentGenerator } from "./services/contentGenerator";
-import { keywordResearch } from "./services/keywordResearch";
+import { seoInsightEngine } from "./services/keywordResearch";
+import { generateKeywordResearch, generateQuickKeywords } from "./services/aiKeywordResearch";
 import { referralSystem } from "./services/referralSystem";
 import { securityService } from "./services/securityService";
 import { securityMiddleware, rateLimitMiddleware, adminSecurityMiddleware } from "./middleware/securityMiddleware";
@@ -105,7 +106,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const allowedKeys = [
         'ANTHROPIC_API_KEY', 
         'OPENAI_API_KEY', 
-        'ANSWER_SOCRATES_API_KEY', 
+        'SEO_INSIGHT_API_KEY', 
         'PAYPAL_CLIENT_ID', 
         'PAYPAL_CLIENT_SECRET'
       ];
@@ -306,28 +307,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Keyword research
+  // SEO Insight Engine - AI-Powered Keyword Research
   app.post("/api/keywords/research", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      const { keyword, country = "us" } = req.body;
+      const { keyword, country = "United States", language = "English" } = req.body;
 
       if (!keyword) {
         return res.status(400).json({ message: "Keyword is required" });
       }
 
-      const results = await keywordResearch.researchKeywords(keyword, country);
+      // Generate AI-powered keyword research
+      const researchResult = await generateKeywordResearch(keyword, country, language);
       
       // Save keywords to database
       const savedKeywords = await Promise.all(
-        results.map(k => storage.createKeyword({
+        researchResult.questions.map(q => storage.createKeyword({
           userId,
-          keyword: k.keyword,
-          searchVolume: k.searchVolume,
-          difficulty: k.difficulty,
-          aiOverviewPotential: k.aiOverviewPotential,
-          relatedKeywords: k.relatedKeywords,
-          source: "answer_socrates",
+          keyword: q.question,
+          searchVolume: q.searchVolume || "Medium",
+          difficulty: q.difficulty || "Medium",
+          aiOverviewPotential: q.funnelStage,
+          relatedKeywords: [keyword],
+          source: "ai_research",
         }))
       );
 
@@ -335,15 +337,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.createActivity({
         userId,
         type: "keywords_researched",
-        title: `Researched ${results.length} keywords via Answer Socrates`,
-        description: `Topic: "${keyword}"`,
-        metadata: { keyword, count: results.length },
+        title: `AI Research: ${researchResult.totalQuestions} questions for "${keyword}"`,
+        description: `Generated comprehensive keyword research using AI`,
+        metadata: { keyword, count: researchResult.totalQuestions, categories: Object.keys(researchResult.categories) },
       });
 
       // Update achievements
-      await storage.updateAchievement(userId, "keyword_master", results.length);
+      await storage.updateAchievement(userId, "keyword_master", researchResult.totalQuestions);
 
-      res.json(savedKeywords);
+      res.json({
+        ...researchResult,
+        savedKeywords
+      });
     } catch (error) {
       console.error("Error researching keywords:", error);
       res.status(500).json({ message: "Failed to research keywords" });
@@ -566,7 +571,7 @@ async function processCSVKeywords(batchId: string, csvData: any[], userId: strin
         
         if (keyword && typeof keyword === 'string') {
           // Research each keyword
-          const results = await keywordResearch.researchKeywords(keyword.trim(), "us");
+          const results = await seoInsightEngine.researchKeywords(keyword.trim(), "us");
           
           for (const result of results) {
             const savedKeyword = await storage.createKeyword({

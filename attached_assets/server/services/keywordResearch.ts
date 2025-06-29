@@ -6,15 +6,15 @@ interface KeywordResult {
   relatedKeywords: string[];
 }
 
-class KeywordResearch {
-  private answerSocratesApiKey = process.env.ANSWER_SOCRATES_API_KEY || process.env.VITE_ANSWER_SOCRATES_API_KEY || 'demo_key';
+class SEOInsightEngine {
+  private seoInsightApiKey = process.env.SEO_INSIGHT_API_KEY || process.env.VITE_SEO_INSIGHT_API_KEY || 'demo_key';
 
   async researchKeywords(seedKeyword: string, country: string = 'us'): Promise<KeywordResult[]> {
     try {
-      // In a real implementation, this would call the Answer Socrates API
+      // In a real implementation, this would call the SEO Insight Engine API
       // For now, we'll simulate comprehensive keyword research
       
-      const results = await this.simulateAnswerSocratesAPI(seedKeyword, country);
+      const results = await this.simulateSEOInsightAPI(seedKeyword, country);
       return results;
     } catch (error) {
       console.error('Error researching keywords:', error);
@@ -37,7 +37,7 @@ class KeywordResearch {
     return clusters;
   }
 
-  private async simulateAnswerSocratesAPI(seedKeyword: string, country: string): Promise<KeywordResult[]> {
+  private async simulateSEOInsightAPI(seedKeyword: string, country: string): Promise<KeywordResult[]> {
     // Simulate sophisticated keyword research based on the seed keyword
     const variations = this.generateKeywordVariations(seedKeyword);
     const results: KeywordResult[] = [];
@@ -223,4 +223,4 @@ class KeywordResearch {
   }
 }
 
-export const keywordResearch = new KeywordResearch();
+export const seoInsightEngine = new SEOInsightEngine();

@@ -7,7 +7,29 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
-import { Search, Loader2, TrendingUp, BarChart3 } from "lucide-react";
+import { Search, Loader2, TrendingUp, BarChart3, Brain, Sparkles } from "lucide-react";
+
+interface KeywordQuestion {
+  question: string;
+  category: string;
+  funnelStage: 'TOFU' | 'MOFU' | 'BOFU';
+  searchVolume?: string;
+  difficulty?: string;
+}
+
+interface KeywordResearchResult {
+  topic: string;
+  totalQuestions: number;
+  questions: KeywordQuestion[];
+  categories: {
+    [key: string]: KeywordQuestion[];
+  };
+  trends: {
+    direction: 'up' | 'down' | 'stable';
+    percentage: string;
+  };
+  savedKeywords: any[];
+}
 
 interface Keyword {
   id: string;
@@ -19,6 +41,7 @@ interface Keyword {
 
 export default function KeywordResearch() {
   const [searchKeyword, setSearchKeyword] = useState("");
+  const [researchResults, setResearchResults] = useState<KeywordResearchResult | null>(null);
   const { toast } = useToast();
 
   const { data: keywords, isLoading: keywordsLoading } = useQuery<Keyword[]>({
@@ -27,7 +50,7 @@ export default function KeywordResearch() {
 
   const researchMutation = useMutation({
     mutationFn: async () => {
-      console.log('Research button clicked, keyword:', searchKeyword);
+      console.log('AI Research button clicked, keyword:', searchKeyword);
       
       if (!searchKeyword.trim()) {
         throw new Error("Please enter a keyword to research");
@@ -35,17 +58,18 @@ export default function KeywordResearch() {
       
       const payload = {
         keyword: searchKeyword.trim(),
-        country: "us"
+        country: "United States",
+        language: "English"
       };
       
-      console.log('Sending keyword research API request with payload:', payload);
+      console.log('Sending AI keyword research API request with payload:', payload);
       
       try {
         const response = await apiRequest("POST", "/api/keywords/research", payload);
-        console.log('Keyword research API response received:', response);
+        console.log('AI keyword research API response received:', response);
         return response;
       } catch (error: any) {
-        console.error('Keyword research API request failed:', error);
+        console.error('AI keyword research API request failed:', error);
         
         // Handle specific error cases and re-throw with proper structure
         if (error.message?.includes('401')) {
@@ -62,17 +86,21 @@ export default function KeywordResearch() {
       }
     },
     onSuccess: async (response) => {
-      const results = await response.json();
+      const results: KeywordResearchResult = await response.json();
+      console.log('AI Research results:', results);
+      
+      setResearchResults(results);
+      
       toast({
-        title: "Keyword Research Complete!",
-        description: `Found ${results.length} keywords via Answer Socrates`,
+        title: "SEO Insight Engine Complete!",
+        description: `Generated ${results.totalQuestions} questions across ${Object.keys(results.categories).length} categories`,
       });
       
       // Clear search input
       setSearchKeyword("");
     },
     onError: (error: any) => {
-      console.error('Keyword research error:', error);
+      console.error('AI keyword research error:', error);
       
       if (isUnauthorizedError(error) || error?.status === 401) {
         toast({
@@ -104,20 +132,28 @@ export default function KeywordResearch() {
   });
 
   const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case 'low': return 'text-accent';
-      case 'medium': return 'text-neural';
-      case 'high': return 'text-red-500';
-      default: return 'text-text-secondary';
+    switch (difficulty?.toLowerCase()) {
+      case 'easy': return 'text-green-400';
+      case 'medium': return 'text-yellow-400';
+      case 'hard': return 'text-red-400';
+      default: return 'text-gray-400';
     }
   };
 
-  const getAIOverviewColor = (potential: string) => {
-    switch (potential) {
-      case 'high': return 'bg-accent';
-      case 'medium': return 'bg-neural';
-      case 'low': return 'bg-red-500';
-      default: return 'bg-surface-light';
+  const getFunnelStageColor = (stage: string) => {
+    switch (stage) {
+      case 'TOFU': return 'bg-blue-500';
+      case 'MOFU': return 'bg-yellow-500';
+      case 'BOFU': return 'bg-green-500';
+      default: return 'bg-gray-500';
+    }
+  };
+
+  const getTrendIcon = (direction: string) => {
+    switch (direction) {
+      case 'up': return <TrendingUp className="w-4 h-4 text-green-400" />;
+      case 'down': return <TrendingUp className="w-4 h-4 text-red-400 rotate-180" />;
+      default: return <BarChart3 className="w-4 h-4 text-gray-400" />;
     }
   };
 
@@ -127,15 +163,18 @@ export default function KeywordResearch() {
     <Card id="keyword-research" className="bg-surface border-surface-light overflow-hidden">
       <CardHeader className="border-b border-surface-light">
         <CardTitle className="flex items-center space-x-2">
-          <Search className="w-5 h-5 text-secondary" />
-          <span>Answer Socrates Integration</span>
-          <Badge className="bg-secondary bg-opacity-20 text-secondary border-none">Live</Badge>
+          <Brain className="w-5 h-5 text-purple-400" />
+          <span>SEO Insight Engine</span>
+          <Badge className="bg-purple-500 bg-opacity-20 text-purple-400 border-none">
+            <Sparkles className="w-3 h-3 mr-1" />
+            AI-Powered
+          </Badge>
         </CardTitle>
       </CardHeader>
       
       <CardContent className="p-6">
         {/* Search Input */}
-        <div className="mb-4">
+        <div className="mb-6">
           <div className="flex space-x-3">
             <Input
               id="keyword-input"
@@ -154,7 +193,7 @@ export default function KeywordResearch() {
             <Button 
               type="button"
               onClick={() => {
-                console.log('Research button clicked, current keyword:', searchKeyword);
+                console.log('AI Research button clicked, current keyword:', searchKeyword);
                 if (searchKeyword.trim()) {
                   console.log('Keyword is valid, calling researchMutation.mutate()');
                   researchMutation.mutate();
@@ -163,19 +202,67 @@ export default function KeywordResearch() {
                 }
               }}
               disabled={researchMutation.isPending || !searchKeyword.trim()}
-              className="bg-secondary hover:bg-purple-600 text-white px-6 h-12"
+              className="bg-purple-600 hover:bg-purple-700 text-white px-6 h-12"
             >
               {researchMutation.isPending ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
-                "Research"
+                <>
+                  <Brain className="w-4 h-4 mr-2" />
+                  SEO Research
+                </>
               )}
             </Button>
           </div>
         </div>
+
+        {/* AI Research Results */}
+        {researchResults && (
+          <div className="mb-6 space-y-4">
+            <div className="flex items-center justify-between p-4 bg-purple-900 bg-opacity-30 rounded-lg border border-purple-500 border-opacity-30">
+              <div>
+                <h3 className="text-lg font-semibold text-purple-300">
+                  {researchResults.topic}
+                </h3>
+                <p className="text-sm text-gray-400">
+                  {researchResults.totalQuestions} questions across {Object.keys(researchResults.categories).length} categories
+                </p>
+              </div>
+              <div className="flex items-center space-x-2">
+                {getTrendIcon(researchResults.trends.direction)}
+                <span className="text-sm text-gray-400">
+                  {researchResults.trends.percentage}
+                </span>
+              </div>
+            </div>
+
+            {/* Categories */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {Object.entries(researchResults.categories).slice(0, 4).map(([category, questions]) => (
+                <div key={category} className="p-4 bg-gray-800 rounded-lg">
+                  <h4 className="font-medium text-white mb-2">{category}</h4>
+                  <div className="space-y-2">
+                    {questions.slice(0, 3).map((q, idx) => (
+                      <div key={idx} className="flex items-center justify-between text-sm">
+                        <span className="text-gray-300 truncate">{q.question}</span>
+                        <Badge className={`${getFunnelStageColor(q.funnelStage)} text-white text-xs`}>
+                          {q.funnelStage}
+                        </Badge>
+                      </div>
+                    ))}
+                    {questions.length > 3 && (
+                      <p className="text-xs text-gray-500">+{questions.length - 3} more questions</p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         
-        {/* Results Preview */}
+        {/* Recent Keywords */}
         <div className="space-y-3">
+          <h4 className="text-sm font-medium text-gray-400">Recent Keywords</h4>
           {keywordsLoading ? (
             <div className="space-y-3">
               {[1, 2, 3].map((i) => (
@@ -188,7 +275,7 @@ export default function KeywordResearch() {
             recentKeywords.map((keyword) => (
               <div key={keyword.id} className="flex items-center justify-between p-3 bg-dark rounded-lg">
                 <div className="flex items-center space-x-3">
-                  <div className={`w-2 h-2 rounded-full ${getAIOverviewColor(keyword.aiOverviewPotential)}`}></div>
+                  <div className={`w-2 h-2 rounded-full ${getFunnelStageColor(keyword.aiOverviewPotential)}`}></div>
                   <span className="text-sm">{keyword.keyword}</span>
                 </div>
                 <div className="flex items-center space-x-2 text-xs text-text-secondary">

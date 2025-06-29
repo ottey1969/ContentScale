@@ -383,10 +383,10 @@ export default function Landing() {
                   <Search className="w-6 h-6 text-white" />
                 </div>
                 <h3 className="text-xl font-semibold mb-2 text-white group-hover:text-green-400 transition-colors">
-                  Answer Socrates Integration
+                  SEO Insight Engine
                 </h3>
                 <p className="text-gray-400 mb-4 group-hover:text-gray-300 transition-colors">
-                  Real-time keyword research with automated clustering and AI Overview optimization.
+                  Advanced AI-powered keyword research with automated clustering and AI Overview optimization.
                 </p>
                 <ul className="text-sm text-gray-400 space-y-2 group-hover:text-gray-300 transition-colors">
                   <li className="flex items-center space-x-2">
