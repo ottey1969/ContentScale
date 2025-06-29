@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 // import { WebSocketServer, WebSocket } from "ws"; // Disabled for development
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import Anthropic from '@anthropic-ai/sdk';
 import { contentGenerator } from "./services/contentGenerator";
 import { seoInsightEngine } from "./services/keywordResearch";
 import { generateKeywordResearch, generateQuickKeywords } from "./services/aiKeywordResearch";
@@ -221,13 +222,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Use Anthropic API for chat responses
-      const Anthropic = require('@anthropic-ai/sdk');
       const anthropic = new Anthropic({
         apiKey: process.env.ANTHROPIC_API_KEY,
       });
 
       const response = await anthropic.messages.create({
-        model: "claude-3-sonnet-20240229",
+        model: "claude-3-5-sonnet-20241022",
         max_tokens: 1000,
         messages: [{
           role: "user",
@@ -237,8 +237,9 @@ User question: ${message}`
         }]
       });
 
+      const messageContent = response.content[0] as any;
       res.json({ 
-        response: response.content[0].text 
+        response: messageContent.text || 'Sorry, I could not process that request.' 
       });
 
     } catch (error) {
