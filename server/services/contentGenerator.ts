@@ -1,5 +1,6 @@
 import { InsertContent, Content } from "@shared/schema";
 import { storage } from "../storage";
+import Anthropic from '@anthropic-ai/sdk';
 
 interface ContentGenerationRequest extends InsertContent {
   topic?: string;
@@ -46,8 +47,108 @@ class ContentGenerator {
   }
 
   private async simulateAIGeneration(request: ContentGenerationRequest): Promise<AIContentResponse> {
-    // In a real implementation, this would call OpenAI API or similar
-    // For now, we'll simulate sophisticated content generation
+    // Real AI content generation using Anthropic + Perplexity
+    return await this.generateRealAIContent(request);
+  }
+
+  private async generateRealAIContent(request: ContentGenerationRequest): Promise<AIContentResponse> {
+    try {
+      // Step 1: Research with Perplexity API for current data
+      const researchData = await this.performPerplexityResearch(request.topic || request.title || 'general topic');
+      
+      // Step 2: Generate content with Anthropic using research
+      const anthropic = new Anthropic({
+        apiKey: process.env.ANTHROPIC_API_KEY,
+      });
+
+      const contentPrompt = `Create a comprehensive, SEO-optimized ${request.contentType} about "${request.topic || request.title}".
+
+RESEARCH DATA:
+${researchData}
+
+REQUIREMENTS:
+- Target keywords: ${request.targetKeywords?.join(', ') || 'related keywords'}
+- Content length: ${request.contentLength || 'medium'}
+- SEO-optimized with H2/H3 headings
+- Include statistics and current information
+- Optimize for Google AI Overview potential
+
+Please provide a JSON response with:
+{
+  "title": "SEO-optimized title",
+  "content": "Full article content with proper formatting",
+  "metaDescription": "150-character meta description",
+  "keywords": ["keyword1", "keyword2", "keyword3"],
+  "seoScore": 85,
+  "aiOverviewPotential": "high",
+  "aiModeScore": 92
+}`;
+
+      const response = await anthropic.messages.create({
+        model: "claude-3-5-sonnet-20241022",
+        max_tokens: 4000,
+        messages: [{
+          role: "user",
+          content: contentPrompt
+        }]
+      });
+
+      const messageContent = response.content[0] as any;
+      const generatedData = JSON.parse(messageContent.text);
+
+      return {
+        title: generatedData.title || `AI-Generated: ${request.topic || request.title}`,
+        content: generatedData.content || 'Content generation in progress...',
+        metaDescription: generatedData.metaDescription || 'AI-generated content description',
+        keywords: generatedData.keywords || ['ai', 'content', 'seo'],
+        seoScore: generatedData.seoScore || 85,
+        aiOverviewPotential: generatedData.aiOverviewPotential || 'medium',
+        aiModeScore: generatedData.aiModeScore || 85
+      };
+
+    } catch (error) {
+      console.error('AI content generation error:', error);
+      // Fallback to basic generation if APIs fail
+      return this.generateFallbackContent(request);
+    }
+  }
+
+  private async performPerplexityResearch(topic: string): Promise<string> {
+    try {
+      const response = await fetch('https://api.perplexity.ai/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: "llama-3.1-sonar-small-128k-online",
+          messages: [{
+            role: "user",
+            content: `Research current information, statistics, and trends about: ${topic}. Provide key facts, recent developments, and relevant data that would be useful for creating comprehensive content.`
+          }],
+          max_tokens: 1000,
+          temperature: 0.2,
+          top_p: 0.9,
+          return_related_questions: false,
+          search_recency_filter: "month"
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Perplexity API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data.choices[0]?.message?.content || 'No research data available';
+
+    } catch (error) {
+      console.error('Perplexity research error:', error);
+      return `Research topic: ${topic}. Please refer to current industry standards and best practices.`;
+    }
+  }
+
+  private generateFallbackContent(request: ContentGenerationRequest): AIContentResponse {
     
     const contentTemplates = {
       blog: {
@@ -71,7 +172,7 @@ class ContentGenerator {
     const template = contentTemplates[request.contentType as keyof typeof contentTemplates] || contentTemplates.blog;
     
     // Generate sophisticated content with CRAFT framework integration
-    const content = await this.generateWithCRAFTFramework(request, template);
+    const content = this.generateWithCRAFTFramework(request, template);
     const keywords = this.generateSEOKeywords(request.topic || '');
     const seoScore = this.calculateSEOScore(content, keywords);
     
@@ -97,7 +198,7 @@ class ContentGenerator {
     return topicKeywords || 'Cybersecurity Best Practices';
   }
 
-  private async generateWithCRAFTFramework(request: ContentGenerationRequest, template: any): Promise<string> {
+  private generateWithCRAFTFramework(request: ContentGenerationRequest, template: any): string {
     const topic = this.extractMainTopic(request.topic || '');
     
     // CRAFT Framework: Cutting-edge, Relevant, Accurate, Factual, Trustworthy
