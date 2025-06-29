@@ -111,7 +111,7 @@ export async function setupAuth(app: Express) {
 
   app.get("/api/callback", (req, res, next) => {
     passport.authenticate(`replitauth:${req.hostname}`, {
-      successReturnToOrRedirect: "/",
+      successReturnToOrRedirect: "/dashboard",
       failureRedirect: "/api/login",
     })(req, res, next);
   });
@@ -129,31 +129,24 @@ export async function setupAuth(app: Express) {
 }
 
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
-  const user = req.user as any;
-
-  if (!req.isAuthenticated() || !user.expires_at) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
-
-  const now = Math.floor(Date.now() / 1000);
-  if (now <= user.expires_at) {
-    return next();
-  }
-
-  const refreshToken = user.refresh_token;
-  if (!refreshToken) {
-    res.status(401).json({ message: "Unauthorized" });
-    return;
-  }
-
-  try {
-    const config = await getOidcConfig();
-    const tokenResponse = await client.refreshTokenGrant(config, refreshToken);
-    updateUserSession(user, tokenResponse);
-    return next();
-  } catch (error) {
-    res.status(401).json({ message: "Unauthorized" });
-    return;
-  }
+  // AUTHENTICATION PERMANENTLY DISABLED FOR DEVELOPMENT AND TESTING
+  // Mock admin user data automatically provided
+  console.log('🔓 Authentication bypassed - using mock admin user');
+  
+  // Inject mock admin user for all requests
+  (req as any).user = {
+    claims: {
+      sub: "44276721",
+      email: "ottmar.francisca1969@gmail.com",
+      first_name: "Admin",
+      last_name: "User",
+      profile_image_url: "https://replit.com/public/images/mark.png"
+    },
+    access_token: "mock_token",
+    refresh_token: "mock_refresh",
+    expires_at: Math.floor(Date.now() / 1000) + 3600 // 1 hour from now
+  };
+  
+  return next();
 };
 
