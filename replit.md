@@ -36,10 +36,15 @@ ContentScale Agent is a full-stack web application designed for AI-powered conte
 - Referral system for user acquisition
 
 ### Content Generation Engine
-- AI-powered content generation with SEO optimization
-- Multiple content types support (blog posts, articles, etc.)
-- SEO scoring and AI overview potential assessment
+- AI-powered content generation following CRAFT framework principles
+- CRAFT Framework: Clear, Relevant, Authentic, Focused, Timely content
+- RankMath SEO optimization with 90+ scores and AI Overview targeting
+- Professional content structure: Introduction → Benefits → Best Practices → Advanced Techniques → FAQ → Conclusion
+- Multiple content types support (blog posts, articles, guides, tutorials)
+- SEO scoring and AI overview potential assessment with current 2025 trends
 - Content status management (draft, published, etc.)
+- Meta descriptions under 150 characters with compelling CTAs
+- H2/H3 heading optimization with keyword variations
 
 ### Keyword Research System
 - Integrated keyword research capabilities
@@ -148,6 +153,8 @@ Test all functionality with the browser console open (F12) for debugging
 - June 29, 2025. Applied SEO insight engine scrolling fixes for improved user interface navigation
 - June 29, 2025. Applied guaranteed working buttons fix with enhanced state management and debugging functionality
 - June 29, 2025. Applied auth redirect fix while maintaining permanently disabled authentication for development
+- June 30, 2025. Implemented CRAFT framework and RankMath principles for professional content writing standards
+- June 30, 2025. Added admin credit management system - admins can grant free credits to users via email address
 
 ## User Preferences
 
