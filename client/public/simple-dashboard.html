@@ -513,6 +513,99 @@
             </div>
         </div>
 
+        <!-- Viral Referrals -->
+        <div class="bg-slate-800 rounded-lg p-6 mb-8">
+            <h3 class="text-lg font-bold mb-4 text-green-400">🚀 Viral Referrals</h3>
+            
+            <!-- Progress Circle -->
+            <div class="text-center mb-6">
+                <div class="relative mx-auto w-32 h-32 mb-4">
+                    <!-- Background circle -->
+                    <svg class="w-32 h-32 transform -rotate-90" viewBox="0 0 120 120">
+                        <circle cx="60" cy="60" r="50" fill="none" stroke="#374151" stroke-width="8"/>
+                        <!-- Progress circle -->
+                        <circle cx="60" cy="60" r="50" fill="none" stroke="#10b981" stroke-width="8" 
+                                stroke-linecap="round" stroke-dasharray="314" 
+                                :stroke-dashoffset="314 - (referralProgress / 100) * 314"
+                                class="transition-all duration-500"/>
+                    </svg>
+                    <!-- Center content -->
+                    <div class="absolute inset-0 flex flex-col items-center justify-center">
+                        <div class="text-3xl font-bold" x-text="referralStats.bulkUsers"></div>
+                        <div class="text-sm text-gray-400">/3</div>
+                    </div>
+                </div>
+                <p class="text-gray-400 mb-2">Bulk Users (5+ Blogs)</p>
+                <p class="text-sm text-green-400" x-text="referralStats.remaining + ' more for 20 free blogs!'"></p>
+            </div>
+
+            <!-- Referral Stats -->
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-blue-400" x-text="referralStats.linksShared"></div>
+                    <div class="text-sm text-gray-400">Links Shared</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-green-400" x-text="referralStats.creditsEarned"></div>
+                    <div class="text-sm text-gray-400">Credits Earned</div>
+                </div>
+            </div>
+
+            <!-- Share Your Link -->
+            <div class="mb-6">
+                <h4 class="font-medium mb-3">Share Your Link</h4>
+                <div class="flex space-x-2 mb-3">
+                    <input type="text" 
+                           :value="referralLink" 
+                           readonly
+                           class="flex-1 px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm">
+                    <button @click="copyReferralLink()" 
+                            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm">
+                        Copy
+                    </button>
+                </div>
+                
+                <!-- Social Share Buttons -->
+                <div class="grid grid-cols-3 gap-2">
+                    <button @click="shareOn('twitter')" 
+                            class="px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg text-sm">
+                        Twitter
+                    </button>
+                    <button @click="shareOn('linkedin')" 
+                            class="px-4 py-2 bg-blue-700 hover:bg-blue-800 rounded-lg text-sm">
+                        LinkedIn
+                    </button>
+                    <button @click="shareOn('whatsapp')" 
+                            class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-sm">
+                        WhatsApp
+                    </button>
+                </div>
+            </div>
+
+            <!-- How Conversions Work -->
+            <div class="bg-slate-700 rounded-lg p-4">
+                <h4 class="font-medium mb-3">How Conversions Work</h4>
+                <div class="space-y-2 text-sm text-gray-300">
+                    <div class="flex items-start space-x-2">
+                        <span class="w-1 h-1 bg-green-400 rounded-full mt-2 flex-shrink-0"></span>
+                        <span>A user becomes a "bulk user" after generating 5+ blog posts</span>
+                    </div>
+                    <div class="flex items-start space-x-2">
+                        <span class="w-1 h-1 bg-green-400 rounded-full mt-2 flex-shrink-0"></span>
+                        <span>You earn 5 free blogs for each bulk user conversion</span>
+                    </div>
+                    <div class="flex items-start space-x-2">
+                        <span class="w-1 h-1 bg-green-400 rounded-full mt-2 flex-shrink-0"></span>
+                        <span>Rewards: 1 bulk user = 5 blogs, 3 = 20 blogs, 10 = 100 blogs</span>
+                    </div>
+                    <div class="flex items-start space-x-2">
+                        <span class="w-1 h-1 bg-green-400 rounded-full mt-2 flex-shrink-0"></span>
+                        <span>Only active content creators count as conversions</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Bulk CSV Processing -->
         <div class="bg-slate-800 rounded-lg p-6 mb-8">
             <h3 class="text-lg font-bold mb-4">📊 Bulk CSV Processing</h3>
@@ -575,6 +668,16 @@
                     competitorAnalysis: true,
                     aiOverviewPotential: true,
                     longTailKeywords: false
+                },
+                
+                // Viral Referrals
+                referralLink: 'https://cyber-sofeia-ottmarfranciscr.replit.app/signup?ref=672fcdf39f16',
+                referralProgress: 33, // 1 out of 3 bulk users
+                referralStats: {
+                    bulkUsers: 1,
+                    remaining: 2,
+                    linksShared: 1,
+                    creditsEarned: 0
                 },
                 
                 // Content Options
@@ -873,6 +976,38 @@
                     if (file) {
                         this.addAction(`CSV file uploaded: ${file.name}`);
                         this.showNotification("CSV file uploaded for processing!", "success");
+                    }
+                },
+                
+                copyReferralLink() {
+                    navigator.clipboard.writeText(this.referralLink);
+                    this.showNotification("Referral link copied to clipboard!", "success");
+                    this.addAction("Referral link copied");
+                },
+                
+                shareOn(platform) {
+                    const text = "Check out ContentScale Pro - Amazing AI content generation with CRAFT framework!";
+                    const url = this.referralLink;
+                    
+                    let shareUrl = '';
+                    
+                    switch(platform) {
+                        case 'twitter':
+                            shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+                            break;
+                        case 'linkedin':
+                            shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
+                            break;
+                        case 'whatsapp':
+                            shareUrl = `https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`;
+                            break;
+                    }
+                    
+                    if (shareUrl) {
+                        window.open(shareUrl, '_blank', 'width=600,height=400');
+                        this.referralStats.linksShared++;
+                        this.addAction(`Shared on ${platform}`);
+                        this.showNotification(`Shared on ${platform}!`, "success");
                     }
                 },
                 
