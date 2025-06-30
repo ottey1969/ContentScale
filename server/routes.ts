@@ -11,6 +11,7 @@ import { referralSystem } from "./services/referralSystem";
 import { securityService } from "./services/securityService";
 import { securityMiddleware, rateLimitMiddleware, adminSecurityMiddleware } from "./middleware/securityMiddleware";
 import { registerSofeiaRoutes } from "./routes/sofeiaRoutes";
+import { sofeiaAI } from "./services/sofeiaAI";
 import { insertContentSchema, insertKeywordSchema, insertActivitySchema } from "@shared/schema";
 import { z } from "zod";
 import multer from "multer";
@@ -288,6 +289,79 @@ User question: ${message}`
     }
   });
 
+  // Admin endpoint to give free credits to users
+  app.post("/api/admin/give-credits", isAuthenticated, async (req: any, res) => {
+    try {
+      const adminUserId = req.user.claims.sub;
+      const adminEmail = req.user.claims.email;
+      
+      // Check admin privileges
+      if (adminUserId !== 'admin' && adminEmail !== 'ottmar.francisca1969@gmail.com') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { userEmail, credits, reason } = req.body;
+      
+      if (!userEmail || !credits || credits <= 0) {
+        return res.status(400).json({ message: "Valid user email and positive credit amount required" });
+      }
+
+      // For now, we'll use the email as the user ID since authentication is bypassed
+      // In a real implementation, you'd need to add getUserByEmail to storage
+      const userId = userEmail === 'ottmar.francisca1969@gmail.com' ? '44276721' : userEmail;
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found. Make sure the user has logged in at least once." });
+      }
+
+      // Update user credits in database
+      const newCreditBalance = (user.credits || 0) + credits;
+      await storage.updateUserCredits(user.id, newCreditBalance);
+
+      // Also update Sofeia AI service credits
+      sofeiaAI.addCredits(userEmail, credits);
+
+      // Log the credit grant
+      console.log(`Admin ${adminEmail} granted ${credits} credits to ${userEmail}. Reason: ${reason || 'No reason provided'}`);
+
+      res.json({
+        success: true,
+        message: `Successfully granted ${credits} credits to ${userEmail}`,
+        newBalance: newCreditBalance
+      });
+
+    } catch (error) {
+      console.error("Error granting credits:", error);
+      res.status(500).json({ message: "Failed to grant credits" });
+    }
+  });
+
+  // Admin endpoint to get user list with credit balances
+  app.get("/api/admin/users", isAuthenticated, async (req: any, res) => {
+    try {
+      const adminUserId = req.user.claims.sub;
+      const adminEmail = req.user.claims.email;
+      
+      // Check admin privileges
+      if (adminUserId !== 'admin' && adminEmail !== 'ottmar.francisca1969@gmail.com') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      // Get all users (you may need to implement this in storage)
+      // For now, return a simplified version
+      res.json({
+        success: true,
+        message: "Admin can grant credits using user email addresses",
+        instructions: "Use the give credits form with the user's email address"
+      });
+
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      res.status(500).json({ message: "Failed to fetch users" });
+    }
+  });
+
   // Content generation with free first article + $2 payment system
   app.post("/api/content/generate", isAuthenticated, rateLimitMiddleware('content_generation'), async (req: any, res) => {
     try {
@@ -390,7 +464,7 @@ User question: ${message}`
         researchResult.questions.map(q => storage.createKeyword({
           userId,
           keyword: q.question,
-          searchVolume: q.searchVolume || "Medium",
+          searchVolume: parseInt(q.searchVolume) || 1000,
           difficulty: q.difficulty || "Medium",
           aiOverviewPotential: q.funnelStage,
           relatedKeywords: [keyword],

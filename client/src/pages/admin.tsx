@@ -21,10 +21,130 @@ interface AdminSettings {
   maxCreditsPerUser: number;
 }
 
+
+
 export default function Admin() {
   const { user, isLoading } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Credit Management Component
+  const CreditManagement = () => {
+    const [userEmail, setUserEmail] = useState('');
+    const [credits, setCredits] = useState(10);
+    const [reason, setReason] = useState('');
+
+    const giveCredits = useMutation({
+      mutationFn: async (data: { userEmail: string; credits: number; reason: string }) => {
+        return await apiRequest('/api/admin/give-credits', 'POST', data);
+      },
+      onSuccess: (data: any) => {
+        toast({
+          title: "Credits Granted",
+          description: data.message,
+        });
+        setUserEmail('');
+        setCredits(10);
+        setReason('');
+      },
+      onError: (error: any) => {
+        toast({
+          title: "Error",
+          description: error.message || "Failed to grant credits",
+          variant: "destructive",
+        });
+      },
+    });
+
+    const handleGiveCredits = (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!userEmail.trim()) {
+        toast({
+          title: "Error",
+          description: "Please enter a user email",
+          variant: "destructive",
+        });
+        return;
+      }
+      giveCredits.mutate({ userEmail: userEmail.trim(), credits, reason });
+    };
+
+    return (
+      <Card className="bg-slate-800 border-slate-700">
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2 text-white">
+            <span>💳</span>
+            <span>Credit Management</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <form onSubmit={handleGiveCredits} className="space-y-4">
+            <div>
+              <Label htmlFor="userEmail" className="text-gray-300">
+                User Email
+              </Label>
+              <Input
+                id="userEmail"
+                type="email"
+                placeholder="user@example.com"
+                value={userEmail}
+                onChange={(e) => setUserEmail(e.target.value)}
+                className="bg-slate-700 border-slate-600 text-white placeholder:text-gray-400"
+                required
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="credits" className="text-gray-300">
+                Credits to Give
+              </Label>
+              <Input
+                id="credits"
+                type="number"
+                min="1"
+                max="1000"
+                value={credits}
+                onChange={(e) => setCredits(parseInt(e.target.value) || 10)}
+                className="bg-slate-700 border-slate-600 text-white"
+                required
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="reason" className="text-gray-300">
+                Reason (Optional)
+              </Label>
+              <Textarea
+                id="reason"
+                placeholder="Admin credit grant for customer support..."
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                className="bg-slate-700 border-slate-600 text-white placeholder:text-gray-400"
+              />
+            </div>
+
+            <Button
+              type="submit"
+              disabled={giveCredits.isPending}
+              className="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white w-full"
+            >
+              {giveCredits.isPending ? "Granting Credits..." : `Give ${credits} Credits`}
+            </Button>
+          </form>
+
+          <div className="mt-6 p-4 bg-slate-700 rounded-lg">
+            <h4 className="text-white font-medium mb-2">Instructions</h4>
+            <ul className="text-gray-300 text-sm space-y-1">
+              <li>• Enter the user's email address (must match their login email)</li>
+              <li>• Specify the number of credits to grant (1-1000)</li>
+              <li>• Credits will be added to their existing balance</li>
+              <li>• User must have logged in at least once</li>
+            </ul>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
 
   // Check if user is admin
   const isAdmin = user && ((user as any)?.id === 'admin' || (user as any)?.email === 'ottmar.francisca1969@gmail.com');
@@ -132,10 +252,14 @@ export default function Admin() {
 
         {/* Tabbed Interface */}
         <Tabs defaultValue="settings" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 bg-slate-800 border-slate-700">
+          <TabsList className="grid w-full grid-cols-3 bg-slate-800 border-slate-700">
             <TabsTrigger value="settings" className="flex items-center space-x-2">
               <Video className="w-4 h-4" />
               <span>Settings</span>
+            </TabsTrigger>
+            <TabsTrigger value="credits" className="flex items-center space-x-2">
+              <span>💳</span>
+              <span>Credits</span>
             </TabsTrigger>
             <TabsTrigger value="security" className="flex items-center space-x-2">
               <Shield className="w-4 h-4" />
@@ -268,6 +392,10 @@ export default function Admin() {
                 {saveSettingsMutation.isPending ? "Saving..." : "Save Settings"}
               </Button>
             </div>
+          </TabsContent>
+
+          <TabsContent value="credits" className="space-y-6 mt-6">
+            <CreditManagement />
           </TabsContent>
 
           <TabsContent value="security" className="space-y-6 mt-6">
