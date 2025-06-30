@@ -308,11 +308,19 @@ export function ChatPopup({ isOpen, onClose }: ChatPopupProps) {
             <Button
               onClick={handleSendMessage}
               disabled={isLoading || (!inputValue.trim() && attachedFiles.length === 0)}
-              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white h-12 px-8 rounded-xl font-medium"
+              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white h-12 px-6 rounded-xl font-medium"
             >
-              <Bot className="w-5 h-5 mr-2" />
-              Start Chatting with Sofeia AI
-              <Sparkles className="w-4 h-4 ml-2" />
+              {isLoading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Thinking...
+                </>
+              ) : (
+                <>
+                  <Send className="w-5 h-5 mr-2" />
+                  Send
+                </>
+              )}
             </Button>
           </div>
         </div>

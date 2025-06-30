@@ -304,7 +304,7 @@ export default function Landing() {
                 </div>
 
                 <Button 
-                  onClick={handleGetStarted}
+                  onClick={() => setShowChatPopup(true)}
                   className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold py-3 rounded-xl transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-purple-500/50"
                 >
                   <Brain className="w-5 h-5 mr-2" />
