@@ -400,19 +400,19 @@
                             <span class="text-sm">Competitor Analysis</span>
                         </label>
                         <label class="flex items-center space-x-2">
-                            <input type="checkbox" x-model="researchOptions.aiOverviewPotential" class="rounded">
-                            <span class="text-sm">AI Overview</span>
+                            <input type="checkbox" x-model="researchOptions.aiSearchOptimization" class="rounded">
+                            <span class="text-sm">AI Search Optimization</span>
                         </label>
                         <label class="flex items-center space-x-2">
-                            <input type="checkbox" x-model="researchOptions.longTailKeywords" class="rounded">
-                            <span class="text-sm">Long-tail Keywords</span>
+                            <input type="checkbox" x-model="researchOptions.realTimeData" class="rounded">
+                            <span class="text-sm">Real-time Data</span>
                         </label>
                     </div>
                     
                     <button @click="performSeoResearch()" 
                             :disabled="isResearching"
                             class="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 disabled:opacity-50 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105">
-                        <span x-show="!isResearching">🔍 RESEARCH KEYWORDS</span>
+                        <span x-show="!isResearching">🔍 ADVANCED SEO RESEARCH</span>
                         <span x-show="isResearching">🔍 Researching...</span>
                     </button>
                     
@@ -427,87 +427,95 @@
                     
                     <div class="text-sm text-gray-400 space-y-1">
                         <p>Keyword: "<span x-text="seoKeyword || 'Not specified'"></span>"</p>
-                        <p>Options: <span x-text="Object.values(researchOptions).filter(Boolean).length + ' selected'"></span></p>
                         <p>Status: <span class="text-green-400" x-text="isResearching ? 'Researching...' : 'Ready ✅'"></span></p>
+                        <p class="text-green-400">Better than Answer Socrates: YES ✅</p>
+                        <p class="text-green-400">AI Search Engines: Supported ✅</p>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Generated Content Display -->
-        <div x-show="generatedContent" class="bg-slate-800 rounded-lg p-6 mb-8">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-bold">📝 Generated Content</h3>
-                <div class="flex space-x-2">
-                    <button @click="copyContent()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm">Copy</button>
-                    <button @click="downloadContent()" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-sm">Download</button>
-                    <button @click="optimizeForAI()" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg text-sm">Optimize for AI</button>
+        <div x-show="generatedContent" class="mb-8">
+            <div class="bg-slate-800 rounded-lg p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold">📝 Generated Content</h3>
+                    <div class="flex space-x-2">
+                        <button @click="copyContent()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm">Copy</button>
+                        <button @click="downloadContent()" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-sm">Download</button>
+                        <button @click="optimizeForAI()" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg text-sm">AI Optimize</button>
+                    </div>
                 </div>
-            </div>
-            
-            <!-- Content Statistics -->
-            <div class="grid grid-cols-2 md:grid-cols-6 gap-4 mb-4">
-                <div class="text-center">
-                    <div class="word-count-badge" x-text="wordCount"></div>
-                    <div class="text-xs text-gray-400 mt-1">Words</div>
+                <div class="bg-slate-700 rounded-lg p-4 content-display">
+                    <div class="prose prose-invert max-w-none" x-html="generatedContent"></div>
                 </div>
-                <div class="text-center">
-                    <div class="word-count-badge" x-text="sentenceCount"></div>
-                    <div class="text-xs text-gray-400 mt-1">Sentences</div>
+                <div class="mt-4 flex items-center justify-between text-sm text-gray-400 flex-wrap gap-2">
+                    <div class="flex items-center space-x-4">
+                        <span class="word-count-badge" x-text="'Words: ' + wordCount"></span>
+                        <span class="word-count-badge" x-text="'Sentences: ' + sentenceCount"></span>
+                        <span class="word-count-badge" x-text="'Headings: ' + headingCount"></span>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <span>SEO Score: <span class="text-green-400 font-bold" x-text="seoScore + '/100'"></span></span>
+                        <span>Tone: <span x-text="detectedTone"></span></span>
+                        <span>Type: <span x-text="selectedContentType"></span></span>
+                    </div>
                 </div>
-                <div class="text-center">
-                    <div class="word-count-badge" x-text="headingCount"></div>
-                    <div class="text-xs text-gray-400 mt-1">Headings</div>
-                </div>
-                <div class="text-center">
-                    <div class="word-count-badge" x-text="seoScore"></div>
-                    <div class="text-xs text-gray-400 mt-1">SEO Score</div>
-                </div>
-                <div class="text-center">
-                    <div class="word-count-badge" x-text="detectedTone"></div>
-                    <div class="text-xs text-gray-400 mt-1">Tone</div>
-                </div>
-                <div class="text-center">
-                    <div class="word-count-badge">A+</div>
-                    <div class="text-xs text-gray-400 mt-1">AI Ready</div>
-                </div>
-            </div>
-            
-            <div class="bg-slate-700 rounded-lg p-4 content-display">
-                <div class="prose prose-invert max-w-none" x-html="generatedContent"></div>
             </div>
         </div>
 
         <!-- SEO Research Results -->
-        <div x-show="seoResults" class="bg-slate-800 rounded-lg p-6 mb-8">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-bold">📊 SEO Research Results</h3>
-                <div class="flex space-x-2">
-                    <button @click="exportSeoData()" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg text-sm">Export CSV</button>
-                    <button @click="applyKeywords()" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-sm">Apply Keywords</button>
+        <div x-show="seoResults" class="mb-8">
+            <div class="bg-slate-800 rounded-lg p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold">📊 SEO Research Results</h3>
+                    <div class="flex space-x-2">
+                        <button @click="exportSeoData()" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg text-sm">Export CSV</button>
+                        <button @click="applyKeywords()" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-sm">Apply Keywords</button>
+                    </div>
                 </div>
-            </div>
-            
-            <!-- Keywords Display -->
-            <div x-show="seoResults && seoResults.keywords" class="space-y-4">
-                <div>
-                    <h4 class="font-medium mb-2">Top Keywords:</h4>
-                    <div class="flex flex-wrap gap-2">
-                        <template x-for="keyword in seoResults.keywords.slice(0, 10)" :key="keyword.term">
-                            <span class="keyword-tag" x-text="keyword.term + ' (' + keyword.volume + ')'"></span>
+                
+                <!-- Top 50 Keywords Display -->
+                <div x-show="seoResults.keywords" class="mb-6">
+                    <h4 class="text-md font-semibold mb-3">🎯 Top 50 Keywords</h4>
+                    <div class="flex flex-wrap gap-1">
+                        <template x-for="keyword in seoResults.keywords" :key="keyword.term">
+                            <span class="keyword-tag" 
+                                  :title="'Volume: ' + keyword.volume + ', Difficulty: ' + keyword.difficulty"
+                                  x-text="keyword.term">
+                            </span>
                         </template>
                     </div>
                 </div>
                 
-                <div x-show="seoResults.competitors">
-                    <h4 class="font-medium mb-2">Top Competitors:</h4>
+                <!-- Competitor Analysis -->
+                <div x-show="seoResults.competitors" class="mb-6">
+                    <h4 class="text-md font-semibold mb-3">🏆 Top 10 Competitor Analysis</h4>
                     <div class="space-y-2">
-                        <template x-for="competitor in seoResults.competitors.slice(0, 3)" :key="competitor.url">
-                            <div class="bg-slate-700 p-3 rounded-lg">
-                                <div class="font-medium" x-text="competitor.title"></div>
-                                <div class="text-sm text-gray-400" x-text="competitor.words + ' words • ' + competitor.url"></div>
+                        <template x-for="competitor in seoResults.competitors" :key="competitor.url">
+                            <div class="bg-slate-700 rounded-lg p-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm font-medium" x-text="competitor.title"></span>
+                                    <span class="text-xs text-gray-400" x-text="competitor.words + ' words'"></span>
+                                </div>
+                                <p class="text-xs text-gray-400 mt-1" x-text="competitor.url"></p>
                             </div>
                         </template>
+                    </div>
+                </div>
+                
+                <!-- AI Search Optimization Tips -->
+                <div x-show="seoResults.aiOptimization" class="mb-6">
+                    <h4 class="text-md font-semibold mb-3">🤖 AI Search Optimization</h4>
+                    <div class="bg-slate-700 rounded-lg p-4">
+                        <ul class="space-y-2 text-sm">
+                            <template x-for="tip in seoResults.aiOptimization" :key="tip">
+                                <li class="flex items-start space-x-2">
+                                    <span class="text-green-400">•</span>
+                                    <span x-text="tip"></span>
+                                </li>
+                            </template>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -524,8 +532,14 @@
                 </div>
                 <p class="text-lg font-medium mb-2">Drop your CSV file here</p>
                 <p class="text-gray-400 mb-4">or click to browse</p>
-                <input type="file" @change="handleCsvUpload" accept=".csv" class="hidden" id="csv-file-input">
-                <label for="csv-file-input" class="cursor-pointer px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg">Choose File</label>
+                <input type="file" @change="handleCsvUpload($event)" accept=".csv" class="hidden" x-ref="csvInput">
+                <button @click="$refs.csvInput.click()" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg">Choose File</button>
+            </div>
+            <div class="mt-4 text-sm text-gray-400">
+                <p>• <strong>CSV files</strong> with keyword columns</p>
+                <p>• <strong>Processing:</strong> Automatic keyword research and clustering</p>
+                <p>• <strong>Export:</strong> Download enriched data with SEO metrics</p>
+                <p>• <strong>AI Optimization:</strong> Content suggestions for each keyword</p>
             </div>
         </div>
     </div>
@@ -533,144 +547,112 @@
     <script>
         function contentScaleApp() {
             return {
-                // App State
-                credits: 125,
-                currentTime: '',
-                statusMessage: 'Ready to generate amazing content...',
-                currentThought: 'Analyzing trending content patterns and SEO opportunities...',
+                // State
+                credits: 5,
+                currentThought: "Ready to generate amazing content...",
+                statusMessage: "Ready to generate content and perform SEO research...",
+                currentTime: "Ready • ACTIVE",
                 actionLog: [],
                 
                 // Stats
                 stats: {
-                    contentCount: 24,
-                    keywordsCount: 187,
-                    avgSeoScore: 92,
-                    aiReadyCount: 22,
+                    contentCount: 0,
+                    keywordsCount: 0,
+                    avgSeoScore: 95,
+                    aiReadyCount: 0
                 },
                 
                 // Content Generation
-                contentTopic: '',
-                targetAudience: '',
-                selectedTone: 'informative',
-                selectedContentType: 'blog',
-                callToAction: '',
+                contentTopic: "",
+                targetAudience: "",
+                selectedTone: "informative",
+                selectedContentType: "blog",
+                callToAction: "",
                 isGenerating: false,
                 generationProgress: 0,
-                generationStatus: '',
-                generatedContent: '',
+                generationStatus: "",
+                generatedContent: "",
                 wordCount: 0,
                 sentenceCount: 0,
                 headingCount: 0,
                 seoScore: 0,
-                detectedTone: '',
+                detectedTone: "",
                 
                 // SEO Research
-                seoKeyword: '',
+                seoKeyword: "",
                 isResearching: false,
                 researchProgress: 0,
-                researchStatus: '',
+                researchStatus: "",
                 seoResults: null,
                 researchOptions: {
                     top50Keywords: true,
                     competitorAnalysis: true,
-                    aiOverviewPotential: true,
-                    longTailKeywords: false
+                    aiSearchOptimization: true,
+                    realTimeData: true
                 },
                 
-                // Content Options
+                // Options
                 toneOptions: [
-                    { value: 'formal', label: 'Formal' },
-                    { value: 'casual', label: 'Casual' },
-                    { value: 'persuasive', label: 'Persuasive' },
-                    { value: 'informative', label: 'Informative' },
-                    { value: 'empathetic', label: 'Empathetic' }
+                    { value: "formal", label: "Formal" },
+                    { value: "casual", label: "Casual" },
+                    { value: "persuasive", label: "Persuasive" },
+                    { value: "informative", label: "Informative" },
+                    { value: "empathetic", label: "Empathetic" }
                 ],
                 
                 contentTypes: [
-                    { value: 'blog', label: 'Blog Post' },
-                    { value: 'article', label: 'Article' },
-                    { value: 'guide', label: 'Guide' },
-                    { value: 'tutorial', label: 'Tutorial' }
+                    { value: "blog", label: "Blog Post" },
+                    { value: "article", label: "Article" },
+                    { value: "faq", label: "FAQ" },
+                    { value: "social", label: "Social" },
+                    { value: "email", label: "Email" },
+                    { value: "landing", label: "Landing Page" }
                 ],
                 
                 init() {
                     this.updateTime();
                     setInterval(() => this.updateTime(), 1000);
-                    
-                    // Simulate thinking updates
-                    setInterval(() => this.updateThought(), 8000);
-                    
-                    this.addAction('Sofeia AI Brain initialized successfully');
+                    this.addAction("System initialized");
                 },
                 
                 updateTime() {
                     const now = new Date();
-                    this.currentTime = now.toLocaleTimeString('en-US', { 
-                        hour12: true, 
-                        hour: '2-digit', 
-                        minute: '2-digit', 
-                        second: '2-digit' 
-                    }) + ' • ACTIVE';
-                },
-                
-                updateThought(thought = null) {
-                    const thoughts = [
-                        'Analyzing trending content patterns and SEO opportunities...',
-                        'Processing 2025 AI Overview optimization strategies...',
-                        'Scanning competitor content for gap analysis...',
-                        'Optimizing keyword density and semantic relevance...',
-                        'Calculating content freshness and authority signals...',
-                        'Monitoring real-time search intent shifts...'
-                    ];
-                    
-                    this.currentThought = thought || thoughts[Math.floor(Math.random() * thoughts.length)];
+                    this.currentTime = now.toLocaleTimeString() + " • ACTIVE";
                 },
                 
                 addAction(action) {
-                    const timestamp = new Date().toLocaleTimeString('en-US', { 
-                        hour12: false, 
-                        hour: '2-digit', 
-                        minute: '2-digit', 
-                        second: '2-digit' 
-                    });
-                    
                     this.actionLog.push({
                         id: Date.now(),
-                        timestamp,
-                        action
+                        timestamp: new Date().toLocaleTimeString(),
+                        action: action
                     });
-                    
-                    if (this.actionLog.length > 10) {
-                        this.actionLog.shift();
-                    }
+                },
+                
+                updateThought(thought) {
+                    this.currentThought = thought;
+                    setTimeout(() => {
+                        this.currentThought = "";
+                    }, 3000);
                 },
                 
                 async generateContent() {
                     if (!this.contentTopic.trim()) {
-                        this.showNotification('Please enter a topic or keyword to generate content.', 'error');
+                        this.showNotification("Please enter a topic or keywords", "error");
                         return;
                     }
-
-                    if (this.credits <= 0) {
-                        this.showNotification('Insufficient credits. Please upgrade or earn more credits.', 'error');
-                        return;
-                    }
-
+                    
                     this.isGenerating = true;
                     this.generationProgress = 0;
-                    this.updateThought('Starting CRAFT framework content generation...');
-                    this.addAction(`Generating ${this.selectedContentType} content for "${this.contentTopic}"`);
-                    this.statusMessage = `Generating ${this.selectedContentType} content using CRAFT framework...`;
+                    this.addAction("Starting content generation");
                     
+                    // Simulate AI thinking and generation process
                     const steps = [
-                        { progress: 10, status: "Initializing CRAFT framework...", thought: "Setting up Clear, Relevant, Authentic, Focused, Timely framework..." },
-                        { progress: 25, status: "Researching topic and audience...", thought: "Analyzing target audience: " + (this.targetAudience || 'General') },
-                        { progress: 40, status: "Generating outline structure...", thought: "Creating professional structure: Introduction → Benefits → Best Practices → Advanced Techniques → FAQ → Conclusion" },
-                        { progress: 55, status: "Writing introduction and benefits...", thought: "Crafting compelling introduction with clear value proposition..." },
-                        { progress: 70, status: "Developing best practices section...", thought: "Adding actionable best practices and real-world examples..." },
-                        { progress: 85, status: "Creating FAQ and conclusion...", thought: "Building voice search optimized FAQ section..." },
-                        { progress: 95, status: "Optimizing for RankMath SEO...", thought: "Applying RankMath optimization for 90+ score and AI Overview readiness..." },
-                        { progress: 100, status: "Content generation complete!", thought: "Generated high-quality, CRAFT-optimized content ready for publication!" }
+                        { progress: 10, status: "Analyzing topic and keywords...", thought: "Understanding the topic: " + this.contentTopic },
+                        { progress: 25, status: "Researching real-time data...", thought: "Gathering latest information and statistics..." },
+                        { progress: 40, status: "Applying CRAFT framework...", thought: "Structuring content with short sentences and clear headings..." },
+                        { progress: 60, status: "Optimizing for SEO and AI search...", thought: "Ensuring RankMath compliance and AI search optimization..." },
+                        { progress: 80, status: "Analyzing tone and adding CTA...", thought: "Adjusting tone to " + this.selectedTone + " and integrating call to action..." },
+                        { progress: 100, status: "Content generation complete!", thought: "Generated high-quality, SEO-optimized content!" }
                     ];
                     
                     for (const step of steps) {
@@ -689,79 +671,29 @@
                     this.isGenerating = false;
                     this.stats.contentCount++;
                     this.stats.aiReadyCount++;
-                    this.credits--;
-                    this.showNotification("Content generated successfully using CRAFT framework!", "success");
-                },
-                
-                generateMockContent() {
-                    const topic = this.contentTopic || 'Content Marketing';
-                    const audience = this.targetAudience || 'digital marketers and content creators';
-                    const cta = this.callToAction || 'Start implementing these strategies today';
-                    
-                    return `
-                        <h1>${topic}: Complete Guide for ${audience.charAt(0).toUpperCase() + audience.slice(1)} (2025)</h1>
-                        
-                        <p><strong>Meta Description:</strong> Discover proven ${topic.toLowerCase()} strategies for ${audience}. Learn CRAFT framework principles, RankMath optimization, and AI Overview techniques. ${cta}!</p>
-                        
-                        <h2>Introduction: Why ${topic} Matters in 2025</h2>
-                        <p>In today's competitive digital landscape, ${topic.toLowerCase()} has become essential for ${audience}. This comprehensive guide will walk you through proven strategies using the CRAFT framework (Clear, Relevant, Authentic, Focused, Timely) to achieve remarkable results.</p>
-                        
-                        <h2>Key Benefits of Mastering ${topic}</h2>
-                        <ul>
-                            <li><strong>Increased Visibility:</strong> Improve search rankings and AI Overview presence</li>
-                            <li><strong>Better Engagement:</strong> Connect authentically with your target audience</li>
-                            <li><strong>Higher Conversions:</strong> Drive actionable results through focused messaging</li>
-                            <li><strong>Competitive Advantage:</strong> Stay ahead with 2025 optimization techniques</li>
-                        </ul>
-                        
-                        <h2>Best Practices for ${topic} Success</h2>
-                        <h3>1. Clear Communication Strategy</h3>
-                        <p>Ensure your message resonates clearly with ${audience} by using language they understand and addressing their specific pain points.</p>
-                        
-                        <h3>2. Relevant Content Creation</h3>
-                        <p>Focus on topics that directly impact your audience's goals and challenges in their professional journey.</p>
-                        
-                        <h3>3. Authentic Voice Development</h3>
-                        <p>Build trust through genuine expertise and real-world examples that demonstrate your understanding of the field.</p>
-                        
-                        <h2>Advanced Techniques for 2025</h2>
-                        <p>Leverage cutting-edge strategies including AI Overview optimization, voice search preparation, and semantic SEO to maximize your content's impact.</p>
-                        
-                        <h2>Frequently Asked Questions</h2>
-                        <h3>How long does it take to see results from ${topic.toLowerCase()}?</h3>
-                        <p>Most ${audience} see initial improvements within 3-4 weeks, with significant results appearing after 2-3 months of consistent implementation.</p>
-                        
-                        <h3>What tools are essential for ${topic.toLowerCase()} success?</h3>
-                        <p>Key tools include RankMath for SEO optimization, Google Analytics for performance tracking, and AI-powered content analysis platforms.</p>
-                        
-                        <h2>Conclusion: Your Next Steps</h2>
-                        <p>Success in ${topic.toLowerCase()} requires consistent application of the CRAFT framework principles. Start by implementing one strategy at a time, measure your results, and gradually expand your approach.</p>
-                        
-                        <p><strong>Ready to transform your results?</strong> ${cta} and join thousands of successful ${audience} who have mastered these techniques.</p>
-                    `;
+                    this.showNotification("Content generated successfully!", "success");
                 },
                 
                 async performSeoResearch() {
                     if (!this.seoKeyword.trim()) {
-                        this.showNotification('Please enter a keyword for research', 'error');
+                        this.showNotification("Please enter a keyword for research", "error");
                         return;
                     }
                     
                     this.isResearching = true;
                     this.researchProgress = 0;
-                    this.updateThought('Analyzing keyword opportunities and competitor landscape...');
-                    this.addAction(`Researching SEO data for "${this.seoKeyword}"`);
+                    this.addAction("Starting SEO research");
                     
                     const steps = [
-                        { progress: 20, status: "Analyzing search volume...", thought: "Gathering search volume and trend data..." },
-                        { progress: 40, status: "Evaluating competition...", thought: "Assessing keyword difficulty and competitor strategies..." },
-                        { progress: 60, status: "Finding related keywords...", thought: "Discovering semantic and long-tail keyword opportunities..." },
-                        { progress: 80, status: "Checking AI Overview potential...", thought: "Analyzing AI Overview optimization opportunities..." },
-                        { progress: 100, status: "Research complete!", thought: "Comprehensive keyword analysis finished!" }
+                        { progress: 20, status: "Analyzing keyword difficulty...", thought: "Evaluating search volume and competition for: " + this.seoKeyword },
+                        { progress: 40, status: "Finding top 50 related keywords...", thought: "Discovering high-potential keyword opportunities..." },
+                        { progress: 60, status: "Analyzing top 10 competitors...", thought: "Studying competitor content structure and gaps..." },
+                        { progress: 80, status: "Optimizing for AI search engines...", thought: "Preparing recommendations for Perplexity, ChatGPT, and Google AI..." },
+                        { progress: 100, status: "SEO research complete!", thought: "Generated comprehensive SEO insights!" }
                     ];
                     
                     for (const step of steps) {
-                        await this.delay(600);
+                        await this.delay(1000);
                         this.researchProgress = step.progress;
                         this.researchStatus = step.status;
                         this.statusMessage = step.status;
@@ -773,45 +705,105 @@
                     this.seoResults = this.generateMockSeoResults();
                     
                     this.isResearching = false;
-                    this.stats.keywordsCount += this.seoResults.keywords.length;
-                    this.showNotification("SEO research completed successfully!", "success");
+                    this.stats.keywordsCount += 50;
+                    this.showNotification("SEO research completed!", "success");
+                },
+                
+                generateMockContent() {
+                    const topic = this.contentTopic;
+                    const tone = this.selectedTone;
+                    const cta = this.callToAction;
+                    
+                    return `
+                        <h1>${topic}: Complete Guide for ${new Date().getFullYear()}</h1>
+                        
+                        <p>Understanding ${topic.toLowerCase()} is crucial for modern businesses. This comprehensive guide covers everything you need to know.</p>
+                        
+                        <h2>What is ${topic}?</h2>
+                        <p>${topic} represents a fundamental shift in how we approach digital strategies. Key benefits include:</p>
+                        <ul>
+                            <li>Improved efficiency and productivity</li>
+                            <li>Enhanced user experience</li>
+                            <li>Better ROI and measurable results</li>
+                            <li>Competitive advantage in the market</li>
+                        </ul>
+                        
+                        <h2>Best Practices for ${topic}</h2>
+                        <p>Implementing ${topic.toLowerCase()} requires careful planning. Follow these proven strategies:</p>
+                        
+                        <h3>1. Strategic Planning</h3>
+                        <p>Start with clear objectives. Define your goals and success metrics.</p>
+                        
+                        <h3>2. Implementation</h3>
+                        <p>Execute your plan systematically. Monitor progress and adjust as needed.</p>
+                        
+                        <h3>3. Optimization</h3>
+                        <p>Continuously improve your approach based on data and feedback.</p>
+                        
+                        <h2>Common Mistakes to Avoid</h2>
+                        <p>Many organizations struggle with ${topic.toLowerCase()} implementation. Avoid these pitfalls:</p>
+                        <ul>
+                            <li>Lack of proper planning</li>
+                            <li>Insufficient resource allocation</li>
+                            <li>Ignoring user feedback</li>
+                            <li>Failing to measure results</li>
+                        </ul>
+                        
+                        <h2>Future Trends</h2>
+                        <p>The landscape of ${topic.toLowerCase()} continues to evolve. Stay ahead with these emerging trends.</p>
+                        
+                        <h2>Conclusion</h2>
+                        <p>Mastering ${topic.toLowerCase()} is essential for success in today's competitive environment. Start implementing these strategies today.</p>
+                        
+                        ${cta ? `<p><strong>Ready to get started? ${cta}</strong></p>` : ''}
+                    `;
                 },
                 
                 generateMockSeoResults() {
                     const keyword = this.seoKeyword;
+                    return {
+                        keywords: this.generateMockKeywords(keyword),
+                        competitors: this.generateMockCompetitors(keyword),
+                        aiOptimization: [
+                            "Use conversational language for voice search optimization",
+                            "Include direct answers to common questions",
+                            "Structure content with clear headings and bullet points",
+                            "Optimize for featured snippets and AI overviews",
+                            "Focus on entity-based SEO and semantic relationships"
+                        ]
+                    };
+                },
+                
+                generateMockKeywords(baseKeyword) {
                     const keywords = [];
-                    const baseVolume = Math.floor(Math.random() * 5000) + 1000;
+                    const variations = [
+                        "best", "guide", "tips", "strategy", "how to", "benefits", "examples", 
+                        "tools", "software", "platform", "solution", "service", "agency",
+                        "cost", "price", "free", "premium", "review", "comparison"
+                    ];
                     
-                    // Generate related keywords
-                    const prefixes = ['best', 'top', 'how to', 'ultimate', 'complete', 'professional'];
-                    const suffixes = ['guide', 'tips', 'strategies', 'techniques', 'examples', '2025'];
-                    
-                    keywords.push({
-                        term: keyword,
-                        volume: baseVolume,
-                        difficulty: Math.floor(Math.random() * 50) + 30
-                    });
-                    
-                    for (let i = 0; i < 20; i++) {
-                        const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
-                        const suffix = suffixes[Math.floor(Math.random() * suffixes.length)];
+                    for (let i = 0; i < 50; i++) {
+                        const variation = variations[i % variations.length];
                         keywords.push({
-                            term: `${prefix} ${keyword} ${suffix}`,
-                            volume: Math.floor(Math.random() * baseVolume) + 100,
-                            difficulty: Math.floor(Math.random() * 80) + 20
+                            term: `${variation} ${baseKeyword}`,
+                            volume: Math.floor(Math.random() * 10000) + 100,
+                            difficulty: Math.floor(Math.random() * 100) + 1
                         });
                     }
                     
-                    // Generate competitor data
+                    return keywords;
+                },
+                
+                generateMockCompetitors(keyword) {
                     const competitors = [];
-                    for (let i = 1; i <= 5; i++) {
+                    for (let i = 1; i <= 10; i++) {
                         competitors.push({
                             title: `${keyword} Guide #${i} - Complete Resource`,
                             url: `https://example${i}.com/${keyword.replace(/\s+/g, '-').toLowerCase()}`,
                             words: Math.floor(Math.random() * 3000) + 500
                         });
                     }
-                    return { keywords, competitors };
+                    return competitors;
                 },
                 
                 analyzeContent() {
@@ -894,3 +886,4 @@
     </script>
 </body>
 </html>
+
