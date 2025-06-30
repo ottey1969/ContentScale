@@ -16,8 +16,8 @@ export default function Landing() {
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [showChatPopup, setShowChatPopup] = useState(false);
 
-  // Fetch video settings from admin panel
-  const { data: videoSettings } = useQuery({
+  // Fetch video settings from public API
+  const { data: videoSettings } = useQuery<{ demoVideoId: string; demoVideoTitle: string }>({
     queryKey: ["/api/public/video-settings"],
     retry: false,
   });

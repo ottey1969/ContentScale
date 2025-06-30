@@ -139,7 +139,7 @@ class ReferralSystem {
     const baseUrl = process.env.REPLIT_DOMAINS?.split(',')[0] || 'contentscale.site';
     const referralUrl = `https://${baseUrl}/signup?ref=${referralCode}`;
     
-    const message = "🚀 Just discovered ContentScale Agent - an AI-powered content creation platform that's revolutionizing how we create SEO-optimized content! Check it out:";
+    const message = "Just discovered ContentScale Agent - an AI-powered content creation platform that's revolutionizing how we create SEO-optimized content! Check it out:";
     
     return {
       twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(message)}&url=${encodeURIComponent(referralUrl)}`,
