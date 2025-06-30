@@ -99,18 +99,39 @@ export class SofeiaAI {
     const userProfile = this.getUserProfile(context.userEmail);
     const questionNumber = userProfile.totalQuestions + 1;
     
-    // Check if payment is required
-    const paymentInfo = this.getPaymentInfo(context.userEmail, userProfile);
+    // Detect if this is a blog post request
+    const isBlogRequest = this.isBlogPostRequest(message);
+    
+    // Check if payment is required (different logic for blog posts vs regular questions)
+    const paymentInfo = this.getPaymentInfo(context.userEmail, userProfile, isBlogRequest);
+    
+    // If payment required, return payment prompt instead of processing
+    if (paymentInfo.required) {
+      return {
+        content: isBlogRequest ? 
+          "I'd love to help you create that blog post! Since you've used your free article, this will cost $2.00. Please complete payment to continue." :
+          "You've used your 5 free questions. Please purchase credits or pay $2.69 per question to continue chatting.",
+        metadata: {
+          topic: "payment",
+          confidence: 1.0,
+          suggestions: ["Purchase Credits", "Pay Per Question", "Learn More"],
+          reasoning: "Payment required",
+          questionNumber,
+          creditUsed: false
+        },
+        paymentInfo
+      };
+    }
     
     // Generate direct response using Anthropic API
     const response = await this.generateDirectResponse(message, context, questionNumber);
 
-    // Update user profile
-    this.updateQuestionCount(context.userEmail, paymentInfo.required);
+    // Update user profile (now correctly decrements counters)
+    this.updateQuestionCount(context.userEmail, false, isBlogRequest);
     
     return {
       ...response,
-      paymentInfo
+      paymentInfo: this.getPaymentInfo(context.userEmail, this.getUserProfile(context.userEmail), isBlogRequest)
     };
   }
 
@@ -132,21 +153,40 @@ export class SofeiaAI {
     return newProfile;
   }
 
-  private getPaymentInfo(userEmail: string, userProfile: UserProfile): PaymentInfo {
-    const freeQuestionsRemaining = Math.max(0, PRICING_INFO.freeQuestions - userProfile.freeQuestionsUsed);
-    const hasCredits = userProfile.creditBalance > 0;
-    const paymentRequired = freeQuestionsRemaining === 0 && !hasCredits;
+  private getPaymentInfo(userEmail: string, userProfile: UserProfile, isBlogRequest: boolean = false): PaymentInfo {
+    if (isBlogRequest) {
+      // Blog posts: 1 free, then $2.00 each (matching dashboard content generation)
+      const freeBlogsUsed = userProfile.preferredTopics.includes('blog_created') ? 1 : 0;
+      const hasCredits = userProfile.creditBalance > 0;
+      const paymentRequired = freeBlogsUsed >= 1 && !hasCredits;
+      
+      return {
+        required: paymentRequired,
+        freeQuestionsRemaining: Math.max(0, 1 - freeBlogsUsed),
+        pricePerQuestion: 2.00, // Blog posts cost $2.00
+        creditBalance: userProfile.creditBalance,
+        paymentOptions: {
+          payPerQuestion: 2.00,
+          creditPackages: PRICING_INFO.creditPackages
+        }
+      };
+    } else {
+      // Regular questions: 5 free, then $2.69 each
+      const freeQuestionsRemaining = Math.max(0, PRICING_INFO.freeQuestions - userProfile.freeQuestionsUsed);
+      const hasCredits = userProfile.creditBalance > 0;
+      const paymentRequired = freeQuestionsRemaining === 0 && !hasCredits;
 
-    return {
-      required: paymentRequired,
-      freeQuestionsRemaining,
-      pricePerQuestion: PRICING_INFO.pricePerQuestion,
-      creditBalance: userProfile.creditBalance,
-      paymentOptions: {
-        payPerQuestion: PRICING_INFO.pricePerQuestion,
-        creditPackages: PRICING_INFO.creditPackages
-      }
-    };
+      return {
+        required: paymentRequired,
+        freeQuestionsRemaining,
+        pricePerQuestion: PRICING_INFO.pricePerQuestion,
+        creditBalance: userProfile.creditBalance,
+        paymentOptions: {
+          payPerQuestion: PRICING_INFO.pricePerQuestion,
+          creditPackages: PRICING_INFO.creditPackages
+        }
+      };
+    }
   }
 
   private async generateDirectResponse(
@@ -283,14 +323,33 @@ RESPONSE STYLE:
   }
 
   // Essential utility methods
-  private updateQuestionCount(userEmail: string, paymentRequired: boolean): void {
+  private isBlogPostRequest(message: string): boolean {
+    const blogKeywords = [
+      'write', 'blog', 'post', 'article', 'content', 'write me', 'create',
+      'draft', 'compose', 'generate content', 'blog post', 'write an article'
+    ];
+    
+    const messageLower = message.toLowerCase();
+    return blogKeywords.some(keyword => messageLower.includes(keyword)) &&
+           (messageLower.includes('blog') || messageLower.includes('article') || messageLower.includes('post'));
+  }
+
+  private updateQuestionCount(userEmail: string, paymentRequired: boolean, isBlogRequest: boolean = false): void {
     const profile = this.getUserProfile(userEmail);
     profile.totalQuestions += 1;
     
-    if (!paymentRequired && profile.freeQuestionsUsed < PRICING_INFO.freeQuestions) {
-      profile.freeQuestionsUsed += 1;
-    } else if (profile.creditBalance > 0) {
-      profile.creditBalance -= 1;
+    if (isBlogRequest) {
+      // Track blog creation in preferredTopics
+      if (!profile.preferredTopics.includes('blog_created')) {
+        profile.preferredTopics.push('blog_created');
+      }
+    } else {
+      // Regular questions: use free questions first, then credits
+      if (!paymentRequired && profile.freeQuestionsUsed < PRICING_INFO.freeQuestions) {
+        profile.freeQuestionsUsed += 1;
+      } else if (profile.creditBalance > 0) {
+        profile.creditBalance -= 1;
+      }
     }
     
     this.userProfiles.set(userEmail, profile);
