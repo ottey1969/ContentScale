@@ -1,4 +1,5 @@
 import { z } from "zod";
+import Anthropic from '@anthropic-ai/sdk';
 
 // Sofeia AI - World's Most Advanced AI with Direct Responses
 // Uses Anthropic API for natural, conversational responses
@@ -155,7 +156,6 @@ export class SofeiaAI {
   ) {
     try {
       // Use Anthropic API for natural, direct responses
-      const Anthropic = require('@anthropic-ai/sdk');
       const anthropic = new Anthropic({
         apiKey: process.env.ANTHROPIC_API_KEY,
       });
@@ -175,7 +175,8 @@ export class SofeiaAI {
       });
 
       const analysis = this.analyzeMessage(message);
-      const content = response.content[0].text || "I'm here to help! What would you like to know?";
+      const firstBlock = response.content[0];
+      const content = (firstBlock && 'text' in firstBlock) ? firstBlock.text : "I'm here to help! What would you like to know?";
 
       return {
         content,
