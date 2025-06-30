@@ -122,16 +122,23 @@ export function ChatPopup({ isOpen, onClose }: ChatPopupProps) {
         }
       }
 
-      const response = await fetch("/api/chat", {
+      const response = await fetch("/api/sofeia/chat", {
         method: "POST",
-        body: formData,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ 
+          message: userMessage.text,
+          sessionId: null 
+        }),
       });
 
       if (!response.ok) {
-        throw new Error("Failed to get response");
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
+      console.log("Sofeia response:", data);
 
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -142,9 +149,10 @@ export function ChatPopup({ isOpen, onClose }: ChatPopupProps) {
 
       setMessages((prev) => [...prev, aiMessage]);
     } catch (error) {
+      console.error("Chat error:", error);
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: "I'm analyzing your request based on current market trends and industry best practices. How can I help you optimize your strategy?",
+        text: "I apologize, but I'm having trouble connecting right now. Let me try to help you anyway - what specific business challenge are you facing?",
         isUser: false,
         timestamp: new Date(),
       };
