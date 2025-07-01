@@ -353,13 +353,13 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
             </div>
             <div className="flex flex-wrap gap-2 justify-center">
               <button
-                onClick={() => setInputValue("Write me a SEO optimized blogpost. Words: about 1500. Tone: professional. Language: English")}
+                onClick={() => setInputValue("Write me a SEO optimized blogpost. Seed Keyword: .... Words: about 1500. Tone: professional. Language: English")}
                 className="bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 hover:border-blue-400/50 text-blue-300 text-xs px-3 py-2 rounded-lg transition-all"
               >
                 Single Blog Post
               </button>
               <button
-                onClick={() => setInputValue("Write me 50 SEO optimized blogpost. Words: about 2200. Tone: professional. Language: Spanish")}
+                onClick={() => setInputValue("Write me 50 SEO optimized blogpost. Seed Keywords ..... Words: about 2200. Tone: professional. Language: Spanish")}
                 className="bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/30 hover:border-purple-400/50 text-purple-300 text-xs px-3 py-2 rounded-lg transition-all"
               >
                 Bulk 50 Posts (Spanish)
