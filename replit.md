@@ -169,10 +169,12 @@ Preferred communication style: Simple, everyday language.
 
 ## Current Implementation Status
 - Landing page properly routes users to authentication
+- Primary content creation through Sofeia AI chat interface (not dashboard)
 - Dashboard serves standalone HTML application with guaranteed working features
 - Authentication integration maintained for real user management
 - Admin email: ottmar.francisca1969@gmail.com (must use this exact email)
 - PayPal integration: $2 per article, free first article for new users, 85% profit margin ($1.70 profit per article)
+- Viral referrals hidden from homepage but functional in dashboard
 
 ## Authentication System Status
 - **PERMANENTLY DISABLED** for development and testing purposes

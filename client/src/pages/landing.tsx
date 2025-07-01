@@ -405,34 +405,7 @@ export default function Landing() {
               </CardContent>
             </Card>
 
-            {/* Viral Referrals */}
-            <Card className="group bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700 hover:border-purple-500/50 transition-all duration-500 transform hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/20">
-              <CardContent className="p-6">
-                <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mb-4 group-hover:animate-bounce">
-                  <Users className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="text-xl font-semibold mb-2 text-white group-hover:text-purple-400 transition-colors">
-                  Viral Referral System
-                </h3>
-                <p className="text-gray-400 mb-4 group-hover:text-gray-300 transition-colors">
-                  Earn rewards when referred users become bulk content creators (5+ generations).
-                </p>
-                <ul className="text-sm text-gray-400 space-y-2 group-hover:text-gray-300 transition-colors">
-                  <li className="flex items-center space-x-2">
-                    <div className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse"></div>
-                    <span>1 bulk user (5+ blogs) = 5 free blogs</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <div className="w-1.5 h-1.5 bg-pink-400 rounded-full animate-pulse delay-200"></div>
-                    <span>3 bulk users = 20 free blogs</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <div className="w-1.5 h-1.5 bg-violet-400 rounded-full animate-pulse delay-400"></div>
-                    <span>10 bulk users = 100 free blogs</span>
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
+
 
             {/* SEO Optimization */}
             <Card className="group bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700 hover:border-orange-500/50 transition-all duration-500 transform hover:scale-105 hover:shadow-2xl hover:shadow-orange-500/20">

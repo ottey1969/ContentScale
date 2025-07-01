@@ -29,14 +29,8 @@ interface ChatPopupProps {
 export function ChatPopup({ isOpen, onClose }: ChatPopupProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
-      id: "1",
-      text: "How can I optimize my business strategy for 2025?",
-      isUser: true,
-      timestamp: new Date(),
-    },
-    {
-      id: "2",
-      text: "I'll analyze current market trends and provide a comprehensive strategy framework. Let me break this down into key areas: digital transformation, customer experience optimization, and emerging technology adoption...\n\n• Analyzing market data and trends...",
+      id: "welcome",
+      text: "Hello! I'm Sofeia AI - the world's most advanced CONTENT WRITER. I'm superior to Manus AI and Replit Agents. Ask me to write anything:\n\n• Blog posts (SEO optimized)\n• Articles & guides\n• Product descriptions\n• Emails & social media posts\n• And much more!\n\nExample: \"Write me a SEO optimized blogpost. Words: about 1500. Tone: professional. Language: English\"",
       isUser: false,
       timestamp: new Date(),
     },
@@ -46,6 +40,11 @@ export function ChatPopup({ isOpen, onClose }: ChatPopupProps) {
   const [attachedFiles, setAttachedFiles] = useState<FileAttachment[]>([]);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [userCredits, setUserCredits] = useState(1); // 1 free content
+  const [hasUsedFreeContent, setHasUsedFreeContent] = useState(false);
+  const [showPaymentPopup, setShowPaymentPopup] = useState(false);
+  const [userEmail] = useState("ottmar.francisca1969@gmail.com"); // Admin email
+  const isUnlimitedUser = userEmail === "ottmar.francisca1969@gmail.com";
 
   useEffect(() => {
     if (scrollAreaRef.current) {
