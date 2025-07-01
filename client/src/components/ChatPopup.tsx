@@ -345,6 +345,41 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
           </div>
         </ScrollArea>
 
+        {/* Quick Example Buttons */}
+        {messages.length === 1 && (
+          <div className="border-t border-purple-500/20 p-4">
+            <div className="text-center mb-3">
+              <span className="text-sm text-gray-400">Quick Examples - Click to Try:</span>
+            </div>
+            <div className="flex flex-wrap gap-2 justify-center">
+              <button
+                onClick={() => setInputValue("Write me a SEO optimized blogpost. Words: about 1500. Tone: professional. Language: English")}
+                className="bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 hover:border-blue-400/50 text-blue-300 text-xs px-3 py-2 rounded-lg transition-all"
+              >
+                Single Blog Post
+              </button>
+              <button
+                onClick={() => setInputValue("Write me 50 SEO optimized blogpost. Words: about 2200. Tone: professional. Language: Spanish")}
+                className="bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/30 hover:border-purple-400/50 text-purple-300 text-xs px-3 py-2 rounded-lg transition-all"
+              >
+                Bulk 50 Posts (Spanish)
+              </button>
+              <button
+                onClick={() => setInputValue("Write me 10 product descriptions for eco-friendly water bottles. Tone: persuasive. Language: English")}
+                className="bg-green-600/20 hover:bg-green-600/30 border border-green-500/30 hover:border-green-400/50 text-green-300 text-xs px-3 py-2 rounded-lg transition-all"
+              >
+                Product Descriptions
+              </button>
+              <button
+                onClick={() => setInputValue("Write me 5 email marketing campaigns for Black Friday sales. Tone: urgent. Language: English")}
+                className="bg-orange-600/20 hover:bg-orange-600/30 border border-orange-500/30 hover:border-orange-400/50 text-orange-300 text-xs px-3 py-2 rounded-lg transition-all"
+              >
+                Email Campaigns
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* File Upload Area */}
         {attachedFiles.length > 0 && (
           <div className="border-t border-purple-500/20 p-4">
