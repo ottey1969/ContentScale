@@ -44,12 +44,25 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  // Admin mode - enabled by default for testing (you can disable with localStorage.setItem('adminMode', 'false'))
-  const isAdminMode = localStorage.getItem('adminMode') !== 'false'; // Default to admin mode
-  
-  const [userCredits, setUserCredits] = useState(() => {
-    return isAdminMode ? 999999 : 1; // Admin gets unlimited, users get 1 free
-  });
+  // Check if current user is admin based on IP (will be determined by server)
+  const [isAdminMode, setIsAdminMode] = useState(true); // Default to admin mode
+  const [userCredits, setUserCredits] = useState(999999);
+
+  // Check admin status on mount
+  useEffect(() => {
+    fetch('/api/check-admin')
+      .then(res => res.json())
+      .then(data => {
+        console.log('Admin check:', data);
+        setIsAdminMode(data.isAdmin);
+        setUserCredits(data.credits);
+      })
+      .catch(err => {
+        console.log('Admin check failed, defaulting to admin mode:', err);
+        setIsAdminMode(true);
+        setUserCredits(999999);
+      });
+  }, []);
   const [hasUsedFreeContent, setHasUsedFreeContent] = useState(false);
   const [showPaymentPopup, setShowPaymentPopup] = useState(false);
   const [userEmail] = useState(isAdminMode ? "ottmar.francisca1969@gmail.com" : "user@example.com");

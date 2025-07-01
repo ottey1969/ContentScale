@@ -36,6 +36,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register Sofeia AI routes
   registerSofeiaRoutes(app);
 
+  // Check IP to determine admin status
+  app.get('/api/check-admin', async (req, res) => {
+    const userIP = req.ip || req.connection.remoteAddress || req.socket.remoteAddress;
+    console.log('User IP:', userIP);
+    
+    // For development on Replit, check if it's the workspace IP
+    const isAdmin = userIP?.includes('127.0.0.1') || userIP?.includes('localhost') || userIP?.includes('::1');
+    
+    res.json({ 
+      isAdmin,
+      ip: userIP,
+      credits: isAdmin ? 999999 : 1
+    });
+  });
+
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
