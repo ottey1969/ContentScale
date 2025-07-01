@@ -30,7 +30,7 @@ export function ChatPopup({ isOpen, onClose }: ChatPopupProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
-      text: "Hello! I'm Sofeia AI - the world's most advanced CONTENT WRITER. I'm superior to Manus AI and Replit Agents. Ask me to write anything:\n\n• Blog posts (SEO optimized)\n• Articles & guides\n• Product descriptions\n• Emails & social media posts\n• And much more!\n\nExample: \"Write me a SEO optimized blogpost. Words: about 1500. Tone: professional. Language: English\"",
+      text: "Hello! I'm Sofeia AI - the world's most advanced CONTENT WRITER. I'm superior to Manus AI and Replit Agents. Ask me to write anything:\n\n• Blog posts (SEO optimized)\n• Articles & guides\n• Product descriptions\n• Emails & social media posts\n• And much more!\n\n💰 PRICING: $2 per content piece (1 credit = 1 piece)\n• Single: \"Write me a blog post\" = $2 (1 credit)\n• Bulk: \"Write me 10 blog posts\" = $20 (10 credits)\n• Bulk: \"Write me 100 articles\" = $200 (100 credits)\n\nExample: \"Write me a SEO optimized blogpost. Words: about 1500. Tone: professional. Language: English\"",
       isUser: false,
       timestamp: new Date(),
     },
@@ -86,12 +86,68 @@ export function ChatPopup({ isOpen, onClose }: ChatPopupProps) {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
+  // Function to detect bulk content requests
+  const detectBulkRequest = (message: string): number => {
+    const text = message.toLowerCase();
+    
+    // Look for numbers in the text that indicate quantity
+    const numberMatches = text.match(/\b\d+\b/g);
+    if (!numberMatches) return 1;
+    
+    let maxQuantity = 1;
+    
+    // Check if numbers are followed by content keywords
+    const contentKeywords = ['blog', 'post', 'article', 'email', 'description', 'piece', 'content', 'different'];
+    
+    for (const numStr of numberMatches) {
+      const num = parseInt(numStr);
+      if (num > 1 && num <= 1000) { // Reasonable limits
+        // Check if this number is near content keywords
+        const numIndex = text.indexOf(numStr);
+        const surrounding = text.substring(Math.max(0, numIndex - 20), numIndex + 50);
+        
+        const hasContentKeyword = contentKeywords.some(keyword => 
+          surrounding.includes(keyword) || 
+          text.includes(`${numStr} ${keyword}`) ||
+          text.includes(`write me ${numStr}`) ||
+          text.includes(`create ${numStr}`) ||
+          text.includes(`generate ${numStr}`)
+        );
+        
+        if (hasContentKeyword && num > maxQuantity) {
+          maxQuantity = num;
+        }
+      }
+    }
+    
+    return maxQuantity;
+  };
+
   const handleSendMessage = async () => {
     if ((!inputValue.trim() && attachedFiles.length === 0) || isLoading) return;
 
+    const messageText = inputValue.trim() || "Shared files for analysis";
+    const requiredCredits = detectBulkRequest(messageText);
+    
+    // Check if user has enough credits (admin always has unlimited)
+    if (!isUnlimitedUser && userCredits < requiredCredits) {
+      // Show payment popup for the required amount
+      const totalCost = requiredCredits * 2; // $2 per credit
+      setShowPaymentPopup(true);
+      
+      const errorMessage: Message = {
+        id: Date.now().toString(),
+        text: `You need ${requiredCredits} credits for this request (${requiredCredits} pieces of content × $2 = $${totalCost}). Please purchase credits to continue.`,
+        isUser: false,
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+      return;
+    }
+
     const userMessage: Message = {
       id: Date.now().toString(),
-      text: inputValue.trim() || "Shared files for analysis",
+      text: messageText,
       isUser: true,
       timestamp: new Date(),
       files: attachedFiles.length > 0 ? [...attachedFiles] : undefined,
@@ -101,6 +157,11 @@ export function ChatPopup({ isOpen, onClose }: ChatPopupProps) {
     setInputValue("");
     setAttachedFiles([]);
     setIsLoading(true);
+    
+    // Deduct credits for non-admin users
+    if (!isUnlimitedUser) {
+      setUserCredits(prev => prev - requiredCredits);
+    }
 
     try {
       // Send message to backend for AI processing
