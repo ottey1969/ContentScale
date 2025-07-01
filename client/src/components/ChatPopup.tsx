@@ -43,11 +43,17 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
   const [attachedFiles, setAttachedFiles] = useState<FileAttachment[]>([]);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [userCredits, setUserCredits] = useState(1); // 1 free content
+  
+  // Admin mode - enabled by default for testing (you can disable with localStorage.setItem('adminMode', 'false'))
+  const isAdminMode = localStorage.getItem('adminMode') !== 'false'; // Default to admin mode
+  
+  const [userCredits, setUserCredits] = useState(() => {
+    return isAdminMode ? 999999 : 1; // Admin gets unlimited, users get 1 free
+  });
   const [hasUsedFreeContent, setHasUsedFreeContent] = useState(false);
   const [showPaymentPopup, setShowPaymentPopup] = useState(false);
-  const [userEmail] = useState("ottmar.francisca1969@gmail.com"); // Admin email
-  const isUnlimitedUser = userEmail === "ottmar.francisca1969@gmail.com";
+  const [userEmail] = useState(isAdminMode ? "ottmar.francisca1969@gmail.com" : "user@example.com");
+  const isUnlimitedUser = isAdminMode;
 
   useEffect(() => {
     if (scrollAreaRef.current) {
