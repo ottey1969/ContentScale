@@ -130,11 +130,33 @@ export default function Landing() {
             </Dialog>
           </div>
           
+          {/* Free Credits Section */}
+          <div className="bg-gradient-to-r from-green-600/20 to-emerald-600/20 rounded-2xl p-8 mb-8 max-w-2xl mx-auto border border-green-500/30">
+            <div className="text-center">
+              <h3 className="text-2xl font-bold text-green-300 mb-3">🎉 FREE TESTING CREDITS</h3>
+              <p className="text-lg text-white mb-4">
+                Get <span className="text-green-300 font-bold">50 FREE CREDITS</span> to test everything!
+              </p>
+              <div className="text-sm text-gray-300 space-y-1">
+                <div>• Generate up to 50 blog posts</div>
+                <div>• Test keyword research</div>
+                <div>• Try bulk content generation</div>
+                <div>• Explore all AI features</div>
+              </div>
+              <Button 
+                onClick={handleGetStarted}
+                className="mt-4 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold px-8 py-3 text-lg transform hover:scale-105 transition-all duration-300"
+              >
+                Claim Free Credits
+              </Button>
+            </div>
+          </div>
+
           {/* Interactive Stats */}
           <div className="flex flex-wrap justify-center gap-6 text-sm text-gray-400">
             <div className="flex items-center space-x-2 hover:text-blue-400 transition-colors cursor-pointer">
               <CheckCircle className="w-4 h-4 text-green-400" />
-              <span>First blog free</span>
+              <span>50 free credits</span>
             </div>
             <div className="flex items-center space-x-2 hover:text-purple-400 transition-colors cursor-pointer">
               <CheckCircle className="w-4 h-4 text-green-400" />
