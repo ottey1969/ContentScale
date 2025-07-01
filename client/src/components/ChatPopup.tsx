@@ -247,7 +247,14 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
               <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-slate-900"></div>
             </div>
             <div>
-              <h3 className="text-white font-bold text-xl">Sofeia AI</h3>
+              <h3 className="text-white font-bold text-xl flex items-center gap-2">
+                Sofeia AI
+                {userCredits >= 999999 && (
+                  <span className="bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs px-2 py-1 rounded-full font-semibold">
+                    UNLIMITED TESTING
+                  </span>
+                )}
+              </h3>
               <div className="flex items-center space-x-2">
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                 <span className="text-green-400 text-sm font-medium">Online & Ready</span>
