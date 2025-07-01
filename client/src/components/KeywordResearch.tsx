@@ -41,6 +41,14 @@ export function KeywordResearch({ onClose }: KeywordResearchProps) {
       return;
     }
 
+    // Show payment requirement for keyword research
+    toast({
+      title: "Payment Required",
+      description: "Keyword research requires credits. Please purchase credits to continue.",
+      variant: "destructive"
+    });
+    return;
+
     setIsResearching(true);
     
     try {
@@ -142,6 +150,7 @@ export function KeywordResearch({ onClose }: KeywordResearchProps) {
         <div className="flex items-center space-x-2">
           <Search className="w-5 h-5 text-purple-400" />
           <CardTitle className="text-xl text-white">Advanced SEO Insight Engine</CardTitle>
+          <Badge className="bg-orange-600 text-white text-xs">PAID FEATURE</Badge>
         </div>
         {onClose && (
           <Button variant="ghost" size="sm" onClick={onClose} className="text-gray-400 hover:text-white">

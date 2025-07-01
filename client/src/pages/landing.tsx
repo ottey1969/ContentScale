@@ -7,6 +7,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Rocket, Brain, Search, Users, TrendingUp, Shield, Trophy, CheckCircle, Play, ArrowRight, Cookie, FileText, Shield as ShieldIcon, MessageCircle } from "lucide-react";
 import { SEOHead, SEOConfigs } from "@/components/seo/SEOHead";
 import { ChatPopup } from "@/components/ChatPopup";
+import { KeywordResearch } from "@/components/KeywordResearch";
+import { GeneratedContent } from "@/components/GeneratedContent";
 
 export default function Landing() {
   const [showCookieConsent, setShowCookieConsent] = useState(
@@ -15,6 +17,9 @@ export default function Landing() {
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [showChatPopup, setShowChatPopup] = useState(false);
+  const [showKeywordResearch, setShowKeywordResearch] = useState(false);
+  const [showGeneratedContent, setShowGeneratedContent] = useState(false);
+  const [generatedContent, setGeneratedContent] = useState("");
 
   // Fetch video settings from public API
   const { data: videoSettings } = useQuery<{ demoVideoId: string; demoVideoTitle: string }>({
@@ -494,6 +499,57 @@ export default function Landing() {
               </CardContent>
             </Card>
           </div>
+        </div>
+      </section>
+
+      {/* Keyword Research Demo Section */}
+      <section className="py-20 bg-gradient-to-b from-slate-900 to-slate-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">
+              SEO Keyword Research Engine
+            </h2>
+            <p className="text-gray-300 text-lg max-w-2xl mx-auto">
+              Advanced keyword research with AI Overview optimization and competitor analysis (Paid Feature)
+            </p>
+          </div>
+          <KeywordResearch />
+        </div>
+      </section>
+
+      {/* Generated Content Demo Section */}
+      <section className="py-20 bg-gradient-to-b from-slate-800 to-slate-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
+              AI Generated Content
+            </h2>
+            <p className="text-gray-300 text-lg max-w-2xl mx-auto">
+              Professional content generation with SEO optimization and AI readiness scoring
+            </p>
+          </div>
+          <GeneratedContent 
+            content="# The Future of AI Content Writing
+
+AI-powered content generation has revolutionized how businesses create engaging, SEO-optimized content. With advanced natural language processing and machine learning algorithms, modern AI systems can produce high-quality articles, blog posts, and marketing materials that rival human-written content.
+
+## Key Benefits of AI Content Writing
+
+1. **Speed and Efficiency**: Generate comprehensive articles in minutes rather than hours
+2. **SEO Optimization**: Built-in keyword optimization and search engine compatibility
+3. **Consistency**: Maintain brand voice and style across all content
+4. **Scalability**: Produce large volumes of content without compromising quality
+
+## Best Practices for AI Content
+
+When using AI for content creation, it's essential to:
+- Provide clear, detailed prompts
+- Review and edit generated content
+- Ensure fact-checking and accuracy
+- Maintain human oversight for quality control
+
+The future of content creation lies in the collaboration between human creativity and AI efficiency, enabling businesses to scale their content strategies while maintaining quality and authenticity."
+          />
         </div>
       </section>
 
