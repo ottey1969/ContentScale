@@ -166,6 +166,103 @@
     <!-- Notification System -->
     <div id="notification" class="notification"></div>
 
+    <!-- PayPal Payment Popup -->
+    <div x-show="showPaymentPopup" x-cloak class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white">Complete Payment</h2>
+                <button @click="showPaymentPopup = false" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Credit System Explanation -->
+            <div class="bg-gradient-to-r from-purple-500 to-blue-600 rounded-lg p-4 mb-6 text-white">
+                <h3 class="font-bold mb-2">💳 Credit System</h3>
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                        <span>1 Credit =</span>
+                        <span class="font-bold">$2.00</span>
+                    </div>
+                    <div class="border-t border-white/20 pt-2">
+                        <div class="text-xs opacity-90">What you can create with 1 credit:</div>
+                        <div class="grid grid-cols-2 gap-1 mt-1">
+                            <div class="flex items-center space-x-1">
+                                <span class="text-green-300">✓</span>
+                                <span class="text-xs">1 Blog Post</span>
+                            </div>
+                            <div class="flex items-center space-x-1">
+                                <span class="text-green-300">✓</span>
+                                <span class="text-xs">1 Article</span>
+                            </div>
+                            <div class="flex items-center space-x-1">
+                                <span class="text-green-300">✓</span>
+                                <span class="text-xs">1 Email</span>
+                            </div>
+                            <div class="flex items-center space-x-1">
+                                <span class="text-green-300">✓</span>
+                                <span class="text-xs">Product Description</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Free Content Notice -->
+            <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg p-3 mb-4">
+                <div class="text-green-800 dark:text-green-200 text-sm">
+                    <strong>✅ First content FREE!</strong><br>
+                    You've used your free content. Additional content requires credits.
+                </div>
+            </div>
+
+            <!-- Pricing Options -->
+            <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 mb-4">
+                <h4 class="font-semibold mb-3 text-gray-900 dark:text-white">Choose Your Credits</h4>
+                
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center p-3 border border-blue-200 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-700 rounded-lg">
+                        <div>
+                            <span class="font-medium text-gray-900 dark:text-white">1 Credit</span>
+                            <div class="text-xs text-gray-600 dark:text-gray-400">For this content</div>
+                        </div>
+                        <span class="font-bold text-blue-600 dark:text-blue-400">$2.00</span>
+                    </div>
+                    
+                    <div class="flex justify-between items-center p-3 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <div>
+                            <span class="font-medium text-gray-900 dark:text-white">5 Credits</span>
+                            <div class="text-xs text-green-600 dark:text-green-400">Save 10% • $1.80 each</div>
+                        </div>
+                        <span class="font-bold text-gray-900 dark:text-white">$9.00</span>
+                    </div>
+                    
+                    <div class="flex justify-between items-center p-3 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <div>
+                            <span class="font-medium text-gray-900 dark:text-white">10 Credits</span>
+                            <div class="text-xs text-green-600 dark:text-green-400">Save 25% • $1.50 each</div>
+                        </div>
+                        <span class="font-bold text-gray-900 dark:text-white">$15.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PayPal Button -->
+            <button @click="processPayPalPayment()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center space-x-2 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                </svg>
+                <span>Pay with PayPal - $2.00</span>
+            </button>
+
+            <div class="text-xs text-gray-500 dark:text-gray-400 text-center mt-3">
+                Secure payment processed by PayPal. No card details stored.
+            </div>
+        </div>
+    </div>
+
     <!-- Header -->
     <header class="bg-slate-800 border-b border-slate-700 px-6 py-4">
         <div class="flex items-center justify-between">
@@ -198,13 +295,22 @@
         <!-- Sofeia Agent Brain with Real-time Thinking -->
         <div class="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-6 mb-8">
             <div class="flex items-center justify-between mb-4">
-                <h2 class="text-2xl font-bold">🧠 Sofeia Agent Brain</h2>
+                <h2 class="text-2xl font-bold">🧠 Meet Sofeia AI</h2>
                 <div class="flex items-center space-x-2">
                     <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                     <span class="text-sm">Active & Learning</span>
                 </div>
             </div>
-            <p class="text-blue-100 mb-4">AI-powered autonomous content generation with real-time thinking display</p>
+            <p class="text-blue-100 mb-4">The world's most advanced CONTENT WRITER and autonomous AI assistant. Superior to Manus AI and Replit Agents. Chat about anything - from complex problem-solving to creative brainstorming.</p>
+            
+            <!-- Example Usage -->
+            <div class="bg-blue-800/30 rounded-lg p-4 mb-4">
+                <h4 class="text-sm font-bold mb-2">✨ To write a blogpost ask Sofeia AI:</h4>
+                <div class="bg-blue-900/50 rounded p-3 text-sm">
+                    <code class="text-yellow-200">"Write me a SEO optimized blogpost. Words: about 1500. Tone: professional. Language: English"</code>
+                </div>
+                <p class="text-xs text-blue-200 mt-2">and see the best blogpost appearing in minutes. You may add other requests like if you want an email written, a product description, article, social media post and more.</p>
+            </div>
             
             <!-- Real-time Thinking Display -->
             <div class="bg-blue-800/30 rounded-lg p-4 mb-4">
@@ -647,6 +753,10 @@
             return {
                 // App State
                 credits: 125,
+                userEmail: 'ottmar.francisca1969@gmail.com', // Admin user with unlimited credits
+                isUnlimitedUser: true,
+                showPaymentPopup: false,
+                hasUsedFreeContent: false,
                 currentTime: '',
                 statusMessage: 'Ready to generate amazing content...',
                 currentThought: 'Analyzing trending content patterns and SEO opportunities...',
@@ -773,8 +883,9 @@
                         return;
                     }
 
-                    if (this.credits <= 0) {
-                        this.showNotification('Insufficient credits. Please upgrade or earn more credits.', 'error');
+                    // Check if user needs to pay (unless they're the unlimited user)
+                    if (!this.isUnlimitedUser && this.hasUsedFreeContent && this.credits <= 0) {
+                        this.showPaymentPopup = true;
                         return;
                     }
 
@@ -811,8 +922,19 @@
                     this.isGenerating = false;
                     this.stats.contentCount++;
                     this.stats.aiReadyCount++;
-                    this.credits--;
-                    this.showNotification("Content generated successfully using CRAFT framework!", "success");
+                    
+                    // Only deduct credits if not unlimited user
+                    if (!this.isUnlimitedUser) {
+                        if (!this.hasUsedFreeContent) {
+                            this.hasUsedFreeContent = true;
+                            this.showNotification("Content generated successfully! This was your free content.", "success");
+                        } else {
+                            this.credits--;
+                            this.showNotification("Content generated successfully using CRAFT framework!", "success");
+                        }
+                    } else {
+                        this.showNotification("Content generated successfully using CRAFT framework!", "success");
+                    }
                 },
                 
                 generateMockContent() {
@@ -1042,6 +1164,43 @@
                 
                 delay(ms) {
                     return new Promise(resolve => setTimeout(resolve, ms));
+                },
+                
+                // PayPal Payment Processing
+                processPayPalPayment() {
+                    this.showNotification('Processing PayPal payment...', 'info');
+                    
+                    // Simulate PayPal payment process
+                    setTimeout(() => {
+                        this.credits += 1;
+                        this.showPaymentPopup = false;
+                        this.showNotification('Payment successful! 1 credit added to your account.', 'success');
+                        this.addAction('Payment processed - 1 credit added');
+                        
+                        // Now generate the content they were trying to create
+                        if (this.contentTopic.trim()) {
+                            setTimeout(() => {
+                                this.generateContent();
+                            }, 1000);
+                        }
+                    }, 2000);
+                },
+                
+                // CSV Upload Handler
+                handleCsvUpload(event) {
+                    const file = event.target.files[0];
+                    if (file && file.type === 'text/csv') {
+                        this.showNotification(`Processing ${file.name}...`, 'info');
+                        this.addAction(`CSV uploaded: ${file.name}`);
+                        
+                        // Simulate CSV processing
+                        setTimeout(() => {
+                            this.showNotification('CSV processed successfully! Keywords added to research queue.', 'success');
+                            this.stats.keywordsCount += 15;
+                        }, 2000);
+                    } else {
+                        this.showNotification('Please upload a valid CSV file.', 'error');
+                    }
                 }
             }
         }

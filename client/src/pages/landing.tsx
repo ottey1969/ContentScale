@@ -60,9 +60,6 @@ export default function Landing() {
               >
                 Privacy
               </Button>
-              <Button onClick={handleGetStarted} className="btn-primary">
-                Get Started
-              </Button>
             </div>
           </div>
         </div>
@@ -99,30 +96,8 @@ export default function Landing() {
             <span className="text-blue-400 font-semibold"> Google's AI Overview</span> and search rankings.
           </p>
           
-          {/* Interactive Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-            <Button 
-              onClick={handleGetStarted}
-              size="lg" 
-              className="group bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold px-8 py-4 text-lg transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-2xl"
-            >
-              <Rocket className="w-5 h-5 mr-2 group-hover:animate-bounce" />
-              Launch Content Creation
-              <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-            </Button>
-            
-            {/* Chat with Sofeia Button */}
-            <Button 
-              onClick={() => setShowChatPopup(true)}
-              variant="outline"
-              size="lg"
-              className="group border-2 border-pink-500/50 text-white hover:bg-pink-500/20 hover:border-pink-400 font-semibold px-8 py-4 text-lg transform hover:scale-105 transition-all duration-300"
-            >
-              <MessageCircle className="w-5 h-5 mr-2 group-hover:animate-pulse" />
-              Chat with Sofeia
-            </Button>
-            
-            {/* Demo Video Button */}
+          {/* Demo Video Button Only */}
+          <div className="flex justify-center mb-8">
             <Dialog>
               <DialogTrigger asChild>
                 <Button 
@@ -190,9 +165,21 @@ export default function Landing() {
             </h2>
             
             <p className="text-xl text-gray-200 mb-8 max-w-4xl mx-auto leading-relaxed">
-              The world's most advanced autonomous AI assistant. Superior to Manus AI and Replit agents. 
+              The world's most advanced <span className="text-blue-300 font-semibold">CONTENT WRITER</span> and autonomous AI assistant. 
+              <span className="text-red-300 font-bold">Superior to Manus AI and Replit Agents.</span> 
               <span className="text-purple-300 font-semibold"> Chat about anything</span> - from complex problem-solving to creative brainstorming.
             </p>
+            
+            <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-lg p-6 mb-8 max-w-4xl mx-auto border border-blue-500/30">
+              <h3 className="text-lg font-bold mb-3 text-blue-300">✨ To write a blogpost ask Sofeia AI:</h3>
+              <div className="bg-black/30 rounded p-4 text-sm font-mono">
+                <span className="text-yellow-300">"Write me a SEO optimized blogpost. Words: about 1500. Tone: professional. Language: English"</span>
+              </div>
+              <p className="text-sm text-gray-300 mt-3">
+                and see the best blogpost appearing in minutes. You may add other requests like if you want an email written, 
+                a product description, article, social media post and more.
+              </p>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
