@@ -199,10 +199,16 @@ export default function Landing() {
             
             <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-lg p-6 mb-8 max-w-4xl mx-auto border border-blue-500/30">
               <h3 className="text-lg font-bold mb-3 text-blue-300">✨ To write a blogpost ask Sofeia AI:</h3>
-              <div className="bg-black/30 rounded p-4 text-sm font-mono">
+              <div className="bg-black/30 rounded p-4 text-sm font-mono mb-4">
                 <span className="text-yellow-300">"Write me a SEO optimized blogpost. Words: about 1500. Tone: professional. Language: English"</span>
               </div>
-              <p className="text-sm text-gray-300 mt-3">
+              <Button 
+                onClick={() => setShowChatPopup(true)}
+                className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-bold py-3 text-lg mb-3"
+              >
+                🧪 Test Sofeia AI Now
+              </Button>
+              <p className="text-sm text-gray-300">
                 and see the best blogpost appearing in minutes. You may add other requests like if you want an email written, 
                 a product description, article, social media post and more.
               </p>
@@ -415,7 +421,7 @@ export default function Landing() {
                 <p className="text-gray-400 mb-4 group-hover:text-gray-300 transition-colors">
                   Advanced AI-powered keyword research with automated clustering and AI Overview optimization.
                 </p>
-                <ul className="text-sm text-gray-400 space-y-2 group-hover:text-gray-300 transition-colors">
+                <ul className="text-sm text-gray-400 space-y-2 group-hover:text-gray-300 transition-colors mb-4">
                   <li className="flex items-center space-x-2">
                     <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
                     <span>Question-based keyword discovery</span>
@@ -429,6 +435,12 @@ export default function Landing() {
                     <span>CSV bulk processing</span>
                   </li>
                 </ul>
+                <Button 
+                  onClick={() => setShowKeywordResearch(true)}
+                  className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold"
+                >
+                  🧪 Test Keyword Research
+                </Button>
               </CardContent>
             </Card>
 
@@ -930,7 +942,7 @@ The future of content creation lies in the collaboration between human creativit
       )}
 
       {/* Chat Popup */}
-      <ChatPopup isOpen={showChatPopup} onClose={() => setShowChatPopup(false)} />
+      <ChatPopup isOpen={showChatPopup} onClose={() => setShowChatPopup(false)} isTestMode={true} />
     </div>
   );
 }
