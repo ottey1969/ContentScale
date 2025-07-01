@@ -133,15 +133,15 @@ export default function Landing() {
           {/* Free Credits Section */}
           <div className="bg-gradient-to-r from-green-600/20 to-emerald-600/20 rounded-2xl p-8 mb-8 max-w-2xl mx-auto border border-green-500/30">
             <div className="text-center">
-              <h3 className="text-2xl font-bold text-green-300 mb-3">🎉 FREE TESTING CREDITS</h3>
+              <h3 className="text-2xl font-bold text-green-300 mb-3">🎉 FIRST ARTICLE FREE</h3>
               <p className="text-lg text-white mb-4">
-                Get <span className="text-green-300 font-bold">50 FREE CREDITS</span> to test everything!
+                Get your <span className="text-green-300 font-bold">FIRST ARTICLE FREE</span> + unlimited testing!
               </p>
               <div className="text-sm text-gray-300 space-y-1">
-                <div>• Generate up to 50 blog posts</div>
-                <div>• Test keyword research</div>
+                <div>• Free testing of all features</div>
+                <div>• First professional article free</div>
                 <div>• Try bulk content generation</div>
-                <div>• Explore all AI features</div>
+                <div>• Test keyword research</div>
               </div>
               <Button 
                 onClick={handleGetStarted}
@@ -156,15 +156,15 @@ export default function Landing() {
           <div className="flex flex-wrap justify-center gap-6 text-sm text-gray-400">
             <div className="flex items-center space-x-2 hover:text-blue-400 transition-colors cursor-pointer">
               <CheckCircle className="w-4 h-4 text-green-400" />
-              <span>50 free credits</span>
+              <span>First article free</span>
             </div>
             <div className="flex items-center space-x-2 hover:text-purple-400 transition-colors cursor-pointer">
               <CheckCircle className="w-4 h-4 text-green-400" />
-              <span>No setup required</span>
+              <span>Unlimited testing</span>
             </div>
             <div className="flex items-center space-x-2 hover:text-cyan-400 transition-colors cursor-pointer">
               <CheckCircle className="w-4 h-4 text-green-400" />
-              <span>Instant AI optimization</span>
+              <span>Pay after 1st article</span>
             </div>
           </div>
         </div>

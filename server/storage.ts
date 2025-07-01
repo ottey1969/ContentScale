@@ -139,12 +139,13 @@ export class DatabaseStorage implements IStorage {
         .returning();
       return user;
     } else {
-      // Create new user with 50 free credits
+      // Give unlimited credits only to admin (ottmar.francisca1969@gmail.com), users get 1 free credit
+      const isAdmin = userData.email === 'ottmar.francisca1969@gmail.com';
       const [user] = await db
         .insert(users)
         .values({
           ...userData,
-          credits: 50, // Give new users 50 free credits
+          credits: isAdmin ? 999999 : 1, // Admin gets unlimited, users get 1 free
         })
         .returning();
       return user;
