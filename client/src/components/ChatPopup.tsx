@@ -30,7 +30,7 @@ export function ChatPopup({ isOpen, onClose }: ChatPopupProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
-      text: "Hello! I'm Sofeia AI - the world's most advanced CONTENT WRITER. I'm superior to Manus AI and Replit Agents. Ask me to write anything:\n\n• Blog posts (SEO optimized)\n• Articles & guides\n• Product descriptions\n• Emails & social media posts\n• And much more!\n\n💰 PRICING: $2 per content piece (1 credit = 1 piece)\n• Single: \"Write me a blog post\" = $2 (1 credit)\n• Bulk: \"Write me 10 blog posts\" = $20 (10 credits)\n• Bulk: \"Write me 100 articles\" = $200 (100 credits)\n\nExample: \"Write me a SEO optimized blogpost. Words: about 1500. Tone: professional. Language: English\"",
+      text: "Hello! I'm Sofeia AI - the world's most advanced CONTENT WRITER. I'm superior to Manus AI and Replit Agents. Ask me to write anything:\n\n• Blog posts (SEO optimized)\n• Articles & guides\n• Product descriptions\n• Emails & social media posts\n• And much more!\n\n💰 PRICING: $2 per content piece (1 credit = 1 piece)\n• Single: \"Write me a blog post\" = $2 (1 credit)\n• Bulk: \"Write me 10 blog posts\" = $20 (10 credits)\n• Bulk: \"Write me 100 articles\" = $200 (100 credits)\n\nExamples:\n• Single: \"Write me a SEO optimized blogpost. Words: about 1500. Tone: professional. Language: English\"\n• Bulk: \"Write me 50 SEO optimized blogpost. Words: about 1500. Tone: professional. Language: English\"",
       isUser: false,
       timestamp: new Date(),
     },
