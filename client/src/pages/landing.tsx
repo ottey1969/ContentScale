@@ -98,7 +98,7 @@ export default function Landing() {
           
           <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
             Transform your content strategy with autonomous AI that researches, writes, and optimizes for 
-            <span className="text-blue-400 font-semibold"> Google's AI Overview</span> and search rankings.
+            <span className="text-blue-400 font-semibold"> Google's AI Overview</span> and search rankings. Generate high-quality, SEO-optimized content using advanced AI with real-time keyword research, CRAFT framework optimization, and Google E-E-A-T compliance. Perfect for content marketers, digital agencies, and businesses.
           </p>
           
           {/* Demo Video Button Only */}
