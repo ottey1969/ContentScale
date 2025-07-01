@@ -367,174 +367,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Interactive Features Section */}
-      <section className="py-20 bg-gradient-to-b from-slate-900 to-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-              AI-Powered Content Engine
-            </h2>
-            <p className="text-gray-300 text-lg max-w-3xl mx-auto">
-              Complete autonomous AI system for content creation, SEO optimization, and viral marketing campaigns.
-            </p>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Sofeia AI Brain */}
-            <Card className="group bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700 hover:border-blue-500/50 transition-all duration-500 transform hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/20">
-              <CardContent className="p-6">
-                <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center mb-4 group-hover:animate-pulse">
-                  <Brain className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="text-xl font-semibold mb-2 text-white group-hover:text-blue-400 transition-colors">
-                  Sofeia AI Brain
-                </h3>
-                <p className="text-gray-400 mb-4 group-hover:text-gray-300 transition-colors">
-                  Real-time neural network visualization showing AI thinking process and autonomous task execution.
-                </p>
-                <ul className="text-sm text-gray-400 space-y-2 group-hover:text-gray-300 transition-colors">
-                  <li className="flex items-center space-x-2">
-                    <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse"></div>
-                    <span>Live content generation</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-pulse delay-200"></div>
-                    <span>Autonomous research & analysis</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <div className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse delay-400"></div>
-                    <span>Multi-modal processing</span>
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
-
-            {/* Keyword Research */}
-            <Card className="group bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700 hover:border-green-500/50 transition-all duration-500 transform hover:scale-105 hover:shadow-2xl hover:shadow-green-500/20">
-              <CardContent className="p-6">
-                <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center mb-4 group-hover:animate-pulse">
-                  <Search className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="text-xl font-semibold mb-2 text-white group-hover:text-green-400 transition-colors">
-                  SEO Insight Engine
-                </h3>
-                <p className="text-gray-400 mb-4 group-hover:text-gray-300 transition-colors">
-                  Advanced AI-powered keyword research with automated clustering and AI Overview optimization.
-                </p>
-                <ul className="text-sm text-gray-400 space-y-2 group-hover:text-gray-300 transition-colors mb-4">
-                  <li className="flex items-center space-x-2">
-                    <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
-                    <span>Question-based keyword discovery</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse delay-200"></div>
-                    <span>AI clustering in seconds</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <div className="w-1.5 h-1.5 bg-teal-400 rounded-full animate-pulse delay-400"></div>
-                    <span>CSV bulk processing</span>
-                  </li>
-                </ul>
-                <Button 
-                  onClick={() => setShowKeywordResearch(true)}
-                  className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold"
-                >
-                  🧪 Test Keyword Research
-                </Button>
-              </CardContent>
-            </Card>
-
-
-
-            {/* SEO Optimization */}
-            <Card className="group bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700 hover:border-orange-500/50 transition-all duration-500 transform hover:scale-105 hover:shadow-2xl hover:shadow-orange-500/20">
-              <CardContent className="p-6">
-                <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center mb-4 group-hover:animate-pulse">
-                  <TrendingUp className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="text-xl font-semibold mb-2 text-white group-hover:text-orange-400 transition-colors">
-                  AI Overview Optimization
-                </h3>
-                <p className="text-gray-400 mb-4 group-hover:text-gray-300 transition-colors">
-                  CRAFT framework integration for Google AI Mode compatibility and rapid ranking.
-                </p>
-                <ul className="text-sm text-gray-400 space-y-2 group-hover:text-gray-300 transition-colors">
-                  <li className="flex items-center space-x-2">
-                    <div className="w-1.5 h-1.5 bg-orange-400 rounded-full animate-pulse"></div>
-                    <span>Google AI Overview targeting</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <div className="w-1.5 h-1.5 bg-red-400 rounded-full animate-pulse delay-200"></div>
-                    <span>Featured snippet optimization</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full animate-pulse delay-400"></div>
-                    <span>Voice search compatibility</span>
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
-
-            {/* Cybersecurity Focus */}
-            <Card className="group bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700 hover:border-red-500/50 transition-all duration-500 transform hover:scale-105 hover:shadow-2xl hover:shadow-red-500/20">
-              <CardContent className="p-6">
-                <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-rose-500 rounded-xl flex items-center justify-center mb-4 group-hover:animate-pulse">
-                  <Shield className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="text-xl font-semibold mb-2 text-white group-hover:text-red-400 transition-colors">
-                  Cybersecurity Expertise
-                </h3>
-                <p className="text-gray-400 mb-4 group-hover:text-gray-300 transition-colors">
-                  Advanced security monitoring with fingerprint tracking and IP analysis for threat prevention.
-                </p>
-                <ul className="text-sm text-gray-400 space-y-2 group-hover:text-gray-300 transition-colors">
-                  <li className="flex items-center space-x-2">
-                    <div className="w-1.5 h-1.5 bg-red-400 rounded-full animate-pulse"></div>
-                    <span>Fingerprint tracking & device analysis</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <div className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-pulse delay-200"></div>
-                    <span>Real-time IP monitoring & blocking</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <div className="w-1.5 h-1.5 bg-pink-400 rounded-full animate-pulse delay-400"></div>
-                    <span>Behavioral threat assessment</span>
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
-
-            {/* Gamification */}
-            <Card className="group bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700 hover:border-yellow-500/50 transition-all duration-500 transform hover:scale-105 hover:shadow-2xl hover:shadow-yellow-500/20">
-              <CardContent className="p-6">
-                <div className="w-12 h-12 bg-gradient-to-r from-yellow-500 to-amber-500 rounded-xl flex items-center justify-center mb-4 group-hover:animate-bounce">
-                  <Trophy className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="text-xl font-semibold mb-2 text-white group-hover:text-yellow-400 transition-colors">
-                  Gamified Experience
-                </h3>
-                <p className="text-gray-400 mb-4 group-hover:text-gray-300 transition-colors">
-                  Achievement system with progress tracking and milestone celebrations.
-                </p>
-                <ul className="text-sm text-gray-400 space-y-2 group-hover:text-gray-300 transition-colors">
-                  <li className="flex items-center space-x-2">
-                    <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full animate-pulse"></div>
-                    <span>Progress bars & badges</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <div className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-pulse delay-200"></div>
-                    <span>Streak counters</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <div className="w-1.5 h-1.5 bg-orange-400 rounded-full animate-pulse delay-400"></div>
-                    <span>Milestone rewards</span>
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
 
       {/* Keyword Research Demo Section */}
       <section className="py-20 bg-gradient-to-b from-slate-900 to-slate-800">
@@ -584,6 +417,167 @@ When using AI for content creation, it's essential to:
 
 The future of content creation lies in the collaboration between human creativity and AI efficiency, enabling businesses to scale their content strategies while maintaining quality and authenticity."
           />
+        </div>
+      </section>
+
+      {/* AI-Powered Content Engine Section - MOVED HERE */}
+      <section className="py-20 bg-gradient-to-b from-slate-900 to-slate-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+              AI-Powered Content Engine
+            </h2>
+            <p className="text-gray-300 text-lg max-w-3xl mx-auto">
+              Complete autonomous AI system for content creation, SEO optimization, and viral marketing campaigns.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Sofeia AI Brain */}
+            <Card className="group bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700 hover:border-blue-500/50 transition-all duration-500 transform hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/20">
+              <CardContent className="p-6">
+                <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center mb-4 group-hover:animate-pulse">
+                  <Brain className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2 text-white group-hover:text-blue-400 transition-colors">
+                  Sofeia AI Brain
+                </h3>
+                <p className="text-gray-400 mb-4 group-hover:text-gray-300 transition-colors">
+                  Real-time neural network visualization showing AI thinking process and autonomous task execution.
+                </p>
+                <ul className="text-sm text-gray-400 space-y-2 group-hover:text-gray-300 transition-colors">
+                  <li className="flex items-center space-x-2">
+                    <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse"></div>
+                    <span>Live content generation</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-pulse delay-200"></div>
+                    <span>Autonomous research & analysis</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <div className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse delay-400"></div>
+                    <span>Multi-modal processing</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            {/* SEO Insight Engine */}
+            <Card className="group bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700 hover:border-green-500/50 transition-all duration-500 transform hover:scale-105 hover:shadow-2xl hover:shadow-green-500/20">
+              <CardContent className="p-6">
+                <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center mb-4 group-hover:animate-pulse">
+                  <Search className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2 text-white group-hover:text-green-400 transition-colors">
+                  SEO Insight Engine
+                </h3>
+                <p className="text-gray-400 mb-4 group-hover:text-gray-300 transition-colors">
+                  Advanced AI-powered keyword research with automated clustering and AI Overview optimization.
+                </p>
+                <ul className="text-sm text-gray-400 space-y-2 group-hover:text-gray-300 transition-colors">
+                  <li className="flex items-center space-x-2">
+                    <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
+                    <span>Question-based keyword discovery</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse delay-200"></div>
+                    <span>AI clustering in seconds</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <div className="w-1.5 h-1.5 bg-teal-400 rounded-full animate-pulse delay-400"></div>
+                    <span>CSV bulk processing</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            {/* AI Overview Optimization */}
+            <Card className="group bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700 hover:border-orange-500/50 transition-all duration-500 transform hover:scale-105 hover:shadow-2xl hover:shadow-orange-500/20">
+              <CardContent className="p-6">
+                <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center mb-4 group-hover:animate-pulse">
+                  <TrendingUp className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2 text-white group-hover:text-orange-400 transition-colors">
+                  AI Overview Optimization
+                </h3>
+                <p className="text-gray-400 mb-4 group-hover:text-gray-300 transition-colors">
+                  CRAFT framework integration for Google AI Mode compatibility and rapid ranking.
+                </p>
+                <ul className="text-sm text-gray-400 space-y-2 group-hover:text-gray-300 transition-colors">
+                  <li className="flex items-center space-x-2">
+                    <div className="w-1.5 h-1.5 bg-orange-400 rounded-full animate-pulse"></div>
+                    <span>Google AI Overview targeting</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <div className="w-1.5 h-1.5 bg-red-400 rounded-full animate-pulse delay-200"></div>
+                    <span>Featured snippet optimization</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full animate-pulse delay-400"></div>
+                    <span>Voice search compatibility</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            {/* Cybersecurity Expertise */}
+            <Card className="group bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700 hover:border-red-500/50 transition-all duration-500 transform hover:scale-105 hover:shadow-2xl hover:shadow-red-500/20">
+              <CardContent className="p-6">
+                <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-pink-500 rounded-xl flex items-center justify-center mb-4 group-hover:animate-pulse">
+                  <Shield className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2 text-white group-hover:text-red-400 transition-colors">
+                  Cybersecurity Expertise
+                </h3>
+                <p className="text-gray-400 mb-4 group-hover:text-gray-300 transition-colors">
+                  Advanced security monitoring with fingerprint tracking and IP analysis for threat prevention.
+                </p>
+                <ul className="text-sm text-gray-400 space-y-2 group-hover:text-gray-300 transition-colors">
+                  <li className="flex items-center space-x-2">
+                    <div className="w-1.5 h-1.5 bg-red-400 rounded-full animate-pulse"></div>
+                    <span>Fingerprint tracking & device analysis</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <div className="w-1.5 h-1.5 bg-pink-400 rounded-full animate-pulse delay-200"></div>
+                    <span>Real-time IP monitoring & blocking</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <div className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse delay-400"></div>
+                    <span>Behavioral threat assessment</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            {/* Gamified Experience */}
+            <Card className="group bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700 hover:border-yellow-500/50 transition-all duration-500 transform hover:scale-105 hover:shadow-2xl hover:shadow-yellow-500/20">
+              <CardContent className="p-6">
+                <div className="w-12 h-12 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center mb-4 group-hover:animate-pulse">
+                  <Trophy className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2 text-white group-hover:text-yellow-400 transition-colors">
+                  Gamified Experience
+                </h3>
+                <p className="text-gray-400 mb-4 group-hover:text-gray-300 transition-colors">
+                  Achievement system with progress tracking and milestone celebrations.
+                </p>
+                <ul className="text-sm text-gray-400 space-y-2 group-hover:text-gray-300 transition-colors">
+                  <li className="flex items-center space-x-2">
+                    <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full animate-pulse"></div>
+                    <span>Progress bars & badges</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <div className="w-1.5 h-1.5 bg-orange-400 rounded-full animate-pulse delay-200"></div>
+                    <span>Streak counters</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <div className="w-1.5 h-1.5 bg-red-400 rounded-full animate-pulse delay-400"></div>
+                    <span>Milestone rewards</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </section>
 
