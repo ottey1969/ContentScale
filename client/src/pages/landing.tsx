@@ -380,28 +380,75 @@ export default function Landing() {
               Professional content generation with SEO optimization and AI readiness scoring
             </p>
           </div>
-          <GeneratedContent 
-            content="# The Future of AI Content Writing
-
-AI-powered content generation has revolutionized how businesses create engaging, SEO-optimized content. With advanced natural language processing and machine learning algorithms, modern AI systems can produce high-quality articles, blog posts, and marketing materials that rival human-written content.
-
-## Key Benefits of AI Content Writing
-
-1. **Speed and Efficiency**: Generate comprehensive articles in minutes rather than hours
-2. **SEO Optimization**: Built-in keyword optimization and search engine compatibility
-3. **Consistency**: Maintain brand voice and style across all content
-4. **Scalability**: Produce large volumes of content without compromising quality
-
-## Best Practices for AI Content
-
-When using AI for content creation, it's essential to:
-- Provide clear, detailed prompts
-- Review and edit generated content
-- Ensure fact-checking and accuracy
-- Maintain human oversight for quality control
-
-The future of content creation lies in the collaboration between human creativity and AI efficiency, enabling businesses to scale their content strategies while maintaining quality and authenticity."
-          />
+          {/* Content Preview Card */}
+          <div className="max-w-4xl mx-auto">
+            <Card className="bg-slate-800/95 border-purple-500/20 backdrop-blur-sm">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-3 h-3 bg-green-400 rounded-full"></div>
+                    <CardTitle className="text-xl text-white">Content Preview</CardTitle>
+                  </div>
+                  <Badge className="bg-green-500/20 text-green-300 border-green-500/50">
+                    AI Ready
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {/* Preview Content */}
+                <div className="bg-slate-700/50 rounded-lg p-6">
+                  <div className="prose prose-invert max-w-none">
+                    <h1 className="text-2xl font-bold text-white mb-4">The Future of AI Content Writing</h1>
+                    <p className="text-gray-300 mb-4">
+                      AI-powered content generation has revolutionized how businesses create engaging, SEO-optimized content. 
+                      With advanced natural language processing and machine learning algorithms, modern AI systems can produce 
+                      high-quality articles, blog posts, and marketing materials that rival human-written content.
+                    </p>
+                    <h2 className="text-xl font-semibold text-white mb-3">Key Benefits of AI Content Writing</h2>
+                    <ul className="text-gray-300 space-y-2 mb-4">
+                      <li><strong>Speed and Efficiency:</strong> Generate comprehensive articles in minutes rather than hours</li>
+                      <li><strong>SEO Optimization:</strong> Built-in keyword optimization and search engine compatibility</li>
+                      <li><strong>Consistency:</strong> Maintain brand voice and style across all content</li>
+                    </ul>
+                    <div className="text-gray-400 text-sm italic">
+                      ...content continues with full article structure and optimization
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Preview Stats */}
+                <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-purple-400">2,200+</div>
+                    <div className="text-xs text-gray-400">Words</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-blue-400">15+</div>
+                    <div className="text-xs text-gray-400">Headings</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-400">92%</div>
+                    <div className="text-xs text-gray-400">SEO Score</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-yellow-400">AI Ready</div>
+                    <div className="text-xs text-gray-400">Status</div>
+                  </div>
+                </div>
+                
+                {/* CTA */}
+                <div className="mt-6 text-center">
+                  <Button 
+                    onClick={() => setShowChatPopup(true)}
+                    className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-8 py-3 rounded-xl"
+                  >
+                    <Brain className="w-5 h-5 mr-2" />
+                    Generate Your Content with Sofeia AI
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </section>
 
