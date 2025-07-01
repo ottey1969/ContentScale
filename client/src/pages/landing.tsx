@@ -513,31 +513,19 @@ export default function Landing() {
             Join the world's first autonomous AI content writing system trusted by content creators worldwide.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-6 justify-center mb-8">
-            <Button 
-              onClick={handleGetStarted}
-              size="lg"
-              className="group bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold px-8 py-4 text-lg transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-2xl"
-            >
-              <Rocket className="w-5 h-5 mr-2 group-hover:animate-bounce" />
-              Start Free Trial
-              <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-            </Button>
-            
-            <div className="flex flex-col space-y-2">
-              <div className="flex items-center justify-center space-x-6 text-sm text-gray-300">
-                <div className="flex items-center space-x-2 hover:text-green-400 transition-colors cursor-pointer">
-                  <CheckCircle className="w-4 h-4 text-green-400 animate-pulse" />
-                  <span>First blog free</span>
-                </div>
-                <div className="flex items-center space-x-2 hover:text-blue-400 transition-colors cursor-pointer">
-                  <CheckCircle className="w-4 h-4 text-blue-400 animate-pulse delay-200" />
-                  <span>No setup required</span>
-                </div>
-                <div className="flex items-center space-x-2 hover:text-purple-400 transition-colors cursor-pointer">
-                  <CheckCircle className="w-4 h-4 text-purple-400 animate-pulse delay-400" />
-                  <span>Instant results</span>
-                </div>
+          <div className="flex flex-col justify-center mb-8">
+            <div className="flex items-center justify-center space-x-6 text-sm text-gray-300">
+              <div className="flex items-center space-x-2 hover:text-green-400 transition-colors cursor-pointer">
+                <CheckCircle className="w-4 h-4 text-green-400 animate-pulse" />
+                <span>First blog free</span>
+              </div>
+              <div className="flex items-center space-x-2 hover:text-blue-400 transition-colors cursor-pointer">
+                <CheckCircle className="w-4 h-4 text-blue-400 animate-pulse delay-200" />
+                <span>No setup required</span>
+              </div>
+              <div className="flex items-center space-x-2 hover:text-purple-400 transition-colors cursor-pointer">
+                <CheckCircle className="w-4 h-4 text-purple-400 animate-pulse delay-400" />
+                <span>Instant results</span>
               </div>
             </div>
           </div>
