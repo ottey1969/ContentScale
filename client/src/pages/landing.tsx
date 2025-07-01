@@ -369,22 +369,7 @@ export default function Landing() {
 
 
 
-      {/* Keyword Research Demo Section */}
-      <section className="py-20 bg-gradient-to-b from-slate-900 to-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">
-              SEO Keyword Research Engine
-            </h2>
-            <p className="text-gray-300 text-lg max-w-2xl mx-auto">
-              Advanced keyword research with AI Overview optimization and competitor analysis (Paid Feature)
-            </p>
-          </div>
-          <KeywordResearch />
-        </div>
-      </section>
-
-      {/* Generated Content Demo Section */}
+      {/* Generated Content Demo Section - MOVED TO POSITION 3 */}
       <section className="py-20 bg-gradient-to-b from-slate-800 to-slate-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
@@ -417,6 +402,21 @@ When using AI for content creation, it's essential to:
 
 The future of content creation lies in the collaboration between human creativity and AI efficiency, enabling businesses to scale their content strategies while maintaining quality and authenticity."
           />
+        </div>
+      </section>
+
+      {/* Keyword Research Demo Section */}
+      <section className="py-20 bg-gradient-to-b from-slate-900 to-slate-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">
+              SEO Keyword Research Engine
+            </h2>
+            <p className="text-gray-300 text-lg max-w-2xl mx-auto">
+              Advanced keyword research with AI Overview optimization and competitor analysis (Paid Feature)
+            </p>
+          </div>
+          <KeywordResearch />
         </div>
       </section>
 
