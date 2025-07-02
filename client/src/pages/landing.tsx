@@ -197,15 +197,17 @@ export default function Landing() {
               World's Most Advanced AI Assistant
             </Badge>
             
-            <h2 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-300 via-purple-400 to-pink-400 bg-clip-text text-transparent flex items-center justify-center gap-4">
-              Meet Sofeia AI
-              <div className="relative inline-flex">
-                <div className="w-8 h-8 text-red-500 animate-pulse cursor-pointer hover:scale-125 transition-transform">
+            <div className="text-center">
+              <h2 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-300 via-purple-400 to-pink-400 bg-clip-text text-transparent inline-block">
+                Meet Sofeia AI
+              </h2>
+              <span className="relative inline-flex ml-4 align-top">
+                <div className="w-12 h-12 text-red-500 animate-pulse cursor-pointer hover:scale-125 transition-transform text-4xl">
                   ❤️
                 </div>
-                <div className="absolute inset-0 w-8 h-8 bg-red-500/20 rounded-full animate-ping"></div>
-              </div>
-            </h2>
+                <div className="absolute inset-0 w-12 h-12 bg-red-500/20 rounded-full animate-ping"></div>
+              </span>
+            </div>
             
             <p className="text-xl text-gray-200 mb-8 max-w-4xl mx-auto leading-relaxed">
               The world's most advanced <span className="text-blue-300 font-semibold">CONTENT WRITER</span> and autonomous AI assistant. 
