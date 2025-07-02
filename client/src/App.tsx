@@ -17,7 +17,7 @@ function Router() {
   return (
     <Switch>
       {/* Landing page - everything happens here now */}
-      <Route path="/" component={LandingTest} />
+      <Route path="/" component={Landing} />
       
       {/* Admin panel - only for authenticated admins */}
       <Route path="/admin" component={isAuthenticated ? Admin : Landing} />
