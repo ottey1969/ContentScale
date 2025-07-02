@@ -13,26 +13,21 @@ import { useAuth } from "@/hooks/useAuth";
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
 
-  // Show loading state while checking authentication
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-dark flex items-center justify-center">
-        <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg animate-pulse"></div>
-          <div className="text-white">Loading ContentScale...</div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <Switch>
-      {/* Landing page - first thing users see */}
+      {/* Landing page - everything happens here now */}
       <Route path="/" component={Landing} />
       
-      {/* Dashboard - redirect directly to main dashboard */}
-      <Route path="/dashboard" component={Dashboard} />
+      {/* Admin panel - only for authenticated admins */}
       <Route path="/admin" component={isAuthenticated ? Admin : Landing} />
+      
+      {/* Redirect dashboard to landing page */}
+      <Route path="/dashboard">
+        {() => {
+          window.location.href = "/";
+          return <Landing />;
+        }}
+      </Route>
       
       {/* 404 fallback */}
       <Route component={NotFound} />

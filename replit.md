@@ -156,6 +156,7 @@ Test all functionality with the browser console open (F12) for debugging
 - June 30, 2025. Implemented CRAFT framework and RankMath principles for professional content writing standards
 - June 30, 2025. Added admin credit management system - admins can grant free credits to users via email address
 - July 2, 2025. Implemented email-based authentication in ChatPopup - users must login to access credits, prevents refresh abuse, admin access: ottmar.francisca1969@gmail.com with unlimited credits
+- July 2, 2025. Disconnected dashboard completely - all functionality now works from landing page, fixed black screen issue by removing dashboard redirects, simplified authentication to work directly from Sofeia chat popup
 
 ## User Preferences
 
