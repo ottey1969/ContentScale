@@ -100,10 +100,16 @@ export default function Landing() {
             </span>
           </h1>
           
-          <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl text-gray-300 mb-6 max-w-4xl mx-auto leading-relaxed">
             Transform your content strategy with autonomous AI that researches, writes, and optimizes for 
             <span className="text-blue-400 font-semibold"> Google's AI Overview</span> and search rankings. Generate high-quality, SEO-optimized content using advanced AI with real-time keyword research, CRAFT framework optimization, and Google E-E-A-T compliance. Perfect for content marketers, digital agencies, and businesses.
           </p>
+          
+          <div className="bg-gradient-to-r from-purple-600/20 to-blue-600/20 rounded-2xl p-6 mb-8 max-w-4xl mx-auto border border-purple-500/30">
+            <p className="text-lg text-purple-200 leading-relaxed">
+              Powered by the world's most advanced AI combination: <span className="text-purple-300 font-semibold">Perplexity AI</span> for real-time web research and current data discovery, paired with <span className="text-blue-300 font-semibold">Anthropic Claude</span> for intelligent content generation. This powerful dual-engine approach delivers unmatched content quality at the industry's most competitive pricing - giving you premium AI capabilities without premium costs.
+            </p>
+          </div>
           
           {/* Demo Video Button Only */}
           <div className="flex justify-center mb-8">
