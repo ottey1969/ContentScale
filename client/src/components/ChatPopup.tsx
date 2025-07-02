@@ -270,8 +270,24 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
     setAuthError("");
 
     try {
-      // Email validation temporarily bypassed to fix chat popup
-      console.log(`📧 Email captured for chat: ${userEmail}`);
+      // Capture email for marketing system
+      try {
+        await fetch('/api/email-capture', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: userEmail.toLowerCase().trim(),
+            source: 'chat_signup',
+            subscribedToNewsletter: true,
+            subscribedToMarketing: true,
+          }),
+        });
+        console.log(`📧 Email captured for marketing: ${userEmail}`);
+      } catch (emailError) {
+        console.log('Email capture failed (non-blocking):', emailError);
+      }
 
       // Security check: Verify device and IP for account creation prevention
       try {
