@@ -197,8 +197,14 @@ export default function Landing() {
               World's Most Advanced AI Assistant
             </Badge>
             
-            <h2 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-300 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+            <h2 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-300 via-purple-400 to-pink-400 bg-clip-text text-transparent flex items-center justify-center gap-4">
               Meet Sofeia AI
+              <div className="relative inline-flex">
+                <div className="w-8 h-8 text-red-500 animate-pulse cursor-pointer hover:scale-125 transition-transform">
+                  ❤️
+                </div>
+                <div className="absolute inset-0 w-8 h-8 bg-red-500/20 rounded-full animate-ping"></div>
+              </div>
             </h2>
             
             <p className="text-xl text-gray-200 mb-8 max-w-4xl mx-auto leading-relaxed">
