@@ -542,7 +542,7 @@ export class DatabaseStorage implements IStorage {
 
   // Admin settings operations
   async getAdminSettings(): Promise<AdminSettings | undefined> {
-    const [settings] = await db.select().from(adminSettings).where(eq(adminSettings.id, "1"));
+    const [settings] = await db.select().from(adminSettings).where(eq(adminSettings.id, "default"));
     return settings;
   }
 

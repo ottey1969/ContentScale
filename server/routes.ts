@@ -219,7 +219,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const user = await storage.getUser(userId);
       
       // Check if user is admin (you can modify this logic)
-      if (user?.email !== "ottmar.francisca1969@gmail.com" && userId !== "admin") {
+      if (user?.email !== "ottmar.francisca1969@gmail.com" && userId !== "admin" && userId !== "44276721") {
         return res.status(403).json({ message: "Admin access required" });
       }
       
@@ -237,7 +237,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const user = await storage.getUser(userId);
       
       // Check if user is admin
-      if (user?.email !== "ottmar.francisca1969@gmail.com" && userId !== "admin") {
+      if (user?.email !== "ottmar.francisca1969@gmail.com" && userId !== "admin" && userId !== "44276721") {
         return res.status(403).json({ message: "Admin access required" });
       }
       
