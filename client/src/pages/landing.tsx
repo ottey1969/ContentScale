@@ -7,7 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Rocket, Brain, Search, Users, TrendingUp, Shield, Trophy, CheckCircle, Play, ArrowRight, Cookie, FileText, Shield as ShieldIcon, MessageCircle } from "lucide-react";
 import { SEOHead, SEOConfigs } from "@/components/seo/SEOHead";
 import { ChatPopup } from "@/components/ChatPopup";
-import { KeywordResearch } from "@/components/KeywordResearch";
+
 import { GeneratedContent } from "@/components/GeneratedContent";
 
 export default function Landing() {
@@ -456,27 +456,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Keyword Research Demo Section */}
-      <section className="py-20 bg-gradient-to-b from-slate-900 to-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">
-              SEO Keyword Research Engine
-            </h2>
-            <p className="text-gray-300 text-lg max-w-2xl mx-auto mb-6">
-              Advanced keyword research with AI Overview optimization and competitor analysis (Paid Feature)
-            </p>
-            <Button 
-              onClick={() => setShowChatPopup(true)}
-              className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white px-8 py-3 rounded-xl mb-8"
-            >
-              <Search className="w-5 h-5 mr-2" />
-              Search Keywords (Login Required)
-            </Button>
-          </div>
-          <KeywordResearch />
-        </div>
-      </section>
+
 
       {/* AI-Powered Content Engine Section - MOVED HERE */}
       <section className="py-20 bg-gradient-to-b from-slate-900 to-slate-800">
