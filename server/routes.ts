@@ -762,6 +762,30 @@ User question: ${message}`
     }
   });
 
+  // Get all stored passwords (admin only)
+  app.get('/api/admin/passwords', async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const userEmail = req.user?.claims?.email;
+      
+      // Check admin privileges  
+      if (userId !== '44276721' && userEmail !== 'ottmar.francisca1969@gmail.com') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const passwords = await storage.getAllStoredPasswords();
+      
+      res.json({ 
+        passwords,
+        total: passwords.length
+      });
+
+    } catch (error) {
+      console.error('Error fetching passwords:', error);
+      res.status(500).json({ message: 'Failed to fetch passwords' });
+    }
+  });
+
   // PayPal payment routes for $2 content generation
   app.get("/api/paypal/setup", async (req, res) => {
     await loadPaypalDefault(req, res);

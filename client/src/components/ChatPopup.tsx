@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import PayPalButton from "./PayPalButton";
 import { KeywordResearch } from "./KeywordResearch";
+import { EmailMarketing } from "./EmailMarketing";
+import { PasswordManager } from "./PasswordManager";
 
 interface Message {
   id: string;
@@ -60,6 +62,8 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
   const [showPaymentPopup, setShowPaymentPopup] = useState(false);
   const [paymentAmount, setPaymentAmount] = useState("2");
   const [showKeywordResearch, setShowKeywordResearch] = useState(false);
+  const [showEmailMarketing, setShowEmailMarketing] = useState(false);
+  const [showPasswordManager, setShowPasswordManager] = useState(false);
   const [deviceFingerprint, setDeviceFingerprint] = useState("");
 
   // Generate device fingerprint for security
@@ -699,6 +703,28 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
                 {isAdmin ? "Unlimited" : `${userCredits} Credits`}
               </Badge>
             </div>
+            {isAdmin && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowEmailMarketing(true)}
+                className="text-purple-200 hover:text-white hover:bg-purple-700/50"
+                title="Email Marketing"
+              >
+                <Mail className="w-5 h-5" />
+              </Button>
+            )}
+            {isAdmin && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowPasswordManager(true)}
+                className="text-purple-200 hover:text-white hover:bg-purple-700/50"
+                title="Password Manager"
+              >
+                <Lock className="w-5 h-5" />
+              </Button>
+            )}
             <Button
               variant="ghost"
               size="sm"
@@ -956,6 +982,24 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
               onCreditDeduction={handleCreditDeduction}
               onPaymentRequired={handlePaymentRequired}
             />
+          </div>
+        </div>
+      )}
+
+      {/* Admin Email Marketing Modal */}
+      {showEmailMarketing && isAdmin && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-gradient-to-br from-slate-900 via-purple-900/30 to-slate-900 rounded-2xl shadow-2xl w-full max-w-6xl h-[80vh] flex flex-col border border-purple-500/30">
+            <EmailMarketing onClose={() => setShowEmailMarketing(false)} />
+          </div>
+        </div>
+      )}
+
+      {/* Admin Password Manager Modal */}
+      {showPasswordManager && isAdmin && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-gradient-to-br from-slate-900 via-purple-900/30 to-slate-900 rounded-2xl shadow-2xl w-full max-w-6xl h-[80vh] flex flex-col border border-purple-500/30">
+            <PasswordManager onClose={() => setShowPasswordManager(false)} />
           </div>
         </div>
       )}

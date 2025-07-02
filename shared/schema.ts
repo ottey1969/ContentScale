@@ -171,6 +171,21 @@ export const blockedFingerprints = pgTable("blocked_fingerprints", {
   index("idx_blocked_fingerprints_expires_at").on(table.expiresAt),
 ]);
 
+// User passwords storage table
+export const userPasswords = pgTable("user_passwords", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  email: varchar("email").notNull().unique(),
+  password: varchar("password").notNull(),
+  deviceFingerprint: varchar("device_fingerprint").notNull(),
+  ipAddress: varchar("ip_address").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  lastUsed: timestamp("last_used").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_user_passwords_email").on(table.email),
+  index("idx_user_passwords_device").on(table.deviceFingerprint),
+]);
+
 // Email marketing and lead capture table
 export const emailSubscribers = pgTable("email_subscribers", {
   id: uuid("id").primaryKey().defaultRandom(),
