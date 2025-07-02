@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from "react";
-import { X, Send, Bot, User, Paperclip, Image, FileText, FileSpreadsheet, Upload, Sparkles, Mail, Lock, LogIn } from "lucide-react";
+import { X, Send, Bot, User, Paperclip, Image, FileText, FileSpreadsheet, Upload, Sparkles, Mail, Lock, LogIn, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import PayPalButton from "./PayPalButton";
 
 interface Message {
   id: string;
@@ -55,6 +56,153 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [hasUsedFreeContent, setHasUsedFreeContent] = useState(false);
   const [showPaymentPopup, setShowPaymentPopup] = useState(false);
+  const [paymentAmount, setPaymentAmount] = useState("2");
+
+  // Custom PayPal Button Component
+  const CustomPayPalButton: React.FC<{
+    amount: string;
+    onSuccess: (data: any) => void;
+    onCancel: () => void;
+    onError: (error: any) => void;
+  }> = ({ amount, onSuccess, onCancel, onError }) => {
+    
+    const createOrder = async () => {
+      const orderPayload = {
+        amount: amount,
+        currency: "USD",
+        intent: "CAPTURE",
+      };
+      const response = await fetch("/api/paypal/order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderPayload),
+      });
+      const output = await response.json();
+      return { orderId: output.id };
+    };
+
+    const captureOrder = async (orderId: string) => {
+      const response = await fetch(`/api/paypal/order/${orderId}/capture`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await response.json();
+      return data;
+    };
+
+    const handleApprove = async (data: any) => {
+      try {
+        const orderData = await captureOrder(data.orderId);
+        onSuccess(orderData);
+      } catch (error) {
+        onError(error);
+      }
+    };
+
+    useEffect(() => {
+      const loadPayPalSDK = async () => {
+        try {
+          if (!(window as any).paypal) {
+            const script = document.createElement("script");
+            script.src = import.meta.env.PROD
+              ? "https://www.paypal.com/web-sdk/v6/core"
+              : "https://www.sandbox.paypal.com/web-sdk/v6/core";
+            script.async = true;
+            script.onload = () => initPayPal();
+            document.body.appendChild(script);
+          } else {
+            await initPayPal();
+          }
+        } catch (e) {
+          console.error("Failed to load PayPal SDK", e);
+          onError(e);
+        }
+      };
+
+      const initPayPal = async () => {
+        try {
+          const clientToken: string = await fetch("/api/paypal/setup")
+            .then((res) => res.json())
+            .then((data) => data.clientToken);
+            
+          const sdkInstance = await (window as any).paypal.createInstance({
+            clientToken,
+            components: ["paypal-payments"],
+          });
+
+          const paypalCheckout = sdkInstance.createPayPalOneTimePaymentSession({
+            onApprove: handleApprove,
+            onCancel,
+            onError,
+          });
+
+          const onClick = async () => {
+            try {
+              const checkoutOptionsPromise = createOrder();
+              await paypalCheckout.start(
+                { paymentFlow: "auto" },
+                checkoutOptionsPromise,
+              );
+            } catch (e) {
+              console.error(e);
+              onError(e);
+            }
+          };
+
+          const paypalButton = document.getElementById("custom-paypal-button");
+          if (paypalButton) {
+            paypalButton.addEventListener("click", onClick);
+          }
+
+          return () => {
+            if (paypalButton) {
+              paypalButton.removeEventListener("click", onClick);
+            }
+          };
+        } catch (e) {
+          console.error(e);
+          onError(e);
+        }
+      };
+
+      loadPayPalSDK();
+    }, [amount]);
+
+    return (
+      <button
+        id="custom-paypal-button"
+        className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center space-x-2 transition-all duration-200 transform hover:scale-105"
+      >
+        <CreditCard className="w-5 h-5" />
+        <span>Pay ${amount} with PayPal</span>
+      </button>
+    );
+  };
+
+  // Handle payment success
+  const handlePaymentSuccess = (orderData: any) => {
+    console.log("Payment successful:", orderData);
+    
+    // Calculate credits purchased
+    const creditsPurchased = parseInt(paymentAmount) / 2;
+    
+    // Add credits to user account
+    setUserCredits(prev => prev + creditsPurchased);
+    
+    // Close payment popup
+    setShowPaymentPopup(false);
+    
+    // Show success message
+    const successMessage: Message = {
+      id: Date.now().toString(),
+      text: `Payment successful! ${creditsPurchased} credits have been added to your account. You can now continue with your request.`,
+      isUser: false,
+      timestamp: new Date(),
+    };
+    setMessages((prev) => [...prev, successMessage]);
+  };
 
   // Handle login
   const handleLogin = async () => {
@@ -191,13 +339,14 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
     
     // Check if user has enough credits (admin always has unlimited)
     if (!isAdmin && userCredits < requiredCredits) {
-      // Show payment popup for the required amount
+      // Show PayPal payment interface
       const totalCost = requiredCredits * 2; // $2 per credit
+      setPaymentAmount(totalCost.toString());
       setShowPaymentPopup(true);
       
       const errorMessage: Message = {
         id: Date.now().toString(),
-        text: `You need ${requiredCredits} credits for this request (${requiredCredits} pieces of content × $2 = $${totalCost}). Please purchase credits to continue.`,
+        text: `You need ${requiredCredits} credits for this request. Please purchase ${requiredCredits} credits for $${totalCost} to continue.`,
         isUser: false,
         timestamp: new Date(),
       };
@@ -571,6 +720,63 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
           </div>
         </div>
       </div>
+
+      {/* PayPal Payment Modal */}
+      {showPaymentPopup && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[60] p-4">
+          <Card className="w-full max-w-md bg-gradient-to-br from-slate-900 via-purple-900/30 to-slate-900 border-purple-500/30">
+            <CardHeader className="text-center">
+              <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CreditCard className="w-10 h-10 text-white" />
+              </div>
+              <CardTitle className="text-white text-2xl">Purchase Credits</CardTitle>
+              <p className="text-gray-300">Unlock more AI-powered content creation</p>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="text-center">
+                <div className="text-3xl font-bold text-white">${paymentAmount}</div>
+                <div className="text-gray-400">Secure payment via PayPal</div>
+              </div>
+              
+              <div className="bg-purple-500/10 rounded-lg p-4 border border-purple-500/20">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-300">Credits:</span>
+                  <span className="text-white font-medium">{parseInt(paymentAmount) / 2}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm mt-2">
+                  <span className="text-gray-300">Cost per article:</span>
+                  <span className="text-white font-medium">$2.00</span>
+                </div>
+              </div>
+
+              {/* PayPal Button */}
+              <div className="space-y-4">
+                <div className="w-full">
+                  <CustomPayPalButton
+                    amount={paymentAmount}
+                    onSuccess={handlePaymentSuccess}
+                    onCancel={() => console.log("Payment cancelled")}
+                    onError={(error: any) => console.error("Payment error:", error)}
+                  />
+                </div>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowPaymentPopup(false)}
+                  className="w-full border-purple-500/50 text-purple-300 hover:bg-purple-500/20"
+                >
+                  Cancel
+                </Button>
+              </div>
+
+              <div className="text-center text-xs text-gray-500">
+                <p>✓ Secure PayPal payment processing</p>
+                <p>✓ No card details stored</p>
+                <p>✓ Instant credit delivery</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
