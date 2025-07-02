@@ -10,6 +10,9 @@ import {
   securityEvents,
   blockedIPs,
   blockedFingerprints,
+  emailSubscribers,
+  emailCampaigns,
+  emailCampaignRecipients,
   type User,
   type UpsertUser,
   type InsertContent,
@@ -32,6 +35,12 @@ import {
   type BlockedIP,
   type InsertBlockedFingerprint,
   type BlockedFingerprint,
+  type InsertEmailSubscriber,
+  type EmailSubscriber,
+  type InsertEmailCampaign,
+  type EmailCampaign,
+  type InsertEmailCampaignRecipient,
+  type EmailCampaignRecipient,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, or, sql, gte, lt, gt, isNotNull } from "drizzle-orm";
@@ -114,6 +123,38 @@ export interface IStorage {
   
   // Data deletion operations
   deleteAllUserData(userId: string): Promise<void>;
+
+  // Email marketing operations
+  createEmailSubscriber(subscriber: InsertEmailSubscriber): Promise<EmailSubscriber>;
+  getEmailSubscriber(email: string): Promise<EmailSubscriber | undefined>;
+  getEmailSubscriberById(id: string): Promise<EmailSubscriber | undefined>;
+  updateEmailSubscriber(id: string, updates: Partial<EmailSubscriber>): Promise<void>;
+  getAllEmailSubscribers(): Promise<EmailSubscriber[]>;
+  getVerifiedSubscribers(): Promise<EmailSubscriber[]>;
+  verifyEmailSubscriber(id: string): Promise<void>;
+  unsubscribeEmail(email: string): Promise<void>;
+  
+  // Email campaign operations
+  createEmailCampaign(campaign: InsertEmailCampaign): Promise<EmailCampaign>;
+  getEmailCampaign(id: string): Promise<EmailCampaign | undefined>;
+  getAllEmailCampaigns(): Promise<EmailCampaign[]>;
+  updateEmailCampaign(id: string, updates: Partial<EmailCampaign>): Promise<void>;
+  
+  // Email campaign recipient operations
+  addCampaignRecipient(recipient: InsertEmailCampaignRecipient): Promise<EmailCampaignRecipient>;
+  getCampaignRecipients(campaignId: string): Promise<EmailCampaignRecipient[]>;
+  updateRecipientStatus(id: string, status: string): Promise<void>;
+  
+  // Email analytics
+  getEmailStats(): Promise<{
+    totalSubscribers: number;
+    verifiedSubscribers: number;
+    newSubscribersToday: number;
+    unsubscribedToday: number;
+    campaignsSent: number;
+    avgOpenRate: number;
+    avgClickRate: number;
+  }>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -650,6 +691,226 @@ export class DatabaseStorage implements IStorage {
       console.error('Error deleting user data:', error);
       throw error;
     }
+  }
+
+  // Email marketing operations
+  async createEmailSubscriber(subscriberData: InsertEmailSubscriber): Promise<EmailSubscriber> {
+    const [subscriber] = await db
+      .insert(emailSubscribers)
+      .values(subscriberData)
+      .returning();
+    return subscriber;
+  }
+
+  async getEmailSubscriber(email: string): Promise<EmailSubscriber | undefined> {
+    const [subscriber] = await db
+      .select()
+      .from(emailSubscribers)
+      .where(eq(emailSubscribers.email, email));
+    return subscriber;
+  }
+
+  async getEmailSubscriberById(id: string): Promise<EmailSubscriber | undefined> {
+    const [subscriber] = await db
+      .select()
+      .from(emailSubscribers)
+      .where(eq(emailSubscribers.id, id));
+    return subscriber;
+  }
+
+  async updateEmailSubscriber(id: string, updates: Partial<EmailSubscriber>): Promise<void> {
+    await db
+      .update(emailSubscribers)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(emailSubscribers.id, id));
+  }
+
+  async getAllEmailSubscribers(): Promise<EmailSubscriber[]> {
+    return await db.select().from(emailSubscribers).orderBy(desc(emailSubscribers.createdAt));
+  }
+
+  async getVerifiedSubscribers(): Promise<EmailSubscriber[]> {
+    return await db
+      .select()
+      .from(emailSubscribers)
+      .where(and(
+        eq(emailSubscribers.isVerified, true),
+        eq(emailSubscribers.subscriptionStatus, 'subscribed')
+      ))
+      .orderBy(desc(emailSubscribers.createdAt));
+  }
+
+  async verifyEmailSubscriber(id: string): Promise<void> {
+    await db
+      .update(emailSubscribers)
+      .set({ 
+        isVerified: true, 
+        verifiedAt: new Date(),
+        updatedAt: new Date() 
+      })
+      .where(eq(emailSubscribers.id, id));
+  }
+
+  async unsubscribeEmail(email: string): Promise<void> {
+    await db
+      .update(emailSubscribers)
+      .set({ 
+        subscriptionStatus: 'unsubscribed',
+        unsubscribedAt: new Date(),
+        updatedAt: new Date() 
+      })
+      .where(eq(emailSubscribers.email, email));
+  }
+
+  // Email campaign operations
+  async createEmailCampaign(campaignData: InsertEmailCampaign): Promise<EmailCampaign> {
+    const [campaign] = await db
+      .insert(emailCampaigns)
+      .values(campaignData)
+      .returning();
+    return campaign;
+  }
+
+  async getEmailCampaign(id: string): Promise<EmailCampaign | undefined> {
+    const [campaign] = await db
+      .select()
+      .from(emailCampaigns)
+      .where(eq(emailCampaigns.id, id));
+    return campaign;
+  }
+
+  async getAllEmailCampaigns(): Promise<EmailCampaign[]> {
+    return await db.select().from(emailCampaigns).orderBy(desc(emailCampaigns.createdAt));
+  }
+
+  async updateEmailCampaign(id: string, updates: Partial<EmailCampaign>): Promise<void> {
+    await db
+      .update(emailCampaigns)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(emailCampaigns.id, id));
+  }
+
+  // Email campaign recipient operations
+  async addCampaignRecipient(recipientData: InsertEmailCampaignRecipient): Promise<EmailCampaignRecipient> {
+    const [recipient] = await db
+      .insert(emailCampaignRecipients)
+      .values(recipientData)
+      .returning();
+    return recipient;
+  }
+
+  async getCampaignRecipients(campaignId: string): Promise<EmailCampaignRecipient[]> {
+    return await db
+      .select()
+      .from(emailCampaignRecipients)
+      .where(eq(emailCampaignRecipients.campaignId, campaignId))
+      .orderBy(desc(emailCampaignRecipients.createdAt));
+  }
+
+  async updateRecipientStatus(id: string, status: string): Promise<void> {
+    const now = new Date();
+    const updateData: any = { status };
+    
+    // Set appropriate timestamp based on status
+    switch (status) {
+      case 'sent':
+        updateData.sentAt = now;
+        break;
+      case 'delivered':
+        updateData.deliveredAt = now;
+        break;
+      case 'opened':
+        updateData.openedAt = now;
+        break;
+      case 'clicked':
+        updateData.clickedAt = now;
+        break;
+      case 'bounced':
+        updateData.bouncedAt = now;
+        break;
+      case 'complained':
+        updateData.complainedAt = now;
+        break;
+    }
+
+    await db
+      .update(emailCampaignRecipients)
+      .set(updateData)
+      .where(eq(emailCampaignRecipients.id, id));
+  }
+
+  // Email analytics
+  async getEmailStats(): Promise<{
+    totalSubscribers: number;
+    verifiedSubscribers: number;
+    newSubscribersToday: number;
+    unsubscribedToday: number;
+    campaignsSent: number;
+    avgOpenRate: number;
+    avgClickRate: number;
+  }> {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Get total subscribers
+    const [totalResult] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(emailSubscribers);
+
+    // Get verified subscribers
+    const [verifiedResult] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(emailSubscribers)
+      .where(eq(emailSubscribers.isVerified, true));
+
+    // Get new subscribers today
+    const [newTodayResult] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(emailSubscribers)
+      .where(gte(emailSubscribers.createdAt, today));
+
+    // Get unsubscribed today
+    const [unsubscribedTodayResult] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(emailSubscribers)
+      .where(and(
+        eq(emailSubscribers.subscriptionStatus, 'unsubscribed'),
+        isNotNull(emailSubscribers.unsubscribedAt),
+        gte(emailSubscribers.unsubscribedAt, today)
+      ));
+
+    // Get campaigns sent
+    const [campaignsSentResult] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(emailCampaigns)
+      .where(eq(emailCampaigns.status, 'sent'));
+
+    // Calculate open and click rates
+    const [openRateResult] = await db
+      .select({
+        totalSent: sql<number>`coalesce(sum(total_sent), 0)`,
+        totalOpened: sql<number>`coalesce(sum(total_opened), 0)`,
+        totalClicked: sql<number>`coalesce(sum(total_clicked), 0)`,
+      })
+      .from(emailCampaigns)
+      .where(eq(emailCampaigns.status, 'sent'));
+
+    const totalSent = openRateResult?.totalSent || 0;
+    const totalOpened = openRateResult?.totalOpened || 0;
+    const totalClicked = openRateResult?.totalClicked || 0;
+
+    const avgOpenRate = totalSent > 0 ? Math.round((totalOpened / totalSent) * 100) : 0;
+    const avgClickRate = totalSent > 0 ? Math.round((totalClicked / totalSent) * 100) : 0;
+
+    return {
+      totalSubscribers: totalResult?.count || 0,
+      verifiedSubscribers: verifiedResult?.count || 0,
+      newSubscribersToday: newTodayResult?.count || 0,
+      unsubscribedToday: unsubscribedTodayResult?.count || 0,
+      campaignsSent: campaignsSentResult?.count || 0,
+      avgOpenRate,
+      avgClickRate,
+    };
   }
 }
 

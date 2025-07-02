@@ -171,6 +171,60 @@ export const blockedFingerprints = pgTable("blocked_fingerprints", {
   index("idx_blocked_fingerprints_expires_at").on(table.expiresAt),
 ]);
 
+// Email marketing and lead capture table
+export const emailSubscribers = pgTable("email_subscribers", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  email: varchar("email").notNull().unique(),
+  firstName: varchar("first_name"),
+  lastName: varchar("last_name"),
+  userId: varchar("user_id").references(() => users.id), // Link to user if they register
+  source: varchar("source").notNull(), // 'landing_page', 'chat_signup', 'content_download', 'newsletter'
+  isVerified: boolean("is_verified").default(false),
+  verificationToken: varchar("verification_token"),
+  subscriptionStatus: varchar("subscription_status").default('subscribed'), // 'subscribed', 'unsubscribed', 'bounced'
+  subscribedToNewsletter: boolean("subscribed_to_newsletter").default(true),
+  subscribedToMarketing: boolean("subscribed_to_marketing").default(true),
+  ipAddress: varchar("ip_address"),
+  userAgent: text("user_agent"),
+  metadata: jsonb("metadata"), // Additional subscriber data
+  verifiedAt: timestamp("verified_at"),
+  unsubscribedAt: timestamp("unsubscribed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Email campaigns tracking
+export const emailCampaigns = pgTable("email_campaigns", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: varchar("name").notNull(),
+  subject: varchar("subject").notNull(),
+  content: text("content").notNull(),
+  campaignType: varchar("campaign_type").notNull(), // 'welcome', 'newsletter', 'promotional', 'transactional'
+  status: varchar("status").default('draft'), // 'draft', 'scheduled', 'sent', 'cancelled'
+  totalSent: integer("total_sent").default(0),
+  totalOpened: integer("total_opened").default(0),
+  totalClicked: integer("total_clicked").default(0),
+  scheduledAt: timestamp("scheduled_at"),
+  sentAt: timestamp("sent_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Email campaign recipients and tracking
+export const emailCampaignRecipients = pgTable("email_campaign_recipients", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  campaignId: uuid("campaign_id").notNull().references(() => emailCampaigns.id),
+  subscriberId: uuid("subscriber_id").notNull().references(() => emailSubscribers.id),
+  status: varchar("status").default('pending'), // 'pending', 'sent', 'delivered', 'opened', 'clicked', 'bounced', 'complained'
+  sentAt: timestamp("sent_at"),
+  deliveredAt: timestamp("delivered_at"),
+  openedAt: timestamp("opened_at"),
+  clickedAt: timestamp("clicked_at"),
+  bouncedAt: timestamp("bounced_at"),
+  complainedAt: timestamp("complained_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   content: many(content),
@@ -180,6 +234,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   achievements: many(achievements),
   activities: many(activities),
   csvBatches: many(csvBatches),
+  emailSubscriptions: many(emailSubscribers),
 }));
 
 export const contentRelations = relations(content, ({ one }) => ({
@@ -227,6 +282,29 @@ export const csvBatchesRelations = relations(csvBatches, ({ one }) => ({
   user: one(users, {
     fields: [csvBatches.userId],
     references: [users.id],
+  }),
+}));
+
+export const emailSubscribersRelations = relations(emailSubscribers, ({ one, many }) => ({
+  user: one(users, {
+    fields: [emailSubscribers.userId],
+    references: [users.id],
+  }),
+  campaignRecipients: many(emailCampaignRecipients),
+}));
+
+export const emailCampaignsRelations = relations(emailCampaigns, ({ many }) => ({
+  recipients: many(emailCampaignRecipients),
+}));
+
+export const emailCampaignRecipientsRelations = relations(emailCampaignRecipients, ({ one }) => ({
+  campaign: one(emailCampaigns, {
+    fields: [emailCampaignRecipients.campaignId],
+    references: [emailCampaigns.id],
+  }),
+  subscriber: one(emailSubscribers, {
+    fields: [emailCampaignRecipients.subscriberId],
+    references: [emailSubscribers.id],
   }),
 }));
 
@@ -288,6 +366,23 @@ export const insertBlockedFingerprintSchema = createInsertSchema(blockedFingerpr
   createdAt: true,
 });
 
+export const insertEmailSubscriberSchema = createInsertSchema(emailSubscribers).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertEmailCampaignSchema = createInsertSchema(emailCampaigns).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertEmailCampaignRecipientSchema = createInsertSchema(emailCampaignRecipients).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -311,3 +406,9 @@ export type InsertBlockedIP = z.infer<typeof insertBlockedIPSchema>;
 export type BlockedIP = typeof blockedIPs.$inferSelect;
 export type InsertBlockedFingerprint = z.infer<typeof insertBlockedFingerprintSchema>;
 export type BlockedFingerprint = typeof blockedFingerprints.$inferSelect;
+export type InsertEmailSubscriber = z.infer<typeof insertEmailSubscriberSchema>;
+export type EmailSubscriber = typeof emailSubscribers.$inferSelect;
+export type InsertEmailCampaign = z.infer<typeof insertEmailCampaignSchema>;
+export type EmailCampaign = typeof emailCampaigns.$inferSelect;
+export type InsertEmailCampaignRecipient = z.infer<typeof insertEmailCampaignRecipientSchema>;
+export type EmailCampaignRecipient = typeof emailCampaignRecipients.$inferSelect;

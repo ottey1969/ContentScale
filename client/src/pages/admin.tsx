@@ -9,8 +9,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { Settings, Video, Save, Eye, Shield } from "lucide-react";
+import { Settings, Video, Save, Eye, Shield, Mail } from "lucide-react";
 import SecurityDashboard from "@/components/dashboard/SecurityDashboard";
+import { EmailMarketing } from "@/components/EmailMarketing";
 import { SEOHead, SEOConfigs } from "@/components/seo/SEOHead";
 
 interface AdminSettings {
@@ -252,7 +253,7 @@ export default function Admin() {
 
         {/* Tabbed Interface */}
         <Tabs defaultValue="settings" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 bg-slate-800 border-slate-700">
+          <TabsList className="grid w-full grid-cols-4 bg-slate-800 border-slate-700">
             <TabsTrigger value="settings" className="flex items-center space-x-2">
               <Video className="w-4 h-4" />
               <span>Settings</span>
@@ -260,6 +261,10 @@ export default function Admin() {
             <TabsTrigger value="credits" className="flex items-center space-x-2">
               <span>💳</span>
               <span>Credits</span>
+            </TabsTrigger>
+            <TabsTrigger value="emails" className="flex items-center space-x-2">
+              <Mail className="w-4 h-4" />
+              <span>Emails</span>
             </TabsTrigger>
             <TabsTrigger value="security" className="flex items-center space-x-2">
               <Shield className="w-4 h-4" />
@@ -396,6 +401,11 @@ export default function Admin() {
 
           <TabsContent value="credits" className="space-y-6 mt-6">
             <CreditManagement />
+          </TabsContent>
+
+          <TabsContent value="emails" className="space-y-6 mt-6">
+            {/* Email Marketing Dashboard */}
+            <EmailMarketing />
           </TabsContent>
 
           <TabsContent value="security" className="space-y-6 mt-6">

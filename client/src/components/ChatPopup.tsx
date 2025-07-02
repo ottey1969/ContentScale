@@ -228,6 +228,39 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
     setAuthError("");
 
     try {
+      // Validate and capture real email for marketing database
+      try {
+        const emailResponse = await fetch('/api/email-capture', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: userEmail.toLowerCase().trim(),
+            source: 'chat_signup',
+            subscribedToMarketing: true,
+            subscribedToNewsletter: true,
+          }),
+        });
+
+        if (!emailResponse.ok) {
+          const errorData = await emailResponse.json();
+          if (errorData.canRetry) {
+            setAuthError(errorData.message);
+            setIsLoggingIn(false);
+            return; // Stop login process if email is invalid
+          }
+        } else {
+          const validationData = await emailResponse.json();
+          console.log(`📧 Verified real email captured: ${userEmail} (Quality: ${validationData.quality?.score})`);
+        }
+      } catch (emailError) {
+        console.error('Email validation failed:', emailError);
+        setAuthError('Unable to verify email address. Please try again.');
+        setIsLoggingIn(false);
+        return;
+      }
+
       // Check admin credentials
       if (userEmail === "ottmar.francisca1969@gmail.com" && userPassword === "Utrecht160011.@") {
         setIsAuthenticated(true);
@@ -565,8 +598,10 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
                 <X className="w-4 h-4" />
               </Button>
             </div>
-            <div className="text-center text-sm text-gray-400">
-              New user? Get 1 free article on sign up!
+            <div className="text-center text-xs text-gray-400 space-y-1">
+              <p>✓ Use your real email address</p>
+              <p>✓ Temporary emails are not accepted</p>
+              <p>🎁 New user? Get 1 free article on sign up!</p>
             </div>
           </CardContent>
         </Card>

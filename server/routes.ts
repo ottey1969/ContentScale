@@ -575,6 +575,155 @@ User question: ${message}`
     }
   });
 
+  // Email capture endpoint for marketing from chat popup with validation
+  app.post('/api/email-capture', async (req, res) => {
+    try {
+      const { email, firstName, lastName, source = 'chat_signup' } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ message: 'Email is required' });
+      }
+
+      // Import email validation service
+      const { emailValidationService } = await import('./services/emailValidation');
+
+      // Validate email thoroughly
+      const validation = await emailValidationService.validateEmail(email);
+      
+      if (!validation.isValid) {
+        console.log(`❌ Invalid email rejected: ${email} - ${validation.reasons.join(', ')}`);
+        return res.status(400).json({ 
+          message: 'Please enter a valid, real email address',
+          details: validation.reasons,
+          canRetry: true
+        });
+      }
+
+      if (!validation.canAcceptMarketing) {
+        console.log(`⚠️ Low quality email rejected: ${email} - Score: ${validation.score}`);
+        return res.status(400).json({ 
+          message: 'Please use a permanent email address from a trusted provider',
+          details: ['Temporary or disposable emails are not accepted'],
+          canRetry: true
+        });
+      }
+
+      // Get request info for tracking
+      const ipAddress = req.ip || req.connection.remoteAddress || req.socket.remoteAddress || 'unknown';
+      const userAgent = req.get('User-Agent') || '';
+
+      // Check if email already exists
+      const existingSubscriber = await storage.getEmailSubscriber(email);
+      
+      if (existingSubscriber) {
+        // Update existing subscriber
+        await storage.updateEmailSubscriber(existingSubscriber.id, {
+          firstName: firstName || existingSubscriber.firstName,
+          lastName: lastName || existingSubscriber.lastName,
+          source: source,
+          subscribedToMarketing: true,
+          subscribedToNewsletter: true,
+          ipAddress,
+          userAgent,
+        });
+        
+        return res.json({ 
+          message: 'Email verified and updated successfully',
+          subscriber: existingSubscriber,
+          quality: validation
+        });
+      }
+
+      // Create new email subscriber with quality scoring
+      const newSubscriber = await storage.createEmailSubscriber({
+        email: email.toLowerCase().trim(),
+        firstName: firstName?.trim(),
+        lastName: lastName?.trim(),
+        source,
+        isVerified: validation.score >= 70, // Only auto-verify high quality emails
+        subscribedToNewsletter: true,
+        subscribedToMarketing: true,
+        ipAddress,
+        userAgent,
+        verifiedAt: validation.score >= 70 ? new Date() : undefined,
+        metadata: {
+          validationScore: validation.score,
+          validationReasons: validation.reasons,
+          qualityLevel: validation.score >= 90 ? 'high' : validation.score >= 70 ? 'medium' : 'low'
+        }
+      });
+
+      console.log(`📧 High-quality email captured: ${email} (Score: ${validation.score}) from ${source}`);
+      
+      res.json({ 
+        message: 'Real email verified and captured successfully',
+        subscriber: newSubscriber,
+        quality: validation
+      });
+
+    } catch (error) {
+      console.error('Email capture error:', error);
+      res.status(500).json({ message: 'Failed to capture email' });
+    }
+  });
+
+  // Get all captured emails for marketing (admin only)
+  app.get('/api/marketing/emails', async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const userEmail = req.user?.claims?.email;
+      
+      // Check admin privileges  
+      if (userId !== '44276721' && userEmail !== 'ottmar.francisca1969@gmail.com') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const subscribers = await storage.getAllEmailSubscribers();
+      const stats = await storage.getEmailStats();
+      
+      res.json({ 
+        subscribers,
+        stats,
+        total: subscribers.length
+      });
+
+    } catch (error) {
+      console.error('Error fetching emails:', error);
+      res.status(500).json({ message: 'Failed to fetch emails' });
+    }
+  });
+
+  // Export emails as CSV for marketing (admin only)
+  app.get('/api/marketing/emails/export', async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const userEmail = req.user?.claims?.email;
+      
+      // Check admin privileges  
+      if (userId !== '44276721' && userEmail !== 'ottmar.francisca1969@gmail.com') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const subscribers = await storage.getAllEmailSubscribers();
+      
+      // Generate CSV content
+      const csvHeader = 'Email,First Name,Last Name,Source,Verified,Subscribed,Created Date\n';
+      const csvContent = subscribers.map(sub => 
+        `"${sub.email}","${sub.firstName || ''}","${sub.lastName || ''}","${sub.source}","${sub.isVerified}","${sub.subscriptionStatus}","${sub.createdAt?.toISOString().split('T')[0] || ''}"`
+      ).join('\n');
+      
+      const csv = csvHeader + csvContent;
+      
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', 'attachment; filename="email-subscribers.csv"');
+      res.send(csv);
+
+    } catch (error) {
+      console.error('Error exporting emails:', error);
+      res.status(500).json({ message: 'Failed to export emails' });
+    }
+  });
+
   // PayPal payment routes for $2 content generation
   app.get("/api/paypal/setup", async (req, res) => {
     await loadPaypalDefault(req, res);
