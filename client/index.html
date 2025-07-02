@@ -245,6 +245,13 @@
     </script>
     
     <!-- ADA Bundle Accessibility Widget -->
-    <script>!function(){function e(){var e=document.createElement("script");e.type="text/javascript",e.async=!0,e.setAttribute("embed-id","d2680fb9-8e14-4fd2-8c8e-c7d67cae8541"),e.src="https://embed.adabundle.com/embed-scripts/d2680fb9-8e14-4fd2-8c8e-c7d67cae8541",document.body.appendChild(e)}"complete"===document.readyState||"interactive"===document.readyState?e():document.addEventListener("DOMContentLoaded",e)}();</script>
+    <script>
+      console.log('Loading ADA Bundle for domain:', window.location.hostname);
+    </script>
+    <script src="https://embed.adabundle.com/embed-scripts/d2680fb9-8e14-4fd2-8c8e-c7d67cae8541" 
+            embed-id="d2680fb9-8e14-4fd2-8c8e-c7d67cae8541" 
+            async 
+            onload="console.log('ADA Bundle script loaded')"
+            onerror="console.log('ADA Bundle script failed to load')"></script>
   </body>
 </html>
