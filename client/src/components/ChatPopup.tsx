@@ -44,29 +44,12 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  // Check if current user is admin based on IP (will be determined by server)
-  const [isAdminMode, setIsAdminMode] = useState(true); // Default to admin mode
-  const [userCredits, setUserCredits] = useState(999999);
-
-  // Check admin status on mount
-  useEffect(() => {
-    fetch('/api/check-admin')
-      .then(res => res.json())
-      .then(data => {
-        console.log('Admin check:', data);
-        setIsAdminMode(data.isAdmin);
-        setUserCredits(data.credits);
-      })
-      .catch(err => {
-        console.log('Admin check failed, defaulting to admin mode:', err);
-        setIsAdminMode(true);
-        setUserCredits(999999);
-      });
-  }, []);
+  // User credits system - everyone starts with 1 free article
+  const [userCredits, setUserCredits] = useState(1);
   const [hasUsedFreeContent, setHasUsedFreeContent] = useState(false);
   const [showPaymentPopup, setShowPaymentPopup] = useState(false);
-  const [userEmail] = useState(isAdminMode ? "ottmar.francisca1969@gmail.com" : "user@example.com");
-  const isUnlimitedUser = isAdminMode;
+  const [userEmail] = useState("user@example.com");
+  const isUnlimitedUser = false;
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -268,11 +251,6 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
             <div>
               <h3 className="text-white font-bold text-xl flex items-center gap-2">
                 Sofeia AI
-                {userCredits >= 999999 && (
-                  <span className="bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs px-2 py-1 rounded-full font-semibold">
-                    UNLIMITED TESTING
-                  </span>
-                )}
               </h3>
               <div className="flex items-center space-x-2">
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
@@ -282,7 +260,7 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
           </div>
           <div className="flex items-center gap-4">
             <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/50 px-4 py-2">
-              5 Free Questions
+              {userCredits} Free Articles
             </Badge>
             <Button
               variant="ghost"
