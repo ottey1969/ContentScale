@@ -593,30 +593,59 @@ export default function Landing() {
               </CardContent>
             </Card>
 
-            {/* Gamified Experience */}
+            {/* Professional Analytics */}
             <Card className="group bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700 hover:border-yellow-500/50 transition-all duration-500 transform hover:scale-105 hover:shadow-2xl hover:shadow-yellow-500/20">
               <CardContent className="p-6">
                 <div className="w-12 h-12 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center mb-4 group-hover:animate-pulse">
                   <Trophy className="w-6 h-6 text-white" />
                 </div>
                 <h3 className="text-xl font-semibold mb-2 text-white group-hover:text-yellow-400 transition-colors">
-                  Gamified Experience
+                  Professional Analytics
                 </h3>
                 <p className="text-gray-400 mb-4 group-hover:text-gray-300 transition-colors">
-                  Achievement system with progress tracking and milestone celebrations.
+                  Comprehensive content performance tracking with ROI analysis and optimization recommendations.
                 </p>
                 <ul className="text-sm text-gray-400 space-y-2 group-hover:text-gray-300 transition-colors">
                   <li className="flex items-center space-x-2">
                     <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full animate-pulse"></div>
-                    <span>Progress bars & badges</span>
+                    <span>Performance metrics & KPIs</span>
                   </li>
                   <li className="flex items-center space-x-2">
                     <div className="w-1.5 h-1.5 bg-orange-400 rounded-full animate-pulse delay-200"></div>
-                    <span>Streak counters</span>
+                    <span>ROI tracking & analysis</span>
                   </li>
                   <li className="flex items-center space-x-2">
                     <div className="w-1.5 h-1.5 bg-red-400 rounded-full animate-pulse delay-400"></div>
-                    <span>Milestone rewards</span>
+                    <span>Optimization recommendations</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            {/* Viral Marketing Engine - 6th Card */}
+            <Card className="group bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700 hover:border-purple-500/50 transition-all duration-500 transform hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/20">
+              <CardContent className="p-6">
+                <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-xl flex items-center justify-center mb-4 group-hover:animate-pulse">
+                  <Users className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2 text-white group-hover:text-purple-400 transition-colors">
+                  Viral Marketing Engine
+                </h3>
+                <p className="text-gray-400 mb-4 group-hover:text-gray-300 transition-colors">
+                  Automated social media campaigns with viral content generation and engagement optimization.
+                </p>
+                <ul className="text-sm text-gray-400 space-y-2 group-hover:text-gray-300 transition-colors">
+                  <li className="flex items-center space-x-2">
+                    <div className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse"></div>
+                    <span>Viral content patterns</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <div className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-pulse delay-200"></div>
+                    <span>Multi-platform automation</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse delay-400"></div>
+                    <span>Engagement amplification</span>
                   </li>
                 </ul>
               </CardContent>
