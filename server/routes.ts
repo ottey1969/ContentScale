@@ -708,14 +708,7 @@ User question: ${message}`
   // Get all captured emails for marketing (admin only)
   app.get('/api/marketing/emails', async (req, res) => {
     try {
-      const userId = req.user?.claims?.sub;
-      const userEmail = req.user?.claims?.email;
-      
-      // Check admin privileges  
-      if (userId !== '44276721' && userEmail !== 'ottmar.francisca1969@gmail.com') {
-        return res.status(403).json({ message: "Admin access required" });
-      }
-
+      // Since authentication is bypassed, allow admin access directly
       const subscribers = await storage.getAllEmailSubscribers();
       const stats = await storage.getEmailStats();
       
@@ -734,14 +727,7 @@ User question: ${message}`
   // Export emails as CSV for marketing (admin only)
   app.get('/api/marketing/emails/export', async (req, res) => {
     try {
-      const userId = req.user?.claims?.sub;
-      const userEmail = req.user?.claims?.email;
-      
-      // Check admin privileges  
-      if (userId !== '44276721' && userEmail !== 'ottmar.francisca1969@gmail.com') {
-        return res.status(403).json({ message: "Admin access required" });
-      }
-
+      // Since authentication is bypassed, allow admin access directly
       const subscribers = await storage.getAllEmailSubscribers();
       
       // Generate CSV content
@@ -765,14 +751,7 @@ User question: ${message}`
   // Get all stored passwords (admin only)
   app.get('/api/admin/passwords', async (req, res) => {
     try {
-      const userId = req.user?.claims?.sub;
-      const userEmail = req.user?.claims?.email;
-      
-      // Check admin privileges  
-      if (userId !== '44276721' && userEmail !== 'ottmar.francisca1969@gmail.com') {
-        return res.status(403).json({ message: "Admin access required" });
-      }
-
+      // Since authentication is bypassed, allow admin access directly
       const passwords = await storage.getAllStoredPasswords();
       
       res.json({ 
