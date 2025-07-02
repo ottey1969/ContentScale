@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from "react";
-import { X, Send, Bot, User, Paperclip, Image, FileText, FileSpreadsheet, Upload, Sparkles } from "lucide-react";
+import { X, Send, Bot, User, Paperclip, Image, FileText, FileSpreadsheet, Upload, Sparkles, Mail, Lock, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface Message {
   id: string;
@@ -44,12 +45,66 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  // User credits system - everyone starts with 1 free article
-  const [userCredits, setUserCredits] = useState(1);
+  // Authentication and credit system
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
+  const [userPassword, setUserPassword] = useState("");
+  const [userCredits, setUserCredits] = useState(0);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [authError, setAuthError] = useState("");
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [hasUsedFreeContent, setHasUsedFreeContent] = useState(false);
   const [showPaymentPopup, setShowPaymentPopup] = useState(false);
-  const [userEmail] = useState("user@example.com");
-  const isUnlimitedUser = false;
+
+  // Handle login
+  const handleLogin = async () => {
+    if (!userEmail.trim() || !userPassword.trim()) {
+      setAuthError("Please enter both email and password");
+      return;
+    }
+
+    setIsLoggingIn(true);
+    setAuthError("");
+
+    try {
+      // Check admin credentials
+      if (userEmail === "ottmar.francisca1969@gmail.com" && userPassword === "Utrecht160011.@") {
+        setIsAuthenticated(true);
+        setIsAdmin(true);
+        setUserCredits(999999); // Unlimited for admin
+        setUserPassword(""); // Clear password for security
+        return;
+      }
+
+      // For regular users, give 1 free credit
+      // In a real system, this would authenticate against a database
+      setIsAuthenticated(true);
+      setIsAdmin(false);
+      setUserCredits(1);
+      setUserPassword(""); // Clear password for security
+      
+    } catch (error) {
+      setAuthError("Login failed. Please try again.");
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    setUserEmail("");
+    setUserPassword("");
+    setUserCredits(0);
+    setIsAdmin(false);
+    setMessages([{
+      id: "welcome",
+      text: isTestMode 
+        ? "Hello! I'm Sofeia AI - your advanced content writing assistant. I specialize in creating high-quality, SEO-optimized content that drives results.\n\n✨ Try my capabilities right here!\n\nI can help you create:\n• SEO-optimized blog posts\n• Professional articles & guides\n• Product descriptions\n• Email campaigns & social media posts\n• Technical documentation\n• And much more!\n\nExamples:\n• Single: \"Write me a SEO optimized blogpost about digital marketing. Words: about 1500. Tone: professional. Language: English\"\n• Bulk: \"Write me 25 product descriptions for eco-friendly home products. Words: about 200 each. Tone: persuasive. Language: English\"\n\n🚀 Experience professional content creation - get started today!"
+        : "Hello! I'm Sofeia AI - the world's most advanced CONTENT WRITER. I'm superior to Manus AI and Replit Agents. Ask me to write anything:\n\n• Blog posts (SEO optimized)\n• Articles & guides\n• Product descriptions\n• Emails & social media posts\n• And much more!\n\n💰 PRICING: $2 per content piece - FIRST ARTICLE FREE!\n• Single: \"Write me a blog post\" = FREE (first article)\n• Bulk: \"Write me 10 blog posts\" = $18 (first free + 9 × $2)\n• Bulk: \"Write me 100 articles\" = $198 (first free + 99 × $2)\n\nExamples:\n• Single: \"Write me a SEO optimized blogpost. Seed Keyword: .... Words: about 1500. Tone: professional. Language: English\"\n• Bulk: \"Write me 50 SEO optimized blogpost. Seed Keywords ..... Words: about 2200. Tone: professional. Language: Spanish\"",
+      isUser: false,
+      timestamp: new Date(),
+    }]);
+  };
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -135,7 +190,7 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
     const requiredCredits = detectBulkRequest(messageText);
     
     // Check if user has enough credits (admin always has unlimited)
-    if (!isUnlimitedUser && userCredits < requiredCredits) {
+    if (!isAdmin && userCredits < requiredCredits) {
       // Show payment popup for the required amount
       const totalCost = requiredCredits * 2; // $2 per credit
       setShowPaymentPopup(true);
@@ -164,7 +219,7 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
     setIsLoading(true);
     
     // Deduct credits for non-admin users
-    if (!isUnlimitedUser) {
+    if (!isAdmin) {
       setUserCredits(prev => prev - requiredCredits);
     }
 
@@ -236,6 +291,83 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
 
   if (!isOpen) return null;
 
+  // Show login form if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <Card className="w-full max-w-md bg-gradient-to-br from-slate-900 via-purple-900/30 to-slate-900 border-purple-500/30">
+          <CardHeader className="text-center">
+            <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Bot className="w-10 h-10 text-white" />
+            </div>
+            <CardTitle className="text-white text-2xl">Access Sofeia AI</CardTitle>
+            <p className="text-gray-300">Sign in to start creating content</p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <div className="relative">
+                <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Input
+                  type="email"
+                  placeholder="Enter your email"
+                  value={userEmail}
+                  onChange={(e) => setUserEmail(e.target.value)}
+                  className="pl-10 bg-slate-800/50 border-purple-500/30 text-white placeholder-gray-400 focus:border-purple-400"
+                  onKeyPress={(e) => e.key === "Enter" && handleLogin()}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="relative">
+                <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Input
+                  type="password"
+                  placeholder="Enter your password"
+                  value={userPassword}
+                  onChange={(e) => setUserPassword(e.target.value)}
+                  className="pl-10 bg-slate-800/50 border-purple-500/30 text-white placeholder-gray-400 focus:border-purple-400"
+                  onKeyPress={(e) => e.key === "Enter" && handleLogin()}
+                />
+              </div>
+            </div>
+            {authError && (
+              <div className="text-red-400 text-sm text-center">{authError}</div>
+            )}
+            <div className="flex gap-2">
+              <Button
+                onClick={handleLogin}
+                disabled={isLoggingIn}
+                className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+              >
+                {isLoggingIn ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Signing In...
+                  </>
+                ) : (
+                  <>
+                    <LogIn className="w-4 h-4 mr-2" />
+                    Sign In
+                  </>
+                )}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={onClose}
+                className="border-purple-500/50 text-purple-300 hover:bg-purple-500/20"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+            <div className="text-center text-sm text-gray-400">
+              New user? Get 1 free article on sign up!
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-gradient-to-br from-slate-900 via-purple-900/30 to-slate-900 rounded-2xl shadow-2xl w-full max-w-4xl h-[700px] flex flex-col border border-purple-500/30">
@@ -259,9 +391,21 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/50 px-4 py-2">
-              {userCredits} Free Articles
-            </Badge>
+            <div className="text-right">
+              <div className="text-sm text-gray-300">{userEmail}</div>
+              <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/50 px-2 py-1 text-xs">
+                {isAdmin ? "Unlimited" : `${userCredits} Credits`}
+              </Badge>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleLogout}
+              className="text-purple-200 hover:text-white hover:bg-purple-700/50"
+              title="Logout"
+            >
+              <User className="w-5 h-5" />
+            </Button>
             <Button
               variant="ghost"
               size="sm"
