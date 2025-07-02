@@ -45,6 +45,16 @@ export function KeywordResearch({ onClose, userCredits = 0, isAdmin = false, onC
       return;
     }
 
+    // Security check: Require authentication for keyword research
+    if (!userCredits && !isAdmin) {
+      toast({
+        title: "Authentication Required",
+        description: "Please login to access keyword research features.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     // Check if user has enough credits (1 credit required for keyword research)
     if (!isAdmin && userCredits < 1) {
       if (onPaymentRequired) {

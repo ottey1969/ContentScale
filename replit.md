@@ -157,6 +157,7 @@ Test all functionality with the browser console open (F12) for debugging
 - June 30, 2025. Added admin credit management system - admins can grant free credits to users via email address
 - July 2, 2025. Implemented email-based authentication in ChatPopup - users must login to access credits, prevents refresh abuse, admin access: ottmar.francisca1969@gmail.com with unlimited credits
 - July 2, 2025. Disconnected dashboard completely - all functionality now works from landing page, fixed black screen issue by removing dashboard redirects, simplified authentication to work directly from Sofeia chat popup
+- July 2, 2025. Enhanced security system: Added device fingerprinting to prevent multiple accounts from same device/IP, implemented password storage system that remembers user passwords and prevents changes, added "Search Keywords" button on landing page that requires authentication, comprehensive security checks to limit one account per device
 
 ## User Preferences
 

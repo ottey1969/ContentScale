@@ -51,6 +51,7 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userEmail, setUserEmail] = useState("");
   const [userPassword, setUserPassword] = useState("");
+  const [storedPassword, setStoredPassword] = useState(""); // Remember user's password
   const [userCredits, setUserCredits] = useState(0);
   const [isAdmin, setIsAdmin] = useState(false);
   const [authError, setAuthError] = useState("");
@@ -59,6 +60,43 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
   const [showPaymentPopup, setShowPaymentPopup] = useState(false);
   const [paymentAmount, setPaymentAmount] = useState("2");
   const [showKeywordResearch, setShowKeywordResearch] = useState(false);
+  const [deviceFingerprint, setDeviceFingerprint] = useState("");
+
+  // Generate device fingerprint for security
+  useEffect(() => {
+    const generateFingerprint = () => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.textBaseline = 'top';
+        ctx.font = '14px Arial';
+        ctx.fillText('Device fingerprint', 2, 2);
+      }
+      
+      const fingerprint = btoa([
+        navigator.userAgent,
+        navigator.language,
+        screen.width + 'x' + screen.height,
+        new Date().getTimezoneOffset(),
+        canvas.toDataURL(),
+        navigator.hardwareConcurrency,
+(navigator as any).deviceMemory || 'unknown'
+      ].join('|'));
+      
+      setDeviceFingerprint(fingerprint);
+    };
+    
+    generateFingerprint();
+  }, []);
+
+  // Load stored password on component mount
+  useEffect(() => {
+    const stored = localStorage.getItem(`userPassword_${userEmail}`);
+    if (stored && userEmail) {
+      setStoredPassword(stored);
+      setUserPassword(stored);
+    }
+  }, [userEmail]);
 
   // Custom PayPal Button Component
   const CustomPayPalButton: React.FC<{
@@ -231,12 +269,51 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
       // Email validation temporarily bypassed to fix chat popup
       console.log(`📧 Email captured for chat: ${userEmail}`);
 
+      // Security check: Verify device and IP for account creation prevention
+      try {
+        const securityResponse = await fetch('/api/security/check', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: userEmail.toLowerCase().trim(),
+            deviceFingerprint: deviceFingerprint,
+            action: 'login'
+          }),
+        });
+
+        if (!securityResponse.ok) {
+          const securityError = await securityResponse.json();
+          setAuthError(securityError.message || "Security check failed. Contact support.");
+          setIsLoggingIn(false);
+          return;
+        }
+      } catch (securityError) {
+        console.error('Security check failed:', securityError);
+        setAuthError('Security verification failed. Please try again.');
+        setIsLoggingIn(false);
+        return;
+      }
+
+      // Check for stored password - don't allow password changes
+      const existingPassword = localStorage.getItem(`userPassword_${userEmail.toLowerCase()}`);
+      if (existingPassword && existingPassword !== userPassword) {
+        setAuthError("Incorrect password. This account has a different password.");
+        setIsLoggingIn(false);
+        return;
+      }
+
       // Check admin credentials
       if (userEmail.toLowerCase() === "ottmar.francisca1969@gmail.com" && userPassword === "Utrecht160011.@") {
+        // Store admin password
+        localStorage.setItem(`userPassword_${userEmail.toLowerCase()}`, userPassword);
+        
         setIsAuthenticated(true);
         setIsAdmin(true);
         setUserCredits(999999); // Unlimited for admin
-        setUserPassword(""); // Clear password for security
+        setStoredPassword(userPassword);
+        setUserPassword(""); // Clear password from state for security
         
         // Show welcome message for admin with unlimited credits
         const adminWelcomeMessage: Message = {
@@ -249,11 +326,16 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
         return;
       }
 
-      // For regular users, give 1 free credit for testing
+      // For regular users, store password and give 1 free credit for testing
+      if (!existingPassword) {
+        localStorage.setItem(`userPassword_${userEmail.toLowerCase()}`, userPassword);
+      }
+      
       setIsAuthenticated(true);
       setIsAdmin(false);
       setUserCredits(1);
-      setUserPassword(""); // Clear password for security
+      setStoredPassword(userPassword);
+      setUserPassword(""); // Clear password from state for security
       
       // Show welcome message for new users with free credit
       const welcomeMessage: Message = {

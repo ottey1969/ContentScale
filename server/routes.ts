@@ -51,6 +51,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // Security check endpoint for device fingerprinting
+  app.post('/api/security/check', async (req, res) => {
+    try {
+      const { email, deviceFingerprint, action } = req.body;
+      const userIP = req.ip || req.connection.remoteAddress || req.socket.remoteAddress || 'unknown';
+      
+      // Check if this device/IP combination has been used for multiple accounts
+      const securityResult = await securityService.checkDeviceSecurity({
+        email: email,
+        deviceFingerprint: deviceFingerprint,
+        ipAddress: userIP,
+        action: action
+      });
+
+      if (!securityResult.allowed) {
+        return res.status(403).json({
+          message: securityResult.reason || "Security check failed. Multiple accounts detected from this device.",
+          blocked: true
+        });
+      }
+
+      // Log security event
+      await securityService.logSecurityEvent({
+        ipAddress: userIP || 'unknown',
+        fingerprint: deviceFingerprint,
+        userAgent: req.headers['user-agent'] || '',
+        eventType: action,
+        timestamp: new Date(),
+        metadata: { deviceFingerprint, action }
+      });
+
+      res.json({ allowed: true, message: "Security check passed" });
+    } catch (error) {
+      console.error('Security check error:', error);
+      res.status(500).json({ message: "Security check failed" });
+    }
+  });
+
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {

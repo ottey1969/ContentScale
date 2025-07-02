@@ -193,6 +193,67 @@ class SecurityService {
   }
 
   /**
+   * Check device security for account creation prevention
+   */
+  async checkDeviceSecurity(params: {
+    email: string;
+    deviceFingerprint: string;
+    ipAddress: string;
+    action: string;
+  }): Promise<{ allowed: boolean; reason?: string }> {
+    try {
+      const { email, deviceFingerprint, ipAddress, action } = params;
+      
+      // Check if IP is blocked
+      if (await this.isBlocked(ipAddress, deviceFingerprint)) {
+        return { 
+          allowed: false, 
+          reason: "Your device has been temporarily blocked for security reasons." 
+        };
+      }
+
+      // Check for multiple accounts from same device/IP (prevent account farming)
+      const last24Hours = new Date(Date.now() - 24 * 60 * 60 * 1000);
+      const recentLogins = await storage.getSecurityEventCount(
+        undefined, // any user
+        ipAddress,
+        deviceFingerprint,
+        'login',
+        last24Hours
+      );
+
+      // Allow admin email to bypass restrictions
+      if (email === "ottmar.francisca1969@gmail.com") {
+        return { allowed: true };
+      }
+
+      // Block if too many different accounts from same device/IP
+      if (recentLogins > 3) {
+        await this.blockTemporary(ipAddress, deviceFingerprint, 60); // Block for 1 hour
+        
+        await this.logSecurityEvent({
+          ipAddress,
+          fingerprint: deviceFingerprint,
+          eventType: 'suspicious_activity',
+          userAgent: 'Multiple account attempts',
+          timestamp: new Date(),
+          metadata: { email, recentLogins, action: 'account_farming_prevention' }
+        });
+
+        return { 
+          allowed: false, 
+          reason: "Too many accounts created from this device. Please contact support." 
+        };
+      }
+
+      return { allowed: true };
+    } catch (error) {
+      console.error('Device security check error:', error);
+      return { allowed: true }; // Allow on error to prevent blocking legitimate users
+    }
+  }
+
+  /**
    * Analyze user behavior patterns for anomalies
    */
   async analyzeUserBehavior(userId: string): Promise<{ risk: 'low' | 'medium' | 'high'; reasons: string[] }> {
