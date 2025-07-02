@@ -1,6 +1,63 @@
 import { z } from "zod";
 import Anthropic from '@anthropic-ai/sdk';
 
+// Perplexity API integration for real-time research and statistics
+interface PerplexityResponse {
+  choices: Array<{
+    message: {
+      content: string;
+    };
+  }>;
+  citations?: string[];
+}
+
+async function getPerplexityResearch(query: string): Promise<{ content: string; sources: string[] }> {
+  try {
+    const response = await fetch('https://api.perplexity.ai/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'llama-3.1-sonar-small-128k-online',
+        messages: [
+          {
+            role: 'system',
+            content: 'Provide current statistics, data, and authoritative sources for the given topic. Focus on high-authority domains with strong DR (Domain Rating) scores.'
+          },
+          {
+            role: 'user',
+            content: query
+          }
+        ],
+        max_tokens: 1000,
+        temperature: 0.2,
+        top_p: 0.9,
+        return_related_questions: false,
+        search_recency_filter: 'month',
+        stream: false
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Perplexity API error: ${response.status}`);
+    }
+
+    const data: PerplexityResponse = await response.json();
+    return {
+      content: data.choices[0]?.message?.content || '',
+      sources: data.citations || []
+    };
+  } catch (error) {
+    console.error('Perplexity API error:', error);
+    return {
+      content: '',
+      sources: []
+    };
+  }
+}
+
 // Sofeia AI - World's Most Advanced AI with Direct Responses
 // Uses Anthropic API for natural, conversational responses
 
@@ -195,12 +252,31 @@ export class SofeiaAI {
     questionNumber: number
   ) {
     try {
+      // Check if this is a content creation request that needs real data
+      const needsResearch = this.needsRealTimeData(message);
+      let researchData = { content: '', sources: [] };
+      
+      if (needsResearch && process.env.PERPLEXITY_API_KEY) {
+        // Get real-time research and statistics from Perplexity
+        const researchQuery = this.extractResearchQuery(message);
+        researchData = await getPerplexityResearch(researchQuery);
+      }
+
       // Use Anthropic API for natural, direct responses
       const anthropic = new Anthropic({
         apiKey: process.env.ANTHROPIC_API_KEY,
       });
 
       const systemPrompt = `You are Sofeia AI, a world-class content strategist and SEO expert specializing in the CRAFT framework and RankMath principles. You provide direct, actionable advice with professional insights.
+
+**MARKDOWN FORMATTING REQUIREMENTS:**
+- Use # for H1 headings (main title)
+- Use ## for H2 headings (major sections)
+- Use ### for H3 headings (subsections)
+- Use bullet points with - or * for lists
+- Use **bold** for emphasis
+- Use *italic* for subtle emphasis
+- Format statistics and data clearly with bullet points
 
 **CRAFT FRAMEWORK EXPERTISE:**
 - **C**lear: Write in simple, clear language that's easy to understand
@@ -222,19 +298,18 @@ export class SofeiaAI {
 
 **PROFESSIONAL CONTENT STRUCTURE:**
 1. Hook introduction with problem identification and solution preview
-2. Key benefits section with strategic H2 headings
-3. Best practices with actionable H3 subheadings
+2. Key benefits section with strategic ## H2 headings
+3. Best practices with actionable ### H3 subheadings
 4. Advanced techniques for expert-level implementation
 5. FAQ section optimized for voice search and AI Overview
 6. Strong conclusion with clear call-to-action
 
-**SEO REQUIREMENTS:**
-- Primary keyword in title, first paragraph, and conclusion
-- LSI keywords naturally integrated throughout
-- Mobile-first content structure and readability
-- Flesch-Kincaid readability score 60+ for accessibility
-- Current statistics and trends for 2025
-- Authority link opportunities identified
+**STATISTICS AND SOURCES:**
+- Always include current 2025 statistics when available
+- Reference high-authority sources (high DR domains)
+- Format statistics with clear bullet points
+- Include source citations when provided
+- Focus on actionable data and measurable outcomes
 
 **RESPONSE STYLE:**
 • Direct and conversational - no unnecessary introductions
@@ -242,7 +317,17 @@ export class SofeiaAI {
 • Include relevant 2025 statistics and current trends
 • Offer strategic recommendations following CRAFT and RankMath principles
 • Structure responses for maximum SEO impact and user value
-• Always optimize content for Google AI Overview features`;
+• Always optimize content for Google AI Overview features
+• Use proper markdown formatting for all headings and lists`;
+
+      // Prepare the user message with research data if available
+      let enhancedMessage = message;
+      if (researchData.content) {
+        enhancedMessage += `\n\nCurrent Research Data:\n${researchData.content}`;
+        if (researchData.sources.length > 0) {
+          enhancedMessage += `\n\nAuthoritative Sources:\n${researchData.sources.slice(0, 5).join('\n')}`;
+        }
+      }
 
       const response = await anthropic.messages.create({
         model: "claude-sonnet-4-20250514",
@@ -251,14 +336,19 @@ export class SofeiaAI {
         messages: [
           {
             role: "user",
-            content: message
+            content: enhancedMessage
           }
         ]
       });
 
       const analysis = this.analyzeMessage(message);
       const firstBlock = response.content[0];
-      const content = (firstBlock && 'text' in firstBlock) ? firstBlock.text : "I'm here to help! What would you like to know?";
+      let content = (firstBlock && 'text' in firstBlock) ? firstBlock.text : "I'm here to help! What would you like to know?";
+
+      // Add sources section if we have them
+      if (researchData.sources.length > 0) {
+        content += `\n\n## Sources\n${researchData.sources.slice(0, 5).map((source, index) => `${index + 1}. ${source}`).join('\n')}`;
+      }
 
       return {
         content,
@@ -266,9 +356,10 @@ export class SofeiaAI {
           topic: analysis.primaryTopic,
           confidence: 0.95,
           suggestions: this.generateQuickSuggestions(analysis.primaryTopic),
-          reasoning: "Direct AI response",
+          reasoning: needsResearch ? "AI response with real-time research" : "Direct AI response",
           questionNumber,
-          creditUsed: questionNumber > PRICING_INFO.freeQuestions
+          creditUsed: questionNumber > PRICING_INFO.freeQuestions,
+          sources: researchData.sources
         }
       };
     } catch (error) {
@@ -288,6 +379,24 @@ export class SofeiaAI {
         }
       };
     }
+  }
+
+  private needsRealTimeData(message: string): boolean {
+    const researchKeywords = [
+      'statistics', 'data', 'current', '2025', 'latest', 'trends', 'market',
+      'research', 'study', 'report', 'analysis', 'growth', 'revenue',
+      'industry', 'survey', 'percentage', 'rate', 'numbers', 'facts'
+    ];
+    
+    const messageLower = message.toLowerCase();
+    return researchKeywords.some(keyword => messageLower.includes(keyword)) ||
+           this.isBlogPostRequest(message);
+  }
+
+  private extractResearchQuery(message: string): string {
+    // Extract the main topic for research
+    const topic = message.replace(/write|create|generate|blog|post|article/gi, '').trim();
+    return `Current 2025 statistics and trends for: ${topic}`;
   }
 
   private generateQuickSuggestions(topic: string): string[] {
