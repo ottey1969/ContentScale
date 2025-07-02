@@ -173,9 +173,18 @@ export default function Admin() {
   // Save settings mutation
   const saveSettingsMutation = useMutation({
     mutationFn: async (newSettings: AdminSettings) => {
-      return await apiRequest('/api/admin/settings', 'POST', newSettings);
+      console.log("🚀 Mutation started with settings:", newSettings);
+      try {
+        const result = await apiRequest('POST', '/api/admin/settings', newSettings);
+        console.log("✅ Mutation successful:", result);
+        return result;
+      } catch (error) {
+        console.error("❌ Mutation failed:", error);
+        throw error;
+      }
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log("✅ Mutation onSuccess triggered:", data);
       toast({
         title: "Settings saved",
         description: "Admin settings have been updated successfully.",
@@ -184,6 +193,7 @@ export default function Admin() {
       queryClient.invalidateQueries({ queryKey: ['/api/public/video-settings'] });
     },
     onError: (error) => {
+      console.error("❌ Mutation onError triggered:", error);
       toast({
         title: "Error",
         description: "Failed to save settings. Please try again.",
@@ -194,6 +204,22 @@ export default function Admin() {
   });
 
   const handleSave = () => {
+    console.log("🔧 Admin Save button clicked");
+    console.log("Current settings:", settings);
+    console.log("Is admin:", isAdmin);
+    console.log("User:", user);
+    
+    if (!isAdmin) {
+      console.error("❌ Not admin, cannot save");
+      toast({
+        title: "Error",
+        description: "Admin access required",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    console.log("✅ Calling save mutation...");
     saveSettingsMutation.mutate(settings);
   };
 
