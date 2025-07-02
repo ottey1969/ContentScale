@@ -157,6 +157,89 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <!-- ADA Bundle Accessibility Script -->
+    <script>
+      !function(){
+        function e(){
+          var e=document.createElement("script");
+          e.type="text/javascript",e.async=!0,
+          e.setAttribute("embed-id","d2680fb9-8e14-4fd2-8c8e-c7d67cae8541"),
+          e.src="https://embed.adabundle.com/embed-scripts/d2680fb9-8e14-4fd2-8c8e-c7d67cae8541",
+          window.top.document.getElementsByTagName("body")[0].appendChild(e)
+        }
+        "complete"===document.readyState||"interactive"===document.readyState?e():document.addEventListener("DOMContentLoaded",e)
+      }();
+      
+      // Custom branding replacement for ADA Bundle
+      function replaceADABranding() {
+        const observer = new MutationObserver(function(mutations) {
+          mutations.forEach(function(mutation) {
+            if (mutation.type === 'childList') {
+              // Look for ADA Bundle elements and replace branding
+              const adaElements = document.querySelectorAll('[id*="ada"], [class*="ada"], [data-*="ada"]');
+              adaElements.forEach(function(element) {
+                // Find and replace "ADA Bundle" or "POWERED BY" text
+                if (element.textContent && (
+                  element.textContent.includes('ADA Bundle') || 
+                  element.textContent.includes('POWERED BY') ||
+                  element.textContent.includes('adabundle')
+                )) {
+                  element.innerHTML = element.innerHTML.replace(
+                    /ADA Bundle|POWERED BY.*|adabundle.*/gi, 
+                    'POWERED BY ❤️ SOFEIA (ContentScale.site)'
+                  );
+                }
+              });
+              
+              // Also check for links to adabundle.com
+              const links = document.querySelectorAll('a[href*="adabundle"]');
+              links.forEach(function(link) {
+                link.href = 'https://contentscale.site';
+                link.textContent = 'POWERED BY ❤️ SOFEIA (ContentScale.site)';
+              });
+            }
+          });
+        });
+        
+        // Start observing
+        observer.observe(document.body, {
+          childList: true,
+          subtree: true,
+          characterData: true
+        });
+        
+        // Also run immediately in case content is already loaded
+        setTimeout(function() {
+          const adaElements = document.querySelectorAll('[id*="ada"], [class*="ada"], [data-*="ada"]');
+          adaElements.forEach(function(element) {
+            if (element.textContent && (
+              element.textContent.includes('ADA Bundle') || 
+              element.textContent.includes('POWERED BY') ||
+              element.textContent.includes('adabundle')
+            )) {
+              element.innerHTML = element.innerHTML.replace(
+                /ADA Bundle|POWERED BY.*|adabundle.*/gi, 
+                'POWERED BY ❤️ SOFEIA (ContentScale.site)'
+              );
+            }
+          });
+          
+          const links = document.querySelectorAll('a[href*="adabundle"]');
+          links.forEach(function(link) {
+            link.href = 'https://contentscale.site';
+            link.textContent = 'POWERED BY ❤️ SOFEIA (ContentScale.site)';
+          });
+        }, 2000);
+      }
+      
+      // Initialize branding replacement
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', replaceADABranding);
+      } else {
+        replaceADABranding();
+      }
+    </script>
+    
     <!-- This is a replit script which adds a banner on the top of the page when opened in development mode outside the replit environment -->
     <script type="text/javascript" src="https://replit.com/public/js/replit-dev-banner.js"></script>
   </body>
