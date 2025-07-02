@@ -24,7 +24,7 @@ async function getPerplexityResearch(query: string): Promise<{ content: string; 
         messages: [
           {
             role: 'system',
-            content: 'Provide current statistics, data, and authoritative sources for the given topic. Focus on high-authority domains with strong DR (Domain Rating) scores.'
+            content: 'Provide current statistics and data from government sources (.gov), official institutions (.edu), and high-authority business sources. Exclude competitor websites and focus on authoritative data sources. For local businesses, prioritize local government and chamber of commerce data.'
           },
           {
             role: 'user',
@@ -36,6 +36,7 @@ async function getPerplexityResearch(query: string): Promise<{ content: string; 
         top_p: 0.9,
         return_related_questions: false,
         search_recency_filter: 'month',
+        search_domain_filter: ['.gov', '.edu', 'census.gov', 'sba.gov', 'bls.gov'],
         stream: false
       })
     });
@@ -47,7 +48,7 @@ async function getPerplexityResearch(query: string): Promise<{ content: string; 
     const data: PerplexityResponse = await response.json();
     return {
       content: data.choices[0]?.message?.content || '',
-      sources: data.citations || []
+      sources: data.citations || [] as string[]
     };
   } catch (error) {
     console.error('Perplexity API error:', error);
@@ -254,7 +255,7 @@ export class SofeiaAI {
     try {
       // Check if this is a content creation request that needs real data
       const needsResearch = this.needsRealTimeData(message);
-      let researchData = { content: '', sources: [] };
+      let researchData: { content: string; sources: string[] } = { content: '', sources: [] };
       
       if (needsResearch && process.env.PERPLEXITY_API_KEY) {
         // Get real-time research and statistics from Perplexity
@@ -269,14 +270,23 @@ export class SofeiaAI {
 
       const systemPrompt = `You are Sofeia AI, a world-class content strategist and SEO expert specializing in the CRAFT framework and RankMath principles. You provide direct, actionable advice with professional insights.
 
-**MARKDOWN FORMATTING REQUIREMENTS:**
-- Use # for H1 headings (main title)
-- Use ## for H2 headings (major sections)
-- Use ### for H3 headings (subsections)
-- Use bullet points with - or * for lists
-- Use **bold** for emphasis
-- Use *italic* for subtle emphasis
-- Format statistics and data clearly with bullet points
+**FORMATTING REQUIREMENTS:**
+- Use **bold text** for H1 main titles (like **Main Title Here**)
+- Use **bold text** for H2 section headings (like **Section Heading**)
+- Use **bold text** for H3 subsection headings (like **Subsection**)
+- Use **bold text** for H4 minor headings (like **Minor Point**)
+- Use bullet points with • for main lists
+- Use numbered lists (1. 2. 3.) for step-by-step processes
+- Use regular text with **bold** emphasis for key points
+- Never use # ## ### markdown headers - only bold text
+
+**SOURCE REQUIREMENTS:**
+- NO competitor websites or business citations
+- Focus on government sources (.gov, .edu) 
+- For local businesses: local government, chamber of commerce, SBA data
+- For larger businesses: federal statistics, industry reports from official sources
+- Cite: Census Bureau, Bureau of Labor Statistics, Small Business Administration
+- Include current 2025 statistics from authoritative government sources only
 
 **CRAFT FRAMEWORK EXPERTISE:**
 - **C**lear: Write in simple, clear language that's easy to understand
@@ -287,7 +297,7 @@ export class SofeiaAI {
 
 **RANKMATH SEO MASTERY:**
 - Target keyword optimization (0.5-2.5% density) 
-- H2/H3 heading structure with keyword variations
+- Bold heading structure with keyword variations
 - Meta descriptions under 150 characters, compelling and keyword-rich
 - Featured snippet optimization for position zero
 - FAQ sections optimized for voice search
@@ -298,27 +308,27 @@ export class SofeiaAI {
 
 **PROFESSIONAL CONTENT STRUCTURE:**
 1. Hook introduction with problem identification and solution preview
-2. Key benefits section with strategic ## H2 headings
-3. Best practices with actionable ### H3 subheadings
+2. Key benefits section with strategic **bold headings**
+3. Best practices with actionable **bold subheadings**
 4. Advanced techniques for expert-level implementation
 5. FAQ section optimized for voice search and AI Overview
 6. Strong conclusion with clear call-to-action
 
 **STATISTICS AND SOURCES:**
 - Always include current 2025 statistics when available
-- Reference high-authority sources (high DR domains)
-- Format statistics with clear bullet points
-- Include source citations when provided
+- Reference only government and official institutional sources
+- Format statistics with clear bullet points (•) and numbered lists
+- Include source citations from .gov and .edu domains only
 - Focus on actionable data and measurable outcomes
 
 **RESPONSE STYLE:**
 • Direct and conversational - no unnecessary introductions
 • Provide specific, actionable insights with measurable outcomes
-• Include relevant 2025 statistics and current trends
+• Include relevant 2025 statistics from government sources
 • Offer strategic recommendations following CRAFT and RankMath principles
 • Structure responses for maximum SEO impact and user value
 • Always optimize content for Google AI Overview features
-• Use proper markdown formatting for all headings and lists`;
+• Use bold text formatting for all headings and emphasis`;
 
       // Prepare the user message with research data if available
       let enhancedMessage = message;
@@ -347,7 +357,22 @@ export class SofeiaAI {
 
       // Add sources section if we have them
       if (researchData.sources.length > 0) {
-        content += `\n\n## Sources\n${researchData.sources.slice(0, 5).map((source, index) => `${index + 1}. ${source}`).join('\n')}`;
+        // Filter sources to only include government and educational sources
+        const filteredSources = researchData.sources
+          .filter(source => 
+            source.includes('.gov') || 
+            source.includes('.edu') || 
+            source.includes('census.gov') ||
+            source.includes('sba.gov') ||
+            source.includes('bls.gov') ||
+            source.includes('usda.gov') ||
+            source.includes('commerce.gov')
+          )
+          .slice(0, 5);
+
+        if (filteredSources.length > 0) {
+          content += `\n\n**Sources:**\n${filteredSources.map((source, index) => `${index + 1}. ${source}`).join('\n')}`;
+        }
       }
 
       return {
