@@ -8,6 +8,10 @@ import { useToast } from "@/hooks/use-toast";
 
 interface KeywordResearchProps {
   onClose?: () => void;
+  userCredits?: number;
+  isAdmin?: boolean;
+  onCreditDeduction?: (credits: number) => void;
+  onPaymentRequired?: (amount: string) => void;
 }
 
 interface KeywordData {
@@ -19,7 +23,7 @@ interface KeywordData {
   trend: string;
 }
 
-export function KeywordResearch({ onClose }: KeywordResearchProps) {
+export function KeywordResearch({ onClose, userCredits = 0, isAdmin = false, onCreditDeduction, onPaymentRequired }: KeywordResearchProps) {
   const [keyword, setKeyword] = useState("");
   const [isResearching, setIsResearching] = useState(false);
   const [results, setResults] = useState<KeywordData[]>([]);
@@ -41,13 +45,23 @@ export function KeywordResearch({ onClose }: KeywordResearchProps) {
       return;
     }
 
-    // Show payment requirement for keyword research
-    toast({
-      title: "Payment Required",
-      description: "Keyword research requires credits. Please purchase credits to continue.",
-      variant: "destructive"
-    });
-    return;
+    // Check if user has enough credits (1 credit required for keyword research)
+    if (!isAdmin && userCredits < 1) {
+      if (onPaymentRequired) {
+        onPaymentRequired("2"); // $2 for 1 credit
+      }
+      toast({
+        title: "Payment Required", 
+        description: "Keyword research requires 1 credit. Please purchase credits to continue.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Deduct 1 credit for keyword research (admin users have unlimited)
+    if (!isAdmin && onCreditDeduction) {
+      onCreditDeduction(1);
+    }
 
     setIsResearching(true);
     

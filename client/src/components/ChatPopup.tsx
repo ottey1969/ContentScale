@@ -6,6 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import PayPalButton from "./PayPalButton";
+import { KeywordResearch } from "./KeywordResearch";
 
 interface Message {
   id: string;
@@ -57,6 +58,7 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
   const [hasUsedFreeContent, setHasUsedFreeContent] = useState(false);
   const [showPaymentPopup, setShowPaymentPopup] = useState(false);
   const [paymentAmount, setPaymentAmount] = useState("2");
+  const [showKeywordResearch, setShowKeywordResearch] = useState(false);
 
   // Custom PayPal Button Component
   const CustomPayPalButton: React.FC<{
@@ -204,6 +206,17 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
     setMessages((prev) => [...prev, successMessage]);
   };
 
+  // Handle credit deduction for keyword research
+  const handleCreditDeduction = (credits: number) => {
+    setUserCredits(prev => prev - credits);
+  };
+
+  // Handle payment requirement for keyword research
+  const handlePaymentRequired = (amount: string) => {
+    setPaymentAmount(amount);
+    setShowPaymentPopup(true);
+  };
+
   // Handle login
   const handleLogin = async () => {
     if (!userEmail.trim() || !userPassword.trim()) {
@@ -302,9 +315,18 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  // Function to detect bulk content requests
+  // Function to detect bulk content requests and keyword research
   const detectBulkRequest = (message: string): number => {
     const text = message.toLowerCase();
+    
+    // Check for keyword research requests first
+    if (text.includes('keyword research') || 
+        text.includes('research keyword') ||
+        text.includes('seo research') ||
+        text.includes('find keywords') ||
+        text.includes('keyword analysis')) {
+      return 1; // Keyword research costs 1 credit
+    }
     
     // Look for numbers in the text that indicate quantity
     const numberMatches = text.match(/\b\d+\b/g);
@@ -374,6 +396,33 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
     setInputValue("");
     setAttachedFiles([]);
     setIsLoading(true);
+    
+    // Check if this is a keyword research request
+    const text = messageText.toLowerCase();
+    if (text.includes('keyword research') || 
+        text.includes('research keyword') ||
+        text.includes('seo research') ||
+        text.includes('find keywords') ||
+        text.includes('keyword analysis')) {
+      
+      // Deduct credits for keyword research
+      if (!isAdmin) {
+        setUserCredits(prev => prev - 1);
+      }
+      
+      // Show keyword research interface
+      setShowKeywordResearch(true);
+      setIsLoading(false);
+      
+      const aiMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        text: "Opening keyword research tool for you! This will help you find high-performing keywords for your content strategy.",
+        isUser: false,
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, aiMessage]);
+      return;
+    }
     
     // Deduct credits for non-admin users
     if (!isAdmin) {
@@ -655,6 +704,12 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
               >
                 Email Campaigns
               </button>
+              <button
+                onClick={() => setInputValue("Do keyword research for digital marketing niche")}
+                className="bg-yellow-600/20 hover:bg-yellow-600/30 border border-yellow-500/30 hover:border-yellow-400/50 text-yellow-300 text-xs px-3 py-2 rounded-lg transition-all"
+              >
+                Keyword Research
+              </button>
             </div>
           </div>
         )}
@@ -783,6 +838,21 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
               </div>
             </CardContent>
           </Card>
+        </div>
+      )}
+
+      {/* Keyword Research Modal */}
+      {showKeywordResearch && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[60] p-4">
+          <div className="w-full max-w-6xl h-[90vh] bg-gradient-to-br from-slate-900 via-purple-900/30 to-slate-900 rounded-2xl border border-purple-500/30">
+            <KeywordResearch
+              onClose={() => setShowKeywordResearch(false)}
+              userCredits={userCredits}
+              isAdmin={isAdmin}
+              onCreditDeduction={handleCreditDeduction}
+              onPaymentRequired={handlePaymentRequired}
+            />
+          </div>
         </div>
       )}
     </div>
