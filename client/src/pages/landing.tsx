@@ -31,6 +31,10 @@ export default function Landing() {
     window.location.href = "/api/login";
   };
 
+  const handleClaimFreeCredits = () => {
+    setShowChatPopup(true);
+  };
+
   const acceptCookies = () => {
     setShowCookieConsent(false);
     localStorage.setItem('cookieConsent', 'accepted');
@@ -144,7 +148,7 @@ export default function Landing() {
                 <div>• Test keyword research</div>
               </div>
               <Button 
-                onClick={handleGetStarted}
+                onClick={handleClaimFreeCredits}
                 className="mt-4 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold px-8 py-3 text-lg transform hover:scale-105 transition-all duration-300"
               >
                 Claim Free Credits

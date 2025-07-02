@@ -224,12 +224,20 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
         return;
       }
 
-      // For regular users, give 1 free credit
-      // In a real system, this would authenticate against a database
+      // For regular users, give 1 free credit for testing
       setIsAuthenticated(true);
       setIsAdmin(false);
       setUserCredits(1);
       setUserPassword(""); // Clear password for security
+      
+      // Show welcome message for new users with free credit
+      const welcomeMessage: Message = {
+        id: Date.now().toString(),
+        text: `🎉 Welcome! You have 1 FREE credit to test our AI content generation.\n\nTry creating content by typing:\n• "Seed Keyword: Digital Marketing"\n• "Write me a blog post about sustainable living"\n\nOr upload files for bulk content creation. After your free article, continue with PayPal for just $2 per article!`,
+        isUser: false,
+        timestamp: new Date(),
+      };
+      setMessages([welcomeMessage]);
       
     } catch (error) {
       setAuthError("Login failed. Please try again.");
