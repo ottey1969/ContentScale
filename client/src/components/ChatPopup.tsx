@@ -745,12 +745,14 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
               >
                 Keyword Research
               </button>
-              <button
-                onClick={() => window.open('/admin#emails', '_blank')}
-                className="bg-pink-600/20 hover:bg-pink-600/30 border border-pink-500/30 hover:border-pink-400/50 text-pink-300 text-xs px-3 py-2 rounded-lg transition-all"
-              >
-                Email Marketing
-              </button>
+              {user?.email === 'ottmar.francisca1969@gmail.com' && (
+                <button
+                  onClick={() => window.open('/admin#emails', '_blank')}
+                  className="bg-pink-600/20 hover:bg-pink-600/30 border border-pink-500/30 hover:border-pink-400/50 text-pink-300 text-xs px-3 py-2 rounded-lg transition-all"
+                >
+                  Email Marketing
+                </button>
+              )}
             </div>
           </div>
         )}
