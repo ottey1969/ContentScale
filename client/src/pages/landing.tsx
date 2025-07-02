@@ -661,7 +661,7 @@ export default function Landing() {
           {/* Trust indicators */}
           <div className="text-center text-gray-400 text-sm">
             <p className="mb-2">Trusted by content creators worldwide</p>
-            <div className="flex justify-center items-center space-x-2">
+            <div className="flex justify-center items-center space-x-2 mb-8">
               <div className="flex space-x-1">
                 {[1,2,3,4,5].map((star) => (
                   <div key={star} className="w-4 h-4 bg-yellow-400 rounded-full animate-pulse" style={{animationDelay: `${star * 100}ms`}}></div>
@@ -669,6 +669,18 @@ export default function Landing() {
               </div>
               <span className="text-yellow-400 font-semibold">4.9/5</span>
             </div>
+          </div>
+
+          {/* Generate Your Content CTA Button */}
+          <div className="text-center">
+            <Button 
+              onClick={() => setShowChatPopup(true)}
+              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-4 px-8 rounded-full text-lg shadow-lg hover:shadow-purple-500/50 transform hover:scale-105 transition-all duration-300 border-0"
+            >
+              <Brain className="w-6 h-6 mr-2" />
+              Generate Your Content with Sofeia AI
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Button>
           </div>
         </div>
       </section>
