@@ -65,7 +65,8 @@ class ContentGenerator {
         }]
       });
 
-      const generatedText = response.content[0].text;
+      const contentBlock = response.content[0];
+      const generatedText = contentBlock.type === 'text' ? contentBlock.text : '';
       return this.parseAIResponse(generatedText, request);
     } catch (error) {
       console.error('Anthropic API error:', error);
@@ -348,7 +349,7 @@ Please provide a JSON response with:
     } catch (error) {
       console.error('AI content generation error:', error);
       // Fallback to basic generation if APIs fail
-      return this.generateFallbackContent(request);
+      return this.enhancedSimulation(request);
     }
   }
 
@@ -387,44 +388,7 @@ Please provide a JSON response with:
     }
   }
 
-  private generateFallbackContent(request: ContentGenerationRequest): AIContentResponse {
-    
-    const contentTemplates = {
-      blog: {
-        title: `${this.extractMainTopic(request.topic || '')} - Complete Guide for 2025`,
-        structure: ['introduction', 'main-points', 'practical-examples', 'conclusion'],
-      },
-      article: {
-        title: `Understanding ${this.extractMainTopic(request.topic || '')}: Expert Analysis`,
-        structure: ['overview', 'deep-dive', 'implications', 'recommendations'],
-      },
-      faq: {
-        title: `Frequently Asked Questions About ${this.extractMainTopic(request.topic || '')}`,
-        structure: ['common-questions', 'detailed-answers', 'additional-resources'],
-      },
-      social: {
-        title: `${this.extractMainTopic(request.topic || '')} - Key Insights`,
-        structure: ['hook', 'main-point', 'call-to-action'],
-      },
-    };
 
-    const template = contentTemplates[request.contentType as keyof typeof contentTemplates] || contentTemplates.blog;
-    
-    // Generate sophisticated content with CRAFT framework integration
-    const content = this.generateWithCRAFTFramework(request, template);
-    const keywords = this.generateSEOKeywords(request.topic || '');
-    const seoScore = this.calculateSEOScore(content, keywords);
-    
-    return {
-      title: template.title,
-      content,
-      metaDescription: this.generateMetaDescription(template.title, content),
-      keywords,
-      seoScore,
-      aiOverviewPotential: this.assessAIOverviewPotential(content, keywords),
-      aiModeScore: this.calculateAIModeScore(content, keywords),
-    };
-  }
 
   private extractMainTopic(input: string): string {
     // Extract the main topic from user input
@@ -503,31 +467,7 @@ For expert consultation on ${topic} implementation, contact our certified profes
     return [sections.introduction, sections.mainContent, sections.conclusion].join('\n\n');
   }
 
-  private generateSEOKeywords(topic: string): string[] {
-    const baseKeywords = topic.toLowerCase().split(' ');
-    const seoKeywords = [
-      topic,
-      `${topic} best practices`,
-      `${topic} guide 2025`,
-      `how to implement ${topic}`,
-      `${topic} strategy`,
-      `${topic} solutions`,
-      `${topic} consulting`,
-      `${topic} expert advice`,
-    ];
 
-    // Add cybersecurity-specific keywords if relevant
-    if (topic.includes('security') || topic.includes('cyber')) {
-      seoKeywords.push(
-        'cybersecurity consultant Netherlands',
-        'AI powered security analysis',
-        'threat assessment services',
-        'security audit checklist'
-      );
-    }
-
-    return seoKeywords.slice(0, 8);
-  }
 
   private generateMetaDescription(title: string, content: string): string {
     const firstParagraph = content.split('\n').find(p => p.length > 50) || '';

@@ -169,3 +169,4 @@ ${research.contentOpportunities.map(opportunity => `- ${opportunity}`).join('\n'
 }
 
 export const keywordResearchService = new KeywordResearchService();
+export const seoInsightEngine = keywordResearchService; // Export for compatibility

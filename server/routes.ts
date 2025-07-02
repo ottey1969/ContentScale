@@ -5,7 +5,7 @@ import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import Anthropic from '@anthropic-ai/sdk';
 import { contentGenerator } from "./services/contentGenerator";
-import { seoInsightEngine } from "./services/keywordResearch";
+import { keywordResearchService } from "./services/keywordResearch";
 import { generateKeywordResearch, generateQuickKeywords } from "./services/aiKeywordResearch";
 import { referralSystem } from "./services/referralSystem";
 import { securityService } from "./services/securityService";
@@ -479,7 +479,7 @@ User question: ${message}`
         researchResult.questions.map(q => storage.createKeyword({
           userId,
           keyword: q.question,
-          searchVolume: parseInt(q.searchVolume) || 1000,
+          searchVolume: parseInt(q.searchVolume || '1000') || 1000,
           difficulty: q.difficulty || "Medium",
           aiOverviewPotential: q.funnelStage,
           relatedKeywords: [keyword],
@@ -873,17 +873,18 @@ async function processCSVKeywords(batchId: string, csvData: any[], userId: strin
         const keyword = row.keyword || row.Keyword || row.query || row.Query || Object.values(row)[0];
         
         if (keyword && typeof keyword === 'string') {
-          // Research each keyword
-          const results = await seoInsightEngine.researchKeywords(keyword.trim(), "us");
+          // Research each keyword using AI keyword research service
+          const results = await generateKeywordResearch(keyword.trim(), "us", "en");
           
-          for (const result of results) {
+          // Process the keyword research results
+          for (const question of results.questions) {
             const savedKeyword = await storage.createKeyword({
               userId,
-              keyword: result.keyword,
-              searchVolume: result.searchVolume,
-              difficulty: result.difficulty,
-              aiOverviewPotential: result.aiOverviewPotential,
-              relatedKeywords: result.relatedKeywords,
+              keyword: question.question,
+              searchVolume: parseInt(question.searchVolume || '1000') || 1000,
+              difficulty: question.difficulty || "Medium",
+              aiOverviewPotential: question.funnelStage || "Medium",
+              relatedKeywords: [keyword.trim()],
               source: "csv",
             });
             keywords.push(savedKeyword);
