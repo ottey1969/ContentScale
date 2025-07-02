@@ -30,8 +30,8 @@ function Router() {
       {/* Landing page - first thing users see */}
       <Route path="/" component={Landing} />
       
-      {/* Dashboard - authenticated users see your HTML app */}
-      <Route path="/dashboard" component={isAuthenticated ? SimpleDashboard : Landing} />
+      {/* Dashboard - redirect directly to main dashboard */}
+      <Route path="/dashboard" component={Dashboard} />
       <Route path="/admin" component={isAuthenticated ? Admin : Landing} />
       
       {/* 404 fallback */}
