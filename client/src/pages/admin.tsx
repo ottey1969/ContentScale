@@ -148,7 +148,7 @@ export default function Admin() {
   };
 
   // Check if user is admin
-  const isAdmin = user && ((user as any)?.id === 'admin' || (user as any)?.email === 'ottmar.francisca1969@gmail.com');
+  const isAdmin = user && ((user as any)?.id === 'admin' || (user as any)?.id === '44276721' || (user as any)?.email === 'ottmar.francisca1969@gmail.com');
 
   const [settings, setSettings] = useState<AdminSettings>({
     demoVideoId: '',
@@ -161,12 +161,12 @@ export default function Admin() {
   // Fetch current admin settings
   const { data: currentSettings } = useQuery({
     queryKey: ['/api/admin/settings'],
-    enabled: isAdmin,
+    enabled: !!isAdmin,
   });
 
   useEffect(() => {
     if (currentSettings) {
-      setSettings(currentSettings);
+      setSettings(currentSettings as AdminSettings);
     }
   }, [currentSettings]);
 
