@@ -7,6 +7,7 @@ import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/dashboard";
 import SimpleDashboard from "@/pages/simple-dashboard";
 import Landing from "@/pages/landing";
+import LandingTest from "@/pages/landing-test";
 import Admin from "@/pages/admin";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -16,7 +17,7 @@ function Router() {
   return (
     <Switch>
       {/* Landing page - everything happens here now */}
-      <Route path="/" component={Landing} />
+      <Route path="/" component={LandingTest} />
       
       {/* Admin panel - only for authenticated admins */}
       <Route path="/admin" component={isAuthenticated ? Admin : Landing} />

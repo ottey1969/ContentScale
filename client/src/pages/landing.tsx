@@ -28,7 +28,7 @@ export default function Landing() {
   });
 
   const handleGetStarted = () => {
-    window.location.href = "/api/login";
+    setShowChatPopup(true);
   };
 
   const handleClaimFreeCredits = () => {
