@@ -92,7 +92,7 @@ export default function Landing() {
           <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 bg-gradient-to-r from-blue-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent animate-pulse">
             AI-Powered Content &<br />
             <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-              SEO Rocket
+              SEO Rocket With Sofeia AI
             </span>
           </h1>
           
