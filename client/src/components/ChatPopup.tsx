@@ -740,7 +740,7 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
                 Email Campaigns
               </button>
               <button
-                onClick={() => setInputValue("Do keyword research for digital marketing niche")}
+                onClick={() => setInputValue("Do (Top 10 keywords) / (AI Search engine) / (Top 5 Long Tails Keywords) research for (.....) Niche")}
                 className="bg-yellow-600/20 hover:bg-yellow-600/30 border border-yellow-500/30 hover:border-yellow-400/50 text-yellow-300 text-xs px-3 py-2 rounded-lg transition-all"
               >
                 Keyword Research
