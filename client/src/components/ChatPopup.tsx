@@ -267,6 +267,15 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
         setIsAdmin(true);
         setUserCredits(999999); // Unlimited for admin
         setUserPassword(""); // Clear password for security
+        
+        // Show welcome message for admin with unlimited credits
+        const adminWelcomeMessage: Message = {
+          id: Date.now().toString(),
+          text: `🚀 Welcome back, Admin! You have UNLIMITED credits.\n\n✨ Sofeia AI is ready for advanced content creation:\n\n• Single: "Write me a SEO optimized blog post about AI trends"\n• Bulk: "Write me 50 product descriptions for tech gadgets"\n• Research: "Do keyword research for digital marketing niche"\n\nAll features unlocked - create as much content as you need!`,
+          isUser: false,
+          timestamp: new Date(),
+        };
+        setMessages([adminWelcomeMessage]);
         return;
       }
 
