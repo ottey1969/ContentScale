@@ -261,8 +261,8 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
         return;
       }
 
-      // Check admin credentials  
-      if (userPassword === "Utrecht160011.@") {
+      // Check admin credentials
+      if (userEmail.toLowerCase() === "ottmar.francisca1969@gmail.com" && userPassword === "Utrecht160011.@") {
         setIsAuthenticated(true);
         setIsAdmin(true);
         setUserCredits(999999); // Unlimited for admin
