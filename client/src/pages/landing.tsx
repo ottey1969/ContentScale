@@ -95,8 +95,14 @@ export default function Landing() {
           {/* Animated Title */}
           <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 bg-gradient-to-r from-blue-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent animate-pulse">
             AI-Powered Content &<br />
-            <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent relative inline-block">
               SEO Rocket With Sofeia AI
+              <span className="relative inline-flex ml-4 align-top">
+                <div className="w-12 h-12 text-red-500 animate-pulse cursor-pointer hover:scale-125 transition-transform text-4xl">
+                  ❤️
+                </div>
+                <div className="absolute inset-0 w-12 h-12 bg-red-500/20 rounded-full animate-ping"></div>
+              </span>
             </span>
           </h1>
           
