@@ -769,15 +769,7 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
                 <Lock className="w-5 h-5" />
               </Button>
             )}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleLogout}
-              className="text-purple-200 hover:text-white hover:bg-purple-700/50"
-              title="Logout"
-            >
-              <User className="w-5 h-5" />
-            </Button>
+
             <Button
               variant="ghost"
               size="sm"
