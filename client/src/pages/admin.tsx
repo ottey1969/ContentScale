@@ -175,13 +175,28 @@ export default function Admin() {
   const saveSettingsMutation = useMutation({
     mutationFn: async (newSettings: AdminSettings) => {
       console.log("🚀 Mutation started with settings:", newSettings);
+      console.log("🔧 Making API call to /api/admin/settings");
       try {
+        console.log("🌐 Calling apiRequest with method POST");
         const response = await apiRequest('POST', '/api/admin/settings', newSettings);
+        console.log("📡 Response received:", response);
+        console.log("📊 Response status:", response.status);
+        console.log("📋 Response headers:", Object.fromEntries(response.headers.entries()));
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error("❌ Response not OK:", response.status, errorText);
+          throw new Error(`HTTP ${response.status}: ${errorText}`);
+        }
+        
         const result = await response.json();
         console.log("✅ Mutation successful:", result);
         return result;
       } catch (error) {
-        console.error("❌ Mutation failed:", error);
+        console.error("❌ Mutation failed with error:", error);
+        console.error("❌ Error type:", typeof error);
+        console.error("❌ Error message:", (error as Error)?.message);
+        console.error("❌ Error stack:", (error as Error)?.stack);
         throw error;
       }
     },
@@ -210,10 +225,18 @@ export default function Admin() {
     console.log("Current settings:", settings);
     console.log("Is admin:", isAdmin);
     console.log("User:", user);
+    console.log("Mutation pending state:", saveSettingsMutation.isPending);
+    console.log("Mutation error state:", saveSettingsMutation.error);
     
     // Since authentication is bypassed, allow admin access directly
     console.log("✅ Admin access granted (authentication bypassed), calling save mutation...");
-    saveSettingsMutation.mutate(settings);
+    
+    try {
+      saveSettingsMutation.mutate(settings);
+      console.log("🚀 Mutation.mutate() called successfully");
+    } catch (error) {
+      console.error("❌ Error calling mutation.mutate():", error);
+    }
   };
 
   const handleVideoIdChange = (value: string) => {
