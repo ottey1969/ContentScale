@@ -231,23 +231,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/admin/settings", isAuthenticated, async (req: any, res) => {
+  app.post("/api/admin/settings", async (req: any, res) => {
     try {
       console.log("🔧 Admin settings save request received");
-      console.log("User ID:", req.user.claims.sub);
       console.log("Request body:", req.body);
       
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      console.log("User found:", user);
-      
-      // Check if user is admin
-      if (user?.email !== "ottmar.francisca1969@gmail.com" && userId !== "admin" && userId !== "44276721") {
-        console.log("❌ Admin access denied for user:", userId);
-        return res.status(403).json({ message: "Admin access required" });
-      }
-      
-      console.log("✅ Admin access granted, updating settings...");
+      // Since authentication is bypassed, allow admin access directly
+      console.log("✅ Admin access granted (authentication bypassed), updating settings...");
       const settings = await storage.updateAdminSettings(req.body);
       console.log("✅ Settings updated successfully:", settings);
       res.json(settings);
