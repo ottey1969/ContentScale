@@ -175,7 +175,8 @@ export default function Admin() {
     mutationFn: async (newSettings: AdminSettings) => {
       console.log("🚀 Mutation started with settings:", newSettings);
       try {
-        const result = await apiRequest('POST', '/api/admin/settings', newSettings);
+        const response = await apiRequest('POST', '/api/admin/settings', newSettings);
+        const result = await response.json();
         console.log("✅ Mutation successful:", result);
         return result;
       } catch (error) {

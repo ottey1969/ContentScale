@@ -783,25 +783,13 @@ User question: ${message}`
     await createPaypalOrder(req, res);
   });
 
-  app.post("/api/paypal/order/:orderID/capture", isAuthenticated, async (req: any, res) => {
+  app.post("/api/paypal/order/:orderID/capture", async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      
       // Capture PayPal payment
       await capturePaypalOrder(req, res);
       
-      // If payment successful, add 1 credit to user account
-      const user = await storage.getUser(userId);
-      await storage.updateUserCredits(userId, (user?.credits || 0) + 1);
-      
-      // Create activity for payment
-      await storage.createActivity({
-        userId,
-        type: "payment_completed",
-        title: "Payment Successful - $2.00",
-        description: "1 content generation credit added to account",
-        metadata: { orderId: req.params.orderID, amount: "2.00" },
-      });
+      // Note: Credit assignment handled in frontend after successful payment
+      console.log("💰 PayPal payment captured successfully for order:", req.params.orderID);
       
     } catch (error) {
       console.error("Error capturing PayPal order:", error);

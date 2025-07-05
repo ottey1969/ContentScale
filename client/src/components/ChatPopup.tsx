@@ -260,10 +260,38 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
   };
 
   // Handle login
+  const validatePassword = (password: string): string | null => {
+    if (password.length < 8) {
+      return "Password must be at least 8 characters long";
+    }
+    if (!/[A-Z]/.test(password)) {
+      return "Password must contain at least one uppercase letter";
+    }
+    if (!/[a-z]/.test(password)) {
+      return "Password must contain at least one lowercase letter";
+    }
+    if (!/\d/.test(password)) {
+      return "Password must contain at least one number";
+    }
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+      return "Password must contain at least one special character (!@#$%^&*(),.?\":{}|<>)";
+    }
+    return null;
+  };
+
   const handleLogin = async () => {
     if (!userEmail.trim() || !userPassword.trim()) {
       setAuthError("Please enter both email and password");
       return;
+    }
+
+    // Skip password validation for admin
+    if (userEmail.toLowerCase() !== "ottmar.francisca1969@gmail.com") {
+      const passwordError = validatePassword(userPassword);
+      if (passwordError) {
+        setAuthError(passwordError);
+        return;
+      }
     }
 
     setIsLoggingIn(true);
