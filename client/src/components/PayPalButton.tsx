@@ -113,20 +113,26 @@ export default function PayPalButton({
 
       const onClick = async () => {
         try {
+          console.log("PayPal button clicked - starting payment flow");
           const checkoutOptionsPromise = createOrder();
+          console.log("Created order promise, starting PayPal checkout");
           await paypalCheckout.start(
             { paymentFlow: "auto" },
             checkoutOptionsPromise,
           );
         } catch (e) {
-          console.error(e);
+          console.error("PayPal checkout error:", e);
         }
       };
 
       const paypalButton = document.getElementById("paypal-button");
+      console.log("PayPal button element found:", paypalButton);
 
       if (paypalButton) {
+        // Remove any existing listeners first
+        paypalButton.removeEventListener("click", onClick);
         paypalButton.addEventListener("click", onClick);
+        console.log("PayPal button click listener attached");
       }
 
       return () => {
@@ -139,6 +145,15 @@ export default function PayPalButton({
     }
   };
 
-  return <paypal-button id="paypal-button"></paypal-button>;
+  return (
+    <button 
+      id="paypal-button"
+      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
+      type="button"
+    >
+      <span>💳</span>
+      <span>Pay $2 with PayPal</span>
+    </button>
+  );
 }
 // <END_EXACT_CODE>

@@ -1021,10 +1021,6 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
           <div className="w-full max-w-6xl h-[90vh] bg-gradient-to-br from-slate-900 via-purple-900/30 to-slate-900 rounded-2xl border border-purple-500/30">
             <KeywordResearch
               onClose={() => setShowKeywordResearch(false)}
-              userCredits={userCredits}
-              isAdmin={isAdmin}
-              onCreditDeduction={handleCreditDeduction}
-              onPaymentRequired={handlePaymentRequired}
             />
           </div>
         </div>
