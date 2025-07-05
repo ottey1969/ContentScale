@@ -37,7 +37,7 @@ export default function Admin() {
 
     const giveCredits = useMutation({
       mutationFn: async (data: { userEmail: string; credits: number; reason: string }) => {
-        return await apiRequest('/api/admin/give-credits', 'POST', data);
+        return await apiRequest('POST', '/api/admin/give-credits', data);
       },
       onSuccess: (data: any) => {
         toast({

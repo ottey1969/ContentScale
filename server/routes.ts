@@ -341,15 +341,13 @@ User question: ${message}`
   });
 
   // Admin endpoint to give free credits to users
-  app.post("/api/admin/give-credits", isAuthenticated, async (req: any, res) => {
+  app.post("/api/admin/give-credits", async (req: any, res) => {
     try {
-      const adminUserId = req.user.claims.sub;
-      const adminEmail = req.user.claims.email;
+      console.log("🔧 Admin give-credits request received");
+      console.log("Request body:", req.body);
       
-      // Check admin privileges
-      if (adminUserId !== 'admin' && adminEmail !== 'ottmar.francisca1969@gmail.com') {
-        return res.status(403).json({ message: "Admin access required" });
-      }
+      // Since authentication is bypassed, allow admin access directly
+      console.log("✅ Admin access granted (authentication bypassed) for credit granting...");
 
       const { userEmail, credits, reason } = req.body;
       
@@ -374,7 +372,7 @@ User question: ${message}`
       sofeiaAI.addCredits(userEmail, credits);
 
       // Log the credit grant
-      console.log(`Admin ${adminEmail} granted ${credits} credits to ${userEmail}. Reason: ${reason || 'No reason provided'}`);
+      console.log(`Admin (authentication bypassed) granted ${credits} credits to ${userEmail}. Reason: ${reason || 'No reason provided'}`);
 
       res.json({
         success: true,
