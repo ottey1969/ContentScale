@@ -148,8 +148,8 @@ export default function Admin() {
     );
   };
 
-  // Check if user is admin
-  const isAdmin = user && ((user as any)?.id === 'admin' || (user as any)?.id === '44276721' || (user as any)?.email === 'ottmar.francisca1969@gmail.com');
+  // Since authentication is bypassed, always grant admin access
+  const isAdmin = true;
 
   const [settings, setSettings] = useState<AdminSettings>({
     demoVideoId: '',
