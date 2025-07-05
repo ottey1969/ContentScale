@@ -159,10 +159,10 @@ export default function Admin() {
     maxCreditsPerUser: 100,
   });
 
-  // Fetch current admin settings
+  // Fetch current admin settings (authentication bypassed, always enable)
   const { data: currentSettings } = useQuery({
     queryKey: ['/api/admin/settings'],
-    enabled: !!isAdmin,
+    enabled: true, // Always enabled since authentication is bypassed
   });
 
   useEffect(() => {

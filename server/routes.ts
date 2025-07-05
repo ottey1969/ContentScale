@@ -212,21 +212,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin settings endpoints
-  app.get("/api/admin/settings", isAuthenticated, async (req: any, res) => {
+  // Admin settings endpoints  
+  app.get("/api/admin/settings", async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      console.log("🔧 Admin settings fetch request received");
       
-      // Check if user is admin (you can modify this logic)
-      if (user?.email !== "ottmar.francisca1969@gmail.com" && userId !== "admin" && userId !== "44276721") {
-        return res.status(403).json({ message: "Admin access required" });
-      }
+      // Since authentication is bypassed, allow admin access directly
+      console.log("✅ Admin access granted (authentication bypassed) for settings fetch...");
       
       const settings = await storage.getAdminSettings();
+      console.log("✅ Settings fetched successfully:", settings);
       res.json(settings);
     } catch (error) {
-      console.error("Error fetching admin settings:", error);
+      console.error("❌ Error fetching admin settings:", error);
       res.status(500).json({ message: "Failed to fetch admin settings" });
     }
   });
