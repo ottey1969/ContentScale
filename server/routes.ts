@@ -353,44 +353,46 @@ User question: ${message}`
         return res.status(400).json({ message: "Valid user email and positive credit amount required" });
       }
 
-      // For admin email, create or update the user record
-      if (userEmail === 'ottmar.francisca1969@gmail.com') {
-        // Ensure admin user exists in database
-        let user = await storage.getUser('44276721');
-        if (!user) {
-          // Create admin user if doesn't exist
-          user = await storage.upsertUser({
-            id: '44276721',
-            email: 'ottmar.francisca1969@gmail.com',
-            firstName: 'Admin',
-            lastName: 'User',
-            profileImageUrl: '',
-          });
-        }
-        
-        // Update admin credits in database (even though admin has unlimited)
+      // Try to find user by email first
+      let user = await storage.getUserByEmail(userEmail);
+      
+      if (user) {
+        // User exists in database, update their credits
         const newCreditBalance = (user.credits || 0) + credits;
-        await storage.updateUserCredits('44276721', newCreditBalance);
+        await storage.updateUserCredits(user.id, newCreditBalance);
+        console.log(`Updated database credits for ${userEmail}: ${newCreditBalance}`);
+      } else if (userEmail === 'ottmar.francisca1969@gmail.com') {
+        // Special case for admin - create admin user if doesn't exist
+        user = await storage.upsertUser({
+          id: '44276721',
+          email: 'ottmar.francisca1969@gmail.com',
+          firstName: 'Admin',
+          lastName: 'User',
+          profileImageUrl: '',
+          credits: credits,
+        });
+        console.log(`Created admin user with ${credits} credits`);
       } else {
-        // For other users, try to find by email
-        // Since we don't have getUserByEmail, we'll use the Sofeia AI service
-        console.log(`Granting ${credits} credits to ${userEmail} via Sofeia AI service`);
+        // User doesn't exist in database yet, but grant credits in Sofeia AI service
+        console.log(`User ${userEmail} not found in database, granting credits via Sofeia AI service only`);
       }
 
-      // Always update Sofeia AI service credits
+      // Always update Sofeia AI service credits (for immediate use)
       sofeiaAI.addCredits(userEmail, credits);
 
       // Log the credit grant
-      console.log(`Admin (authentication bypassed) granted ${credits} credits to ${userEmail}. Reason: ${reason || 'No reason provided'}`);
+      console.log(`✅ Admin granted ${credits} credits to ${userEmail}. Reason: ${reason || 'No reason provided'}`);
 
       // Get the new balance from Sofeia AI service
       const newBalance = sofeiaAI.getCredits(userEmail);
       
       res.json({
         success: true,
-        message: `Successfully granted ${credits} credits to ${userEmail}`,
+        message: `✅ Successfully granted ${credits} credits to ${userEmail}`,
         newBalance: newBalance,
-        userEmail: userEmail
+        userEmail: userEmail,
+        grantedAt: new Date().toISOString(),
+        reason: reason || 'Admin credit grant'
       });
 
     } catch (error) {
