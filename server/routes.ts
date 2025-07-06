@@ -1032,6 +1032,37 @@ User question: ${message}`
     }
   });
 
+  // Delete email subscriber (admin only)
+  app.delete('/api/marketing/emails/delete', async (req, res) => {
+    try {
+      const { email } = req.body;
+
+      if (!email) {
+        return res.status(400).json({ message: 'Email address is required' });
+      }
+
+      console.log(`🗑️ Admin deleting email subscriber: ${email}`);
+
+      const result = await storage.deleteEmailSubscriber(email);
+      
+      if (!result) {
+        return res.status(404).json({ message: 'Email subscriber not found' });
+      }
+
+      console.log(`✅ Email subscriber deleted successfully: ${email}`);
+
+      res.json({
+        success: true,
+        message: 'Email subscriber deleted successfully',
+        email
+      });
+
+    } catch (error) {
+      console.error('Error deleting email subscriber:', error);
+      res.status(500).json({ message: 'Failed to delete email subscriber' });
+    }
+  });
+
   // Get all stored passwords (admin only)
   app.get('/api/admin/passwords', async (req, res) => {
     try {

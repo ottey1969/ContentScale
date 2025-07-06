@@ -779,11 +779,11 @@ export default function Admin() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 p-6 relative z-0">
       {/* SEO Optimization */}
       <SEOHead {...SEOConfigs.admin} />
       
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="max-w-7xl mx-auto space-y-6 relative z-10">
         
         {/* Header */}
         <div className="flex items-center space-x-3 mb-8">
@@ -792,8 +792,8 @@ export default function Admin() {
         </div>
 
         {/* Tabbed Interface */}
-        <Tabs defaultValue="settings" className="w-full">
-          <TabsList className="grid w-full grid-cols-5 bg-slate-800 border-slate-700">
+        <Tabs defaultValue="settings" className="w-full relative z-20">
+          <TabsList className="grid w-full grid-cols-5 bg-slate-800 border-slate-700 relative z-30">
             <TabsTrigger value="settings" className="flex items-center space-x-2">
               <Video className="w-4 h-4" />
               <span>Settings</span>

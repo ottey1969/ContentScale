@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { Mail, Download, Users, TrendingUp, Calendar, Eye } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { Mail, Download, Users, TrendingUp, Calendar, Eye, Trash2 } from "lucide-react";
 
 interface EmailSubscriber {
   id: string;
@@ -38,6 +39,8 @@ export function EmailMarketing({ onClose }: EmailMarketingProps) {
   const [stats, setStats] = useState<EmailStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [deletingEmails, setDeletingEmails] = useState<Set<string>>(new Set());
+  const { toast } = useToast();
 
   useEffect(() => {
     fetchEmailData();
@@ -57,6 +60,49 @@ export function EmailMarketing({ onClose }: EmailMarketingProps) {
       setError(err instanceof Error ? err.message : 'Failed to load email data');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const deleteEmailSubscriber = async (email: string) => {
+    if (!confirm(`Delete email subscriber: ${email}?`)) {
+      return;
+    }
+
+    try {
+      setDeletingEmails(prev => new Set(prev).add(email));
+      
+      const response = await fetch('/api/marketing/emails/delete', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete email subscriber');
+      }
+
+      // Remove from local state
+      setSubscribers(prev => prev.filter(sub => sub.email !== email));
+      
+      toast({
+        title: "Email deleted",
+        description: `Subscriber ${email} has been removed`,
+      });
+
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: err instanceof Error ? err.message : 'Failed to delete email',
+        variant: "destructive",
+      });
+    } finally {
+      setDeletingEmails(prev => {
+        const next = new Set(prev);
+        next.delete(email);
+        return next;
+      });
     }
   };
 
@@ -267,6 +313,20 @@ export function EmailMarketing({ onClose }: EmailMarketingProps) {
                           <span className="text-blue-400">✓ Newsletter</span>
                         )}
                       </div>
+                    </div>
+                    
+                    {/* Delete button */}
+                    <div className="ml-4">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => deleteEmailSubscriber(subscriber.email)}
+                        disabled={deletingEmails.has(subscriber.email)}
+                        className="border-red-500 text-red-400 hover:bg-red-500 hover:text-white"
+                      >
+                        <Trash2 className="w-3 h-3 mr-1" />
+                        {deletingEmails.has(subscriber.email) ? 'Deleting...' : 'Delete'}
+                      </Button>
                     </div>
                   </div>
                 ))}

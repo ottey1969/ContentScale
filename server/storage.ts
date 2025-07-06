@@ -141,6 +141,7 @@ export interface IStorage {
   getVerifiedSubscribers(): Promise<EmailSubscriber[]>;
   verifyEmailSubscriber(id: string): Promise<void>;
   unsubscribeEmail(email: string): Promise<void>;
+  deleteEmailSubscriber(email: string): Promise<boolean>;
   
   // Email campaign operations
   createEmailCampaign(campaign: InsertEmailCampaign): Promise<EmailCampaign>;
@@ -803,6 +804,14 @@ export class DatabaseStorage implements IStorage {
         updatedAt: new Date() 
       })
       .where(eq(emailSubscribers.email, email));
+  }
+
+  async deleteEmailSubscriber(email: string): Promise<boolean> {
+    const result = await db
+      .delete(emailSubscribers)
+      .where(eq(emailSubscribers.email, email));
+    
+    return result.rowCount > 0;
   }
 
   // Email campaign operations
