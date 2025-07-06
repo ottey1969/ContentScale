@@ -250,13 +250,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const settings = await storage.getAdminSettings();
       res.json({
-        demoVideoId: settings?.demoVideoId || "",
+        demoVideoId: settings?.demoVideoId || "qFb1Q_ybyAo",
         demoVideoTitle: settings?.demoVideoTitle || "ContentScale Demo"
       });
     } catch (error) {
       console.error("Error fetching video settings:", error);
       res.json({
-        demoVideoId: "",
+        demoVideoId: "qFb1Q_ybyAo",
         demoVideoTitle: "ContentScale Demo"
       });
     }

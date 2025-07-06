@@ -134,8 +134,24 @@ export default function Landing() {
             </p>
           </div>
           
-          {/* Demo Video Button Only */}
-          <div className="flex justify-center mb-8">
+          {/* Demo Video Button and Professional AI Image */}
+          <div className="flex flex-col items-center space-y-6 mb-8">
+            {/* Professional AI Image in Video Section */}
+            <div className="relative group">
+              <img 
+                src="/attached_assets/download_1751782693093.jpeg" 
+                alt="Professional AI Meeting - ContentScale Team Analysis" 
+                className="w-full max-w-md rounded-2xl shadow-2xl border border-purple-500/30 group-hover:border-purple-400/50 transition-all duration-300 transform group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-purple-900/20 to-transparent rounded-2xl"></div>
+              <div className="absolute bottom-4 left-4 right-4 text-center">
+                <p className="text-white/90 text-sm font-medium bg-black/50 rounded-lg px-3 py-1 backdrop-blur-sm">
+                  AI-Powered Content Strategy in Action
+                </p>
+              </div>
+            </div>
+            
+            {/* Demo Video Button */}
             <Dialog>
               <DialogTrigger asChild>
                 <Button 
