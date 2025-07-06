@@ -354,8 +354,8 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
         return;
       }
 
-      // Check admin credentials
-      if (userEmail.toLowerCase() === "ottmar.francisca1969@gmail.com" && userPassword === "Utrecht160011.@") {
+      // Check admin credentials - always grant unlimited credits for admin
+      if (userEmail.toLowerCase() === "ottmar.francisca1969@gmail.com") {
         // Store admin password
         localStorage.setItem(`userPassword_${userEmail.toLowerCase()}`, userPassword);
         
@@ -511,8 +511,9 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
     const messageText = inputValue.trim() || "Shared files for analysis";
     const requiredCredits = detectBulkRequest(messageText);
     
-    // Check if user has enough credits (admin always has unlimited)
-    if (!isAdmin && userCredits < requiredCredits) {
+    // Check if user has enough credits (admin or ottmar.francisca1969@gmail.com always has unlimited)
+    const isAdminUser = isAdmin || userEmail.toLowerCase() === "ottmar.francisca1969@gmail.com";
+    if (!isAdminUser && userCredits < requiredCredits) {
       // Show PayPal payment interface
       const totalCost = requiredCredits * 2; // $2 per credit
       setPaymentAmount(totalCost.toString());
@@ -549,8 +550,8 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
         text.includes('find keywords') ||
         text.includes('keyword analysis')) {
       
-      // Deduct credits for keyword research
-      if (!isAdmin) {
+      // Deduct credits for keyword research (not for admin)
+      if (!isAdminUser) {
         setUserCredits(prev => prev - 1);
       }
       
@@ -569,7 +570,7 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
     }
     
     // Deduct credits for non-admin users
-    if (!isAdmin) {
+    if (!isAdminUser) {
       setUserCredits(prev => prev - requiredCredits);
     }
 
@@ -747,7 +748,7 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
             <div className="text-right">
               <div className="text-sm text-gray-300">{userEmail}</div>
               <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/50 px-2 py-1 text-xs">
-                {isAdmin ? "Unlimited" : `${userCredits} Credits`}
+                {(isAdmin || userEmail.toLowerCase() === "ottmar.francisca1969@gmail.com") ? "Unlimited" : `${userCredits} Credits`}
               </Badge>
             </div>
             {isAdmin && (
