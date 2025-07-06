@@ -273,10 +273,16 @@ export class SofeiaAI {
       const needsResearch = this.needsRealTimeData(message);
       let researchData: { content: string; sources: string[] } = { content: '', sources: [] };
       
-      if (needsResearch && process.env.PERPLEXITY_API_KEY) {
-        // Get real-time research and statistics from Perplexity
-        const researchQuery = this.extractResearchQuery(message);
-        researchData = await getPerplexityResearch(researchQuery);
+      // Perplexity research temporarily disabled
+      if (false) {
+        try {
+          // Get real-time research and statistics from Perplexity
+          const researchQuery = this.extractResearchQuery(message);
+          researchData = await getPerplexityResearch(researchQuery);
+        } catch (error) {
+          console.log("Perplexity API unavailable, continuing with Anthropic only");
+          researchData = { content: '', sources: [] };
+        }
       }
 
       // Use Anthropic API for natural, direct responses
@@ -449,15 +455,8 @@ export class SofeiaAI {
   }
 
   private needsRealTimeData(message: string): boolean {
-    const researchKeywords = [
-      'statistics', 'data', 'current', '2025', 'latest', 'trends', 'market',
-      'research', 'study', 'report', 'analysis', 'growth', 'revenue',
-      'industry', 'survey', 'percentage', 'rate', 'numbers', 'facts'
-    ];
-    
-    const messageLower = message.toLowerCase();
-    return researchKeywords.some(keyword => messageLower.includes(keyword)) ||
-           this.isBlogPostRequest(message);
+    // Temporarily disable to fix timeout issues
+    return false;
   }
 
   private extractResearchQuery(message: string): string {
