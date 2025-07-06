@@ -510,14 +510,24 @@ User question: ${message}`
         return res.status(400).json({ message: "Email and message are required" });
       }
 
-      // Find user by email
+      // Find user by email, create if not exists
       console.log("🔍 Looking for user with email:", email);
-      const user = await storage.getUserByEmail(email);
+      let user = await storage.getUserByEmail(email);
       console.log("👤 Found user:", user);
       
       if (!user) {
-        console.log("❌ User not found with email:", email);
-        return res.status(404).json({ message: "User not found with this email address" });
+        console.log("🆕 User not found, creating new user for:", email);
+        // Create a basic user record for admin messaging
+        const newUserId = `msg_${Date.now()}`;
+        user = await storage.upsertUser({
+          id: newUserId,
+          email: email,
+          firstName: null,
+          lastName: null,
+          profileImageUrl: null,
+          credits: 0 // No credits for users created via admin messaging
+        });
+        console.log("✅ Created new user:", user);
       }
 
       // Create or get conversation
