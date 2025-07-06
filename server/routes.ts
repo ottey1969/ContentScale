@@ -503,26 +503,36 @@ User question: ${message}`
     try {
       const { email, message } = req.body;
       
+      console.log("📧 Admin sending message by email:", { email, message });
+      
       if (!email || !message) {
+        console.log("❌ Missing email or message");
         return res.status(400).json({ message: "Email and message are required" });
       }
 
       // Find user by email
+      console.log("🔍 Looking for user with email:", email);
       const user = await storage.getUserByEmail(email);
+      console.log("👤 Found user:", user);
+      
       if (!user) {
+        console.log("❌ User not found with email:", email);
         return res.status(404).json({ message: "User not found with this email address" });
       }
 
       // Create or get conversation
+      console.log("💬 Creating/getting conversation for user:", user.id);
       await storage.getOrCreateConversation(user.id);
 
       // Send message
+      console.log("📤 Creating admin message");
       const newMessage = await storage.createAdminMessage({
         userId: user.id,
         message,
         isFromAdmin: true
       });
 
+      console.log("✅ Message sent successfully:", newMessage);
       res.json({
         success: true,
         message: newMessage,
@@ -530,8 +540,11 @@ User question: ${message}`
         userId: user.id
       });
     } catch (error) {
-      console.error("Error sending message by email:", error);
-      res.status(500).json({ message: "Failed to send message" });
+      console.error("❌ Error sending message by email:", error);
+      res.status(500).json({ 
+        message: "Failed to send message", 
+        error: error instanceof Error ? error.message : String(error)
+      });
     }
   });
 

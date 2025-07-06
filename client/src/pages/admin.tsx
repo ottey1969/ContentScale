@@ -34,6 +34,7 @@ const AdminChatDashboard = () => {
   const [broadcastMessage, setBroadcastMessage] = useState('');
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   // Initialize audio for message notifications
   useEffect(() => {
@@ -132,25 +133,33 @@ const AdminChatDashboard = () => {
   // Send message by email mutation
   const sendMessageByEmail = useMutation({
     mutationFn: async ({ email, message }: { email: string; message: string }) => {
+      console.log("🚀 Sending message by email:", { email, message });
       const response = await apiRequest('POST', '/api/admin/send-message-by-email', {
         email,
         message
       });
-      return response.json();
+      const result = await response.json();
+      console.log("📧 Email message response:", result);
+      return result;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log("✅ Message sent successfully:", data);
       setMessageRecipient('');
       setBroadcastMessage('');
       setShowUserSelector(false);
+      // Refresh conversations to show the new message
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/conversations'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/messages', data.userId] });
       toast({
-        title: "Message sent",
-        description: "Your message has been sent to the user.",
+        title: "Message sent successfully",
+        description: `Message sent to ${data.userEmail}`,
       });
     },
-    onError: () => {
+    onError: (error) => {
+      console.error("❌ Failed to send message:", error);
       toast({
         title: "Error",
-        description: "Failed to send message. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to send message. Please try again.",
         variant: "destructive",
       });
     }
