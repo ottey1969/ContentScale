@@ -240,6 +240,32 @@ export const emailCampaignRecipients = pgTable("email_campaign_recipients", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Admin-User chat system
+export const adminMessages = pgTable("admin_messages", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  message: text("message").notNull(),
+  isFromAdmin: boolean("is_from_admin").notNull().default(false),
+  isRead: boolean("is_read").default(false),
+  readAt: timestamp("read_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Chat conversation status
+export const adminConversations = pgTable("admin_conversations", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  status: varchar("status").default('active'), // 'active', 'closed', 'archived'
+  priority: varchar("priority").default('normal'), // 'low', 'normal', 'high', 'urgent'
+  lastMessageAt: timestamp("last_message_at").defaultNow(),
+  unreadCount: integer("unread_count").default(0),
+  subject: varchar("subject"),
+  metadata: jsonb("metadata"), // Additional conversation data
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   content: many(content),
@@ -323,6 +349,25 @@ export const emailCampaignRecipientsRelations = relations(emailCampaignRecipient
   }),
 }));
 
+export const adminMessagesRelations = relations(adminMessages, ({ one }) => ({
+  user: one(users, {
+    fields: [adminMessages.userId],
+    references: [users.id],
+  }),
+  conversation: one(adminConversations, {
+    fields: [adminMessages.userId],
+    references: [adminConversations.userId],
+  }),
+}));
+
+export const adminConversationsRelations = relations(adminConversations, ({ one, many }) => ({
+  user: one(users, {
+    fields: [adminConversations.userId],
+    references: [users.id],
+  }),
+  messages: many(adminMessages),
+}));
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   createdAt: true,
@@ -398,6 +443,18 @@ export const insertEmailCampaignRecipientSchema = createInsertSchema(emailCampai
   createdAt: true,
 });
 
+export const insertAdminMessageSchema = createInsertSchema(adminMessages).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertAdminConversationSchema = createInsertSchema(adminConversations).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -427,3 +484,7 @@ export type InsertEmailCampaign = z.infer<typeof insertEmailCampaignSchema>;
 export type EmailCampaign = typeof emailCampaigns.$inferSelect;
 export type InsertEmailCampaignRecipient = z.infer<typeof insertEmailCampaignRecipientSchema>;
 export type EmailCampaignRecipient = typeof emailCampaignRecipients.$inferSelect;
+export type InsertAdminMessage = z.infer<typeof insertAdminMessageSchema>;
+export type AdminMessage = typeof adminMessages.$inferSelect;
+export type InsertAdminConversation = z.infer<typeof insertAdminConversationSchema>;
+export type AdminConversation = typeof adminConversations.$inferSelect;

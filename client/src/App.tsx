@@ -9,6 +9,7 @@ import SimpleDashboard from "@/pages/simple-dashboard";
 import Landing from "@/pages/landing";
 import LandingTest from "@/pages/landing-test";
 import Admin from "@/pages/admin";
+import UserChatPopup from "@/components/UserChatPopup";
 import { useAuth } from "@/hooks/useAuth";
 
 function Router() {
@@ -42,6 +43,7 @@ function App() {
       <TooltipProvider>
         <Toaster />
         <Router />
+        <UserChatPopup />
       </TooltipProvider>
     </QueryClientProvider>
   );

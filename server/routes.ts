@@ -12,7 +12,7 @@ import { securityService } from "./services/securityService";
 import { securityMiddleware, rateLimitMiddleware, adminSecurityMiddleware } from "./middleware/securityMiddleware";
 import { registerSofeiaRoutes } from "./routes/sofeiaRoutes";
 import { sofeiaAI } from "./services/sofeiaAI";
-import { insertContentSchema, insertKeywordSchema, insertActivitySchema } from "@shared/schema";
+import { insertContentSchema, insertKeywordSchema, insertActivitySchema, insertAdminMessageSchema } from "@shared/schema";
 import { z } from "zod";
 import multer from "multer";
 import csv from "csv-parser";
@@ -398,6 +398,103 @@ User question: ${message}`
     } catch (error) {
       console.error("Error granting credits:", error);
       res.status(500).json({ message: "Failed to grant credits" });
+    }
+  });
+
+  // Admin-User Chat System API
+  
+  // Send message (from user or admin)
+  app.post("/api/admin/messages", async (req: any, res) => {
+    try {
+      const { userId, message, isFromAdmin } = req.body;
+      
+      if (!userId || !message) {
+        return res.status(400).json({ message: "User ID and message are required" });
+      }
+
+      const newMessage = await storage.createAdminMessage({
+        userId,
+        message,
+        isFromAdmin: isFromAdmin || false
+      });
+
+      res.json({
+        success: true,
+        message: newMessage
+      });
+    } catch (error) {
+      console.error("Error sending message:", error);
+      res.status(500).json({ message: "Failed to send message" });
+    }
+  });
+
+  // Get conversation messages
+  app.get("/api/admin/messages/:userId", async (req: any, res) => {
+    try {
+      const { userId } = req.params;
+      const messages = await storage.getConversationMessages(userId);
+      
+      // Mark admin messages as read when user views them
+      await storage.markMessagesAsRead(userId, true);
+      
+      res.json({
+        success: true,
+        messages
+      });
+    } catch (error) {
+      console.error("Error fetching messages:", error);
+      res.status(500).json({ message: "Failed to fetch messages" });
+    }
+  });
+
+  // Mark messages as read
+  app.post("/api/admin/messages/:userId/read", async (req: any, res) => {
+    try {
+      const { userId } = req.params;
+      const { isFromAdmin } = req.body;
+      
+      await storage.markMessagesAsRead(userId, isFromAdmin);
+      
+      res.json({
+        success: true,
+        message: "Messages marked as read"
+      });
+    } catch (error) {
+      console.error("Error marking messages as read:", error);
+      res.status(500).json({ message: "Failed to mark messages as read" });
+    }
+  });
+
+  // Get all conversations (admin only)
+  app.get("/api/admin/conversations", async (req: any, res) => {
+    try {
+      const conversations = await storage.getAllConversations();
+      
+      res.json({
+        success: true,
+        conversations
+      });
+    } catch (error) {
+      console.error("Error fetching conversations:", error);
+      res.status(500).json({ message: "Failed to fetch conversations" });
+    }
+  });
+
+  // Get unread message count
+  app.get("/api/admin/messages/:userId/unread", async (req: any, res) => {
+    try {
+      const { userId } = req.params;
+      const { isFromAdmin } = req.query;
+      
+      const count = await storage.getUnreadMessageCount(userId, isFromAdmin === 'true');
+      
+      res.json({
+        success: true,
+        unreadCount: count
+      });
+    } catch (error) {
+      console.error("Error fetching unread count:", error);
+      res.status(500).json({ message: "Failed to fetch unread count" });
     }
   });
 

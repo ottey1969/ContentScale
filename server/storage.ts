@@ -14,6 +14,8 @@ import {
   emailCampaigns,
   emailCampaignRecipients,
   userPasswords,
+  adminMessages,
+  adminConversations,
   type User,
   type UpsertUser,
   type InsertContent,
@@ -42,6 +44,10 @@ import {
   type EmailCampaign,
   type InsertEmailCampaignRecipient,
   type EmailCampaignRecipient,
+  type InsertAdminMessage,
+  type AdminMessage,
+  type InsertAdminConversation,
+  type AdminConversation,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, or, sql, gte, lt, gt, isNotNull } from "drizzle-orm";
@@ -170,6 +176,23 @@ export interface IStorage {
     createdAt: string;
     lastUsed: string;
   }>>;
+
+  // Admin-User chat system
+  createAdminMessage(message: InsertAdminMessage): Promise<AdminMessage>;
+  getConversationMessages(userId: string): Promise<AdminMessage[]>;
+  markMessagesAsRead(userId: string, isFromAdmin: boolean): Promise<void>;
+  getOrCreateConversation(userId: string): Promise<AdminConversation>;
+  getAllConversations(): Promise<Array<{
+    userId: string;
+    userEmail: string;
+    lastMessage: string;
+    lastMessageAt: string;
+    unreadCount: number;
+  }>>;
+  getUnreadMessageCount(userId: string, isFromAdmin: boolean): Promise<number>;
+  updateConversation(conversationId: string, updates: Partial<AdminConversation>): Promise<void>;
+  getAllConversations(): Promise<Array<AdminConversation & { user: User; lastMessage?: string }>>;
+  getUnreadMessageCount(userId: string, isFromAdmin: boolean): Promise<number>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -997,6 +1020,141 @@ export class DatabaseStorage implements IStorage {
       createdAt: p.createdAt?.toISOString() || '',
       lastUsed: p.lastUsed?.toISOString() || '',
     }));
+  }
+
+  // Admin-User chat system implementation
+  async createAdminMessage(message: InsertAdminMessage): Promise<AdminMessage> {
+    const [newMessage] = await db
+      .insert(adminMessages)
+      .values(message)
+      .returning();
+    
+    // Update conversation's last message time and unread count
+    const conversation = await this.getOrCreateConversation(message.userId);
+    await this.updateConversation(conversation.id, {
+      lastMessageAt: new Date(),
+      unreadCount: message.isFromAdmin ? 
+        (conversation.unreadCount || 0) + 1 : 
+        conversation.unreadCount
+    });
+    
+    return newMessage;
+  }
+
+  async getConversationMessages(userId: string): Promise<AdminMessage[]> {
+    return await db
+      .select()
+      .from(adminMessages)
+      .where(eq(adminMessages.userId, userId))
+      .orderBy(adminMessages.createdAt);
+  }
+
+  async markMessagesAsRead(userId: string, isFromAdmin: boolean): Promise<void> {
+    await db
+      .update(adminMessages)
+      .set({ 
+        isRead: true, 
+        readAt: new Date(),
+        updatedAt: new Date()
+      })
+      .where(and(
+        eq(adminMessages.userId, userId),
+        eq(adminMessages.isFromAdmin, isFromAdmin),
+        eq(adminMessages.isRead, false)
+      ));
+
+    // Reset unread count for the appropriate side
+    if (!isFromAdmin) {
+      const conversation = await this.getOrCreateConversation(userId);
+      await this.updateConversation(conversation.id, {
+        unreadCount: 0
+      });
+    }
+  }
+
+  async getOrCreateConversation(userId: string): Promise<AdminConversation> {
+    let [conversation] = await db
+      .select()
+      .from(adminConversations)
+      .where(eq(adminConversations.userId, userId));
+
+    if (!conversation) {
+      [conversation] = await db
+        .insert(adminConversations)
+        .values({ userId })
+        .returning();
+    }
+
+    return conversation;
+  }
+
+  async updateConversation(conversationId: string, updates: Partial<AdminConversation>): Promise<void> {
+    await db
+      .update(adminConversations)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(adminConversations.id, conversationId));
+  }
+
+  async getAllConversations(): Promise<Array<{
+    userId: string;
+    userEmail: string;
+    lastMessage: string;
+    lastMessageAt: string;
+    unreadCount: number;
+  }>> {
+    const conversations = await db
+      .select({
+        conversation: adminConversations,
+        user: users,
+      })
+      .from(adminConversations)
+      .leftJoin(users, eq(adminConversations.userId, users.id))
+      .orderBy(desc(adminConversations.lastMessageAt));
+
+    // Get last message for each conversation
+    const conversationsWithMessages = await Promise.all(
+      conversations.map(async ({ conversation, user }) => {
+        const [lastMessage] = await db
+          .select()
+          .from(adminMessages)
+          .where(eq(adminMessages.userId, conversation.userId))
+          .orderBy(desc(adminMessages.createdAt))
+          .limit(1);
+
+        // Get unread count (messages from user not read by admin)
+        const [unreadResult] = await db
+          .select({ count: sql<number>`count(*)` })
+          .from(adminMessages)
+          .where(and(
+            eq(adminMessages.userId, conversation.userId),
+            eq(adminMessages.isFromAdmin, false),
+            eq(adminMessages.isRead, false)
+          ));
+
+        return {
+          userId: conversation.userId,
+          userEmail: user?.email || `User ${conversation.userId}`,
+          lastMessage: lastMessage?.message || 'No messages yet',
+          lastMessageAt: conversation.lastMessageAt?.toISOString() || '',
+          unreadCount: unreadResult?.count || 0
+        };
+      })
+    );
+
+    return conversationsWithMessages;
+  }
+
+  async getUnreadMessageCount(userId: string, isFromAdmin: boolean): Promise<number> {
+    const [result] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(adminMessages)
+      .where(and(
+        eq(adminMessages.userId, userId),
+        eq(adminMessages.isFromAdmin, isFromAdmin),
+        eq(adminMessages.isRead, false)
+      ));
+
+    return result?.count || 0;
   }
 }
 

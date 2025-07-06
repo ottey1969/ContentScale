@@ -24,6 +24,186 @@ interface AdminSettings {
 
 
 
+// Admin Chat Dashboard Component
+const AdminChatDashboard = () => {
+  const [selectedUserId, setSelectedUserId] = useState<string>('');
+  const [newMessage, setNewMessage] = useState('');
+  const { toast } = useToast();
+  
+  // Fetch all conversations
+  const { data: conversations, isLoading: conversationsLoading } = useQuery({
+    queryKey: ['/api/admin/conversations'],
+    refetchInterval: 5000, // Refresh every 5 seconds
+  });
+  
+  // Fetch messages for selected user
+  const { data: messageData, isLoading: messagesLoading } = useQuery({
+    queryKey: ['/api/admin/messages', selectedUserId],
+    enabled: !!selectedUserId,
+    refetchInterval: 2000, // Refresh every 2 seconds when conversation is open
+  });
+  
+  // Send message mutation
+  const sendMessage = useMutation({
+    mutationFn: async ({ userId, message }: { userId: string; message: string }) => {
+      const response = await apiRequest('POST', '/api/admin/messages', {
+        userId,
+        message,
+        isFromAdmin: true
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      setNewMessage('');
+      toast({
+        title: "Message sent",
+        description: "Your message has been sent to the user.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to send message. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
+  
+  const handleSendMessage = () => {
+    if (!selectedUserId || !newMessage.trim()) return;
+    
+    sendMessage.mutate({
+      userId: selectedUserId,
+      message: newMessage.trim()
+    });
+  };
+  
+  const messages = messageData?.messages || [];
+  
+  return (
+    <div className="space-y-6">
+      <Card className="bg-slate-800 border-slate-700">
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2 text-white">
+            <span>💬</span>
+            <span>Admin-User Chat Dashboard</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[600px]">
+            
+            {/* Conversations List */}
+            <div className="lg:col-span-1 space-y-4">
+              <h3 className="text-lg font-semibold text-white">Active Conversations</h3>
+              <div className="space-y-2 max-h-[500px] overflow-y-auto">
+                {conversationsLoading ? (
+                  <div className="text-gray-400">Loading conversations...</div>
+                ) : conversations?.conversations?.length > 0 ? (
+                  conversations.conversations.map((conv: any) => (
+                    <div
+                      key={conv.userId}
+                      onClick={() => setSelectedUserId(conv.userId)}
+                      className={`p-4 rounded-lg cursor-pointer transition-all ${
+                        selectedUserId === conv.userId
+                          ? 'bg-purple-600 text-white'
+                          : 'bg-slate-700 hover:bg-slate-600 text-gray-300'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="font-medium">{conv.userEmail || `User ${conv.userId}`}</div>
+                          <div className="text-sm opacity-70">
+                            {conv.lastMessage ? conv.lastMessage.substring(0, 50) + '...' : 'No messages yet'}
+                          </div>
+                        </div>
+                        {conv.unreadCount > 0 && (
+                          <div className="bg-red-500 text-white rounded-full px-2 py-1 text-xs">
+                            {conv.unreadCount}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-gray-400">No conversations yet</div>
+                )}
+              </div>
+            </div>
+            
+            {/* Chat Messages */}
+            <div className="lg:col-span-2 flex flex-col">
+              {selectedUserId ? (
+                <>
+                  <div className="flex-1 bg-slate-700 rounded-lg p-4 mb-4 overflow-y-auto max-h-[400px]">
+                    {messagesLoading ? (
+                      <div className="text-gray-400">Loading messages...</div>
+                    ) : messages.length > 0 ? (
+                      <div className="space-y-4">
+                        {messages.map((message: any) => (
+                          <div
+                            key={message.id}
+                            className={`flex ${message.isFromAdmin ? 'justify-end' : 'justify-start'}`}
+                          >
+                            <div
+                              className={`max-w-[70%] p-3 rounded-lg ${
+                                message.isFromAdmin
+                                  ? 'bg-purple-600 text-white'
+                                  : 'bg-slate-600 text-gray-200'
+                              }`}
+                            >
+                              <div className="text-sm">{message.message}</div>
+                              <div className="text-xs opacity-70 mt-1">
+                                {new Date(message.createdAt).toLocaleString()}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-gray-400 text-center">No messages in this conversation</div>
+                    )}
+                  </div>
+                  
+                  {/* Message Input */}
+                  <div className="flex space-x-2">
+                    <Textarea
+                      value={newMessage}
+                      onChange={(e) => setNewMessage(e.target.value)}
+                      placeholder="Type your message to the user..."
+                      className="flex-1 bg-slate-700 border-slate-600 text-white resize-none"
+                      rows={3}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          handleSendMessage();
+                        }
+                      }}
+                    />
+                    <Button
+                      onClick={handleSendMessage}
+                      disabled={!newMessage.trim() || sendMessage.isPending}
+                      className="bg-purple-600 hover:bg-purple-700 text-white self-end"
+                    >
+                      Send
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <div className="flex-1 flex items-center justify-center bg-slate-700 rounded-lg">
+                  <div className="text-gray-400 text-center">
+                    <div className="text-4xl mb-4">💬</div>
+                    <div>Select a conversation to start chatting</div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
 export default function Admin() {
   const { user, isLoading } = useAuth();
   const { toast } = useToast();
@@ -301,7 +481,7 @@ export default function Admin() {
 
         {/* Tabbed Interface */}
         <Tabs defaultValue="settings" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-slate-800 border-slate-700">
+          <TabsList className="grid w-full grid-cols-5 bg-slate-800 border-slate-700">
             <TabsTrigger value="settings" className="flex items-center space-x-2">
               <Video className="w-4 h-4" />
               <span>Settings</span>
@@ -313,6 +493,10 @@ export default function Admin() {
             <TabsTrigger value="emails" className="flex items-center space-x-2">
               <Mail className="w-4 h-4" />
               <span>Emails</span>
+            </TabsTrigger>
+            <TabsTrigger value="chat" className="flex items-center space-x-2">
+              <span>💬</span>
+              <span>Chat</span>
             </TabsTrigger>
             <TabsTrigger value="security" className="flex items-center space-x-2">
               <Shield className="w-4 h-4" />
@@ -454,6 +638,11 @@ export default function Admin() {
           <TabsContent value="emails" className="space-y-6 mt-6">
             {/* Email Marketing Dashboard */}
             <EmailMarketing />
+          </TabsContent>
+
+          <TabsContent value="chat" className="space-y-6 mt-6">
+            {/* Admin-User Chat Dashboard */}
+            <AdminChatDashboard />
           </TabsContent>
 
           <TabsContent value="security" className="space-y-6 mt-6">
