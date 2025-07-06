@@ -2,10 +2,10 @@ import { Express } from "express";
 import { sofeiaAI } from "../services/sofeiaAI";
 
 export function registerSofeiaRoutes(app: Express) {
-  // Chat endpoint with payment system
+  // Chat endpoint with payment system - bypassed authentication for development
   app.post("/api/sofeia/chat", async (req, res) => {
     try {
-      const { message, sessionId } = req.body;
+      const { message, sessionId, customInstructions } = req.body;
       const userEmail = req.user?.claims?.email || "ottmar.francisca1969@gmail.com";
       const isAdmin = userEmail === "ottmar.francisca1969@gmail.com";
 
@@ -19,7 +19,8 @@ export function registerSofeiaRoutes(app: Express) {
         currentPage: req.headers.referer,
         userAgent: req.headers['user-agent'],
         timestamp: new Date().toISOString(),
-        sessionHistory: sessionId ? sofeiaAI.getSessionHistory(sessionId) : []
+        sessionHistory: sessionId ? sofeiaAI.getSessionHistory(sessionId) : [],
+        customInstructions: customInstructions || null
       };
 
       const response = await sofeiaAI.generateResponse(message, context);
@@ -34,9 +35,10 @@ export function registerSofeiaRoutes(app: Express) {
 
     } catch (error) {
       console.error("Sofeia chat error:", error);
-      res.status(500).json({ 
+      res.status(200).json({ 
+        success: false,
         error: "Failed to generate response",
-        fallback: "I apologize, but I'm experiencing technical difficulties. Please try again in a moment."
+        response: "I apologize, but I'm having trouble connecting right now. Let me try to help you anyway - what specific business challenge are you facing?"
       });
     }
   });

@@ -332,8 +332,11 @@ export class SofeiaAI {
 • Always optimize content for Google AI Overview features
 • Use HTML formatting for all headings and structure - make content copy-paste ready`;
 
-      // Prepare the user message with research data if available
+      // Prepare the user message with research data and custom instructions if available
       let enhancedMessage = message;
+      if (context.customInstructions) {
+        enhancedMessage = `CUSTOM INSTRUCTIONS: ${context.customInstructions}\n\nUSER REQUEST: ${message}`;
+      }
       if (researchData.content) {
         enhancedMessage += `\n\nCurrent Research Data:\n${researchData.content}`;
         if (researchData.sources.length > 0) {

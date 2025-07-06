@@ -46,6 +46,8 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [attachedFiles, setAttachedFiles] = useState<FileAttachment[]>([]);
+  const [customInstructions, setCustomInstructions] = useState("");
+  const [showCustomInstructions, setShowCustomInstructions] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -597,7 +599,8 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
         },
         body: JSON.stringify({ 
           message: userMessage.text,
-          sessionId: null 
+          sessionId: null,
+          customInstructions: customInstructions || null
         }),
       });
 
@@ -900,6 +903,22 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
           </div>
         )}
 
+        {/* Custom Instructions Area */}
+        {showCustomInstructions && (
+          <div className="border-t border-purple-500/20 p-4">
+            <label className="block text-sm font-medium text-purple-300 mb-2">
+              Custom Instructions (Optional)
+            </label>
+            <textarea
+              value={customInstructions}
+              onChange={(e) => setCustomInstructions(e.target.value)}
+              placeholder="Add specific instructions for the AI to follow... (e.g., 'Write in a formal tone', 'Include technical details', 'Target beginner audience')"
+              className="w-full bg-slate-800/50 border-purple-500/30 text-white placeholder-gray-400 focus:border-purple-400 rounded-lg p-3 text-sm resize-none"
+              rows={3}
+            />
+          </div>
+        )}
+
         {/* Input Area */}
         <div className="border-t border-purple-500/20 pt-4 px-6 pb-6">
           <div className="flex items-end space-x-3">
@@ -926,8 +945,18 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
               variant="outline"
               className="border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400 h-12 px-4"
               disabled={isLoading}
+              title="Upload File"
             >
               <Paperclip className="w-5 h-5" />
+            </Button>
+            <Button
+              onClick={() => setShowCustomInstructions(!showCustomInstructions)}
+              variant="outline"
+              className={`border-purple-500/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400 h-12 px-4 ${showCustomInstructions ? 'bg-purple-500/20' : ''}`}
+              disabled={isLoading}
+              title="Custom Instructions"
+            >
+              <Sparkles className="w-5 h-5" />
             </Button>
             <Button
               onClick={handleSendMessage}
