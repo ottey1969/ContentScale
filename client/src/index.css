@@ -363,3 +363,15 @@ button:disabled {
 .prose-content ol li {
   list-style-type: decimal;
 }
+
+.prose-content a {
+  color: #60a5fa;
+  text-decoration: underline;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.prose-content a:hover {
+  color: #93c5fd;
+  text-decoration: none;
+}
