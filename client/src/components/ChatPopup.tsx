@@ -95,6 +95,42 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
     generateFingerprint();
   }, []);
 
+  // Check for credit updates periodically for authenticated users
+  useEffect(() => {
+    if (!isAuthenticated || !userEmail) return;
+    
+    const checkCreditUpdates = async () => {
+      try {
+        const response = await fetch('/api/sofeia/credits');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.creditBalance !== userCredits) {
+            const oldCredits = userCredits;
+            setUserCredits(data.creditBalance);
+            console.log(`Credits updated: ${data.creditBalance}`);
+            
+            // Show notification if credits increased
+            if (data.creditBalance > oldCredits) {
+              const creditMessage: Message = {
+                id: Date.now().toString(),
+                text: `🎉 Great news! You've received ${data.creditBalance - oldCredits} additional credits. Your new balance is ${data.creditBalance} credits.`,
+                isUser: false,
+                timestamp: new Date(),
+              };
+              setMessages(prev => [...prev, creditMessage]);
+            }
+          }
+        }
+      } catch (error) {
+        console.log('Credit check failed:', error);
+      }
+    };
+    
+    // Check credits every 10 seconds when authenticated
+    const interval = setInterval(checkCreditUpdates, 10000);
+    return () => clearInterval(interval);
+  }, [isAuthenticated, userEmail, userCredits]);
+
   // Load stored password on component mount
   useEffect(() => {
     const stored = localStorage.getItem(`userPassword_${userEmail}`);

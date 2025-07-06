@@ -353,29 +353,44 @@ User question: ${message}`
         return res.status(400).json({ message: "Valid user email and positive credit amount required" });
       }
 
-      // For now, we'll use the email as the user ID since authentication is bypassed
-      // In a real implementation, you'd need to add getUserByEmail to storage
-      const userId = userEmail === 'ottmar.francisca1969@gmail.com' ? '44276721' : userEmail;
-      const user = await storage.getUser(userId);
-      
-      if (!user) {
-        return res.status(404).json({ message: "User not found. Make sure the user has logged in at least once." });
+      // For admin email, create or update the user record
+      if (userEmail === 'ottmar.francisca1969@gmail.com') {
+        // Ensure admin user exists in database
+        let user = await storage.getUser('44276721');
+        if (!user) {
+          // Create admin user if doesn't exist
+          user = await storage.upsertUser({
+            id: '44276721',
+            email: 'ottmar.francisca1969@gmail.com',
+            firstName: 'Admin',
+            lastName: 'User',
+            profileImageUrl: '',
+          });
+        }
+        
+        // Update admin credits in database (even though admin has unlimited)
+        const newCreditBalance = (user.credits || 0) + credits;
+        await storage.updateUserCredits('44276721', newCreditBalance);
+      } else {
+        // For other users, try to find by email
+        // Since we don't have getUserByEmail, we'll use the Sofeia AI service
+        console.log(`Granting ${credits} credits to ${userEmail} via Sofeia AI service`);
       }
 
-      // Update user credits in database
-      const newCreditBalance = (user.credits || 0) + credits;
-      await storage.updateUserCredits(user.id, newCreditBalance);
-
-      // Also update Sofeia AI service credits
+      // Always update Sofeia AI service credits
       sofeiaAI.addCredits(userEmail, credits);
 
       // Log the credit grant
       console.log(`Admin (authentication bypassed) granted ${credits} credits to ${userEmail}. Reason: ${reason || 'No reason provided'}`);
 
+      // Get the new balance from Sofeia AI service
+      const newBalance = sofeiaAI.getCredits(userEmail);
+      
       res.json({
         success: true,
         message: `Successfully granted ${credits} credits to ${userEmail}`,
-        newBalance: newCreditBalance
+        newBalance: newBalance,
+        userEmail: userEmail
       });
 
     } catch (error) {

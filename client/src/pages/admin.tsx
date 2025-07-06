@@ -41,18 +41,24 @@ export default function Admin() {
         return await response.json();
       },
       onSuccess: (data: any) => {
+        console.log("✅ Credit granting successful:", data);
         toast({
-          title: "Credits Granted",
-          description: data.message,
+          title: "Credits Granted Successfully",
+          description: `${data.message}. New balance: ${data.newBalance} credits.`,
         });
         setUserEmail('');
         setCredits(10);
         setReason('');
+        
+        // Invalidate credit cache to refresh all displays
+        queryClient.invalidateQueries({ queryKey: ['/api/sofeia/credits'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/sofeia/status'] });
       },
       onError: (error: any) => {
+        console.error("❌ Credit granting failed:", error);
         toast({
-          title: "Error",
-          description: error.message || "Failed to grant credits",
+          title: "Credit Granting Failed",
+          description: error.message || "Failed to grant credits. Please try again.",
           variant: "destructive",
         });
       },
