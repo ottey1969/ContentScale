@@ -300,3 +300,66 @@ button:disabled {
     overflow: visible;
   }
 }
+
+/* Prose content styling for HTML display in chat */
+.prose-content h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 1rem 0 0.5rem 0;
+  color: #f1f5f9;
+  line-height: 1.3;
+}
+
+.prose-content h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 1rem 0 0.5rem 0;
+  color: #e2e8f0;
+  line-height: 1.4;
+}
+
+.prose-content h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0.75rem 0 0.25rem 0;
+  color: #cbd5e1;
+  line-height: 1.4;
+}
+
+.prose-content h4 {
+  font-size: 1rem;
+  font-weight: 500;
+  margin: 0.5rem 0 0.25rem 0;
+  color: #94a3b8;
+  line-height: 1.4;
+}
+
+.prose-content p {
+  margin: 0.5rem 0;
+  line-height: 1.6;
+  color: #f1f5f9;
+}
+
+.prose-content ul, .prose-content ol {
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+  color: #f1f5f9;
+}
+
+.prose-content li {
+  margin: 0.25rem 0;
+  line-height: 1.5;
+}
+
+.prose-content strong {
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.prose-content ul li {
+  list-style-type: disc;
+}
+
+.prose-content ol li {
+  list-style-type: decimal;
+}

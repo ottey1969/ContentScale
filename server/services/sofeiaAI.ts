@@ -279,8 +279,10 @@ export class SofeiaAI {
 - Use HTML numbered lists: <ol><li>Step 1</li><li>Step 2</li></ol>
 - Use <strong>text</strong> for emphasis within paragraphs
 - Use <p>paragraph text</p> for regular content
-- Format must be copy-paste ready HTML that displays properly anywhere
+- Format must be copy-paste ready HTML that displays properly in Word, Google Docs, etc.
 - Never use markdown (# ## ###) or **bold** - only HTML tags
+- Structure content like: Author info → Introduction → Main sections → Conclusion
+- Include meta information: "Author: [Name] | [X] min read | [Date]"
 
 **SOURCE REQUIREMENTS:**
 - NO competitor websites or business citations

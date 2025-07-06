@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { X, Send, Bot, User, Paperclip, Image, FileText, FileSpreadsheet, Upload, Sparkles, Mail, Lock, LogIn, CreditCard } from "lucide-react";
+import { X, Send, Bot, User, Paperclip, Image, FileText, FileSpreadsheet, Upload, Sparkles, Mail, Lock, LogIn, CreditCard, Copy, Code } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -67,6 +67,50 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
   const [showEmailMarketing, setShowEmailMarketing] = useState(false);
   const [showPasswordManager, setShowPasswordManager] = useState(false);
   const [deviceFingerprint, setDeviceFingerprint] = useState("");
+
+  // Copy to clipboard function
+  const copyToClipboard = async (content: string, format: 'formatted' | 'html') => {
+    try {
+      if (format === 'html') {
+        // Copy raw HTML code
+        await navigator.clipboard.writeText(content);
+        // Show brief success indicator
+        const successEl = document.createElement('div');
+        successEl.textContent = 'HTML copied!';
+        successEl.style.cssText = 'position:fixed;top:20px;right:20px;background:#10b981;color:white;padding:8px 12px;border-radius:6px;z-index:9999;font-size:14px;';
+        document.body.appendChild(successEl);
+        setTimeout(() => document.body.removeChild(successEl), 2000);
+      } else {
+        // Create a temporary div to render HTML and extract formatted text
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = content;
+        tempDiv.style.cssText = 'position:absolute;left:-9999px;top:-9999px;white-space:pre-wrap;';
+        document.body.appendChild(tempDiv);
+        
+        // Create selection and copy
+        const selection = window.getSelection();
+        const range = document.createRange();
+        range.selectNodeContents(tempDiv);
+        selection?.removeAllRanges();
+        selection?.addRange(range);
+        
+        document.execCommand('copy');
+        selection?.removeAllRanges();
+        document.body.removeChild(tempDiv);
+        
+        // Show brief success indicator
+        const successEl = document.createElement('div');
+        successEl.textContent = 'Content copied!';
+        successEl.style.cssText = 'position:fixed;top:20px;right:20px;background:#3b82f6;color:white;padding:8px 12px;border-radius:6px;z-index:9999;font-size:14px;';
+        document.body.appendChild(successEl);
+        setTimeout(() => document.body.removeChild(successEl), 2000);
+      }
+    } catch (error) {
+      console.error('Copy failed:', error);
+      // Fallback to simple text copy
+      await navigator.clipboard.writeText(content);
+    }
+  };
 
   // Generate device fingerprint for security
   useEffect(() => {
@@ -847,7 +891,40 @@ export function ChatPopup({ isOpen, onClose, isTestMode = false }: ChatPopupProp
                       ))}
                     </div>
                   )}
-                  <p className="text-sm leading-relaxed whitespace-pre-line">{message.text}</p>
+                  {message.isUser ? (
+                    <p className="text-sm leading-relaxed whitespace-pre-line">{message.text}</p>
+                  ) : (
+                    <div className="space-y-3">
+                      <div 
+                        className="text-sm leading-relaxed max-w-none prose-content"
+                        dangerouslySetInnerHTML={{ __html: message.text }}
+                        style={{
+                          color: '#f1f5f9',
+                        }}
+                      />
+                      {/* Copy and HTML buttons for AI responses */}
+                      <div className="flex space-x-2 pt-3 border-t border-gray-600/50">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => copyToClipboard(message.text, 'formatted')}
+                          className="text-xs h-7 bg-slate-600/50 border-slate-500/50 hover:bg-slate-500/50 text-white"
+                        >
+                          <Copy className="w-3 h-3 mr-1" />
+                          Copy
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => copyToClipboard(message.text, 'html')}
+                          className="text-xs h-7 bg-purple-600/50 border-purple-500/50 hover:bg-purple-500/50 text-white"
+                        >
+                          <Code className="w-3 h-3 mr-1" />
+                          HTML
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                   <span className="text-xs opacity-70 mt-2 block">
                     {message.timestamp.toLocaleTimeString()}
                   </span>
