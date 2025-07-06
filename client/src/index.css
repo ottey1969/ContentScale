@@ -375,3 +375,46 @@ button:disabled {
   color: #93c5fd;
   text-decoration: none;
 }
+
+/* Admin panel text visibility fixes - Critical for readability */
+.admin-panel * {
+  color: white !important;
+}
+
+.admin-panel .text-gray-400,
+.admin-panel .text-gray-500,
+.admin-panel .text-gray-600 {
+  color: #ffffff !important;
+  font-weight: 500 !important;
+}
+
+.admin-panel .opacity-70 {
+  opacity: 1 !important;
+}
+
+.admin-panel h1, .admin-panel h2, .admin-panel h3, .admin-panel h4, .admin-panel h5, .admin-panel h6 {
+  color: #ffffff !important;
+  font-weight: bold !important;
+}
+
+.admin-panel p, .admin-panel span, .admin-panel div {
+  color: #ffffff !important;
+  font-weight: 500 !important;
+}
+
+.admin-panel .bg-slate-700, .admin-panel .bg-slate-800 {
+  border: 1px solid rgb(71 85 105) !important;
+}
+
+/* Force high contrast for all admin text elements */
+[data-page="admin"] * {
+  color: #ffffff !important;
+  text-shadow: 0 0 1px rgba(0,0,0,0.5) !important;
+}
+
+[data-page="admin"] .text-gray-300,
+[data-page="admin"] .text-gray-400,
+[data-page="admin"] .text-gray-500 {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}

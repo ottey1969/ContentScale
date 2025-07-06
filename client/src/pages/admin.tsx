@@ -332,7 +332,7 @@ const AdminChatDashboard = () => {
               <h3 className="text-lg font-semibold text-white">Active Conversations</h3>
               <div className="space-y-2 max-h-[500px] overflow-y-auto">
                 {conversationsLoading ? (
-                  <div className="text-gray-400">Loading conversations...</div>
+                  <div className="text-white font-medium">Loading conversations...</div>
                 ) : conversations?.conversations?.length > 0 ? (
                   conversations.conversations.map((conv: any) => {
                     const isBlocked = conv.userEmail && conv.userEmail.includes('[BLOCKED]');
@@ -340,24 +340,24 @@ const AdminChatDashboard = () => {
                       <div key={conv.userId} className="space-y-2">
                         <div
                           onClick={() => setSelectedUserId(conv.userId)}
-                          className={`p-4 rounded-lg cursor-pointer transition-all ${
+                          className={`p-4 rounded-lg cursor-pointer transition-all border ${
                             selectedUserId === conv.userId
-                              ? 'bg-purple-600 text-white'
-                              : 'bg-slate-700 hover:bg-slate-600 text-gray-300'
-                          } ${isBlocked ? 'border border-red-500' : ''}`}
+                              ? 'bg-purple-600 text-white border-purple-400'
+                              : 'bg-slate-700 hover:bg-slate-600 text-white border-slate-600'
+                          } ${isBlocked ? 'border-red-500 bg-red-900' : ''}`}
                         >
                           <div className="flex items-center justify-between">
                             <div>
-                              <div className="font-medium flex items-center space-x-2">
+                              <div className="font-bold flex items-center space-x-2 text-white">
                                 <span>{conv.userEmail || `User ${conv.userId}`}</span>
                                 {isBlocked && <Ban className="w-4 h-4 text-red-400" />}
                               </div>
-                              <div className="text-sm opacity-70">
+                              <div className="text-sm text-gray-200 font-medium">
                                 {conv.lastMessage ? conv.lastMessage.substring(0, 50) + '...' : 'No messages yet'}
                               </div>
                             </div>
                             {conv.unreadCount > 0 && (
-                              <div className="bg-red-500 text-white rounded-full px-2 py-1 text-xs">
+                              <div className="bg-red-500 text-white rounded-full px-2 py-1 text-xs font-bold">
                                 {conv.unreadCount}
                               </div>
                             )}
@@ -422,7 +422,7 @@ const AdminChatDashboard = () => {
                     );
                   })
                 ) : (
-                  <div className="text-gray-400">No conversations yet</div>
+                  <div className="text-white font-medium bg-slate-700 p-4 rounded-lg border border-slate-600">No conversations yet</div>
                 )}
               </div>
             </div>
@@ -431,9 +431,9 @@ const AdminChatDashboard = () => {
             <div className="lg:col-span-2 flex flex-col">
               {selectedUserId ? (
                 <>
-                  <div className="flex-1 bg-slate-700 rounded-lg p-4 mb-4 overflow-y-auto max-h-[400px]">
+                  <div className="flex-1 bg-slate-700 rounded-lg p-4 mb-4 overflow-y-auto max-h-[400px] border border-slate-600">
                     {messagesLoading ? (
-                      <div className="text-gray-400">Loading messages...</div>
+                      <div className="text-white font-medium">Loading messages...</div>
                     ) : messages.length > 0 ? (
                       <div className="space-y-4">
                         {messages.map((message: any) => (
@@ -442,14 +442,14 @@ const AdminChatDashboard = () => {
                             className={`flex ${message.isFromAdmin ? 'justify-end' : 'justify-start'}`}
                           >
                             <div
-                              className={`max-w-[70%] p-3 rounded-lg ${
+                              className={`max-w-[70%] p-3 rounded-lg border ${
                                 message.isFromAdmin
-                                  ? 'bg-purple-600 text-white'
-                                  : 'bg-slate-600 text-gray-200'
+                                  ? 'bg-purple-600 text-white border-purple-400'
+                                  : 'bg-slate-600 text-white border-slate-400'
                               }`}
                             >
-                              <div className="text-sm">{message.message}</div>
-                              <div className="text-xs opacity-70 mt-1">
+                              <div className="text-sm font-medium">{message.message}</div>
+                              <div className="text-xs text-gray-200 mt-1 font-medium">
                                 {new Date(message.createdAt).toLocaleString()}
                               </div>
                             </div>
@@ -457,7 +457,7 @@ const AdminChatDashboard = () => {
                         ))}
                       </div>
                     ) : (
-                      <div className="text-gray-400 text-center">No messages in this conversation</div>
+                      <div className="text-white text-center font-medium">No messages in this conversation</div>
                     )}
                   </div>
                   
@@ -501,10 +501,10 @@ const AdminChatDashboard = () => {
                   </div>
                 </>
               ) : (
-                <div className="flex-1 flex items-center justify-center bg-slate-700 rounded-lg">
-                  <div className="text-gray-400 text-center">
+                <div className="flex-1 flex items-center justify-center bg-slate-700 rounded-lg border border-slate-600">
+                  <div className="text-white text-center">
                     <div className="text-4xl mb-4">💬</div>
-                    <div>Select a conversation to start chatting</div>
+                    <div className="font-medium">Select a conversation to start chatting</div>
                   </div>
                 </div>
               )}
@@ -779,14 +779,14 @@ export default function Admin() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 p-6 relative z-0">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 p-6 relative z-0 admin-panel" data-page="admin">
       {/* SEO Optimization */}
       <SEOHead {...SEOConfigs.admin} />
       
       <div className="max-w-7xl mx-auto space-y-6 relative z-10">
         
         {/* Header */}
-        <div className="flex items-center space-x-3 mb-8">
+        <div className="flex items-center space-x-3 mb-8 bg-slate-800 p-6 rounded-lg border border-slate-700">
           <Settings className="w-8 h-8 text-blue-400" />
           <h1 className="text-3xl font-bold text-white">Admin Panel</h1>
         </div>
@@ -794,23 +794,23 @@ export default function Admin() {
         {/* Tabbed Interface */}
         <Tabs defaultValue="settings" className="w-full relative z-20">
           <TabsList className="grid w-full grid-cols-5 bg-slate-800 border-slate-700 relative z-30">
-            <TabsTrigger value="settings" className="flex items-center space-x-2">
+            <TabsTrigger value="settings" className="flex items-center space-x-2 text-white font-bold data-[state=active]:bg-purple-600 data-[state=active]:text-white">
               <Video className="w-4 h-4" />
               <span>Settings</span>
             </TabsTrigger>
-            <TabsTrigger value="credits" className="flex items-center space-x-2">
+            <TabsTrigger value="credits" className="flex items-center space-x-2 text-white font-bold data-[state=active]:bg-purple-600 data-[state=active]:text-white">
               <span>💳</span>
               <span>Credits</span>
             </TabsTrigger>
-            <TabsTrigger value="emails" className="flex items-center space-x-2">
+            <TabsTrigger value="emails" className="flex items-center space-x-2 text-white font-bold data-[state=active]:bg-purple-600 data-[state=active]:text-white">
               <Mail className="w-4 h-4" />
               <span>Emails</span>
             </TabsTrigger>
-            <TabsTrigger value="chat" className="flex items-center space-x-2">
+            <TabsTrigger value="chat" className="flex items-center space-x-2 text-white font-bold data-[state=active]:bg-purple-600 data-[state=active]:text-white">
               <span>💬</span>
               <span>Chat</span>
             </TabsTrigger>
-            <TabsTrigger value="security" className="flex items-center space-x-2">
+            <TabsTrigger value="security" className="flex items-center space-x-2 text-white font-bold data-[state=active]:bg-purple-600 data-[state=active]:text-white">
               <Shield className="w-4 h-4" />
               <span>Security</span>
             </TabsTrigger>
