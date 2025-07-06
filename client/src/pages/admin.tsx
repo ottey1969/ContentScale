@@ -29,10 +29,9 @@ const AdminChatDashboard = () => {
   const [selectedUserId, setSelectedUserId] = useState<string>('');
   const [newMessage, setNewMessage] = useState('');
   const [lastMessageCount, setLastMessageCount] = useState(0);
-  const [showEmailComposer, setShowEmailComposer] = useState(false);
-  const [emailRecipient, setEmailRecipient] = useState('');
-  const [emailSubject, setEmailSubject] = useState('');
-  const [emailMessage, setEmailMessage] = useState('');
+  const [showUserSelector, setShowUserSelector] = useState(false);
+  const [messageRecipient, setMessageRecipient] = useState('');
+  const [broadcastMessage, setBroadcastMessage] = useState('');
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const { toast } = useToast();
 
@@ -129,6 +128,33 @@ const AdminChatDashboard = () => {
       });
     }
   });
+
+  // Send message by email mutation
+  const sendMessageByEmail = useMutation({
+    mutationFn: async ({ email, message }: { email: string; message: string }) => {
+      const response = await apiRequest('POST', '/api/admin/send-message-by-email', {
+        email,
+        message
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      setMessageRecipient('');
+      setBroadcastMessage('');
+      setShowUserSelector(false);
+      toast({
+        title: "Message sent",
+        description: "Your message has been sent to the user.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to send message. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
   
   const handleSendMessage = () => {
     if (!selectedUserId || !newMessage.trim()) return;
@@ -138,16 +164,82 @@ const AdminChatDashboard = () => {
       message: newMessage.trim()
     });
   };
+
+  const handleSendMessageByEmail = () => {
+    if (!messageRecipient.trim() || !broadcastMessage.trim()) return;
+    
+    sendMessageByEmail.mutate({
+      email: messageRecipient.trim(),
+      message: broadcastMessage.trim()
+    });
+  };
   
   const messages = messageData?.messages || [];
   
   return (
     <div className="space-y-6">
+      {/* Send Message by Email */}
+      <Card className="bg-slate-800 border-slate-700">
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between text-white">
+            <div className="flex items-center space-x-2">
+              <span>📧</span>
+              <span>Send Message to User by Email</span>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowUserSelector(!showUserSelector)}
+              className="text-purple-400 hover:text-white"
+            >
+              {showUserSelector ? 'Hide' : 'Show'} Email Composer
+            </Button>
+          </CardTitle>
+        </CardHeader>
+        {showUserSelector && (
+          <CardContent className="space-y-4">
+            <div>
+              <Label htmlFor="messageRecipient" className="text-gray-300">
+                User Email Address
+              </Label>
+              <Input
+                id="messageRecipient"
+                placeholder="user@example.com"
+                value={messageRecipient}
+                onChange={(e) => setMessageRecipient(e.target.value)}
+                className="bg-slate-700 border-slate-600 text-white"
+              />
+            </div>
+            <div>
+              <Label htmlFor="broadcastMessage" className="text-gray-300">
+                Message
+              </Label>
+              <Textarea
+                id="broadcastMessage"
+                placeholder="Type your message to send to this user..."
+                value={broadcastMessage}
+                onChange={(e) => setBroadcastMessage(e.target.value)}
+                className="bg-slate-700 border-slate-600 text-white resize-none"
+                rows={4}
+              />
+            </div>
+            <Button
+              onClick={handleSendMessageByEmail}
+              disabled={!messageRecipient.trim() || !broadcastMessage.trim() || sendMessageByEmail.isPending}
+              className="bg-purple-600 hover:bg-purple-700 text-white"
+            >
+              {sendMessageByEmail.isPending ? "Sending..." : "Send Internal Message"}
+            </Button>
+          </CardContent>
+        )}
+      </Card>
+
+      {/* Existing Chat Dashboard */}
       <Card className="bg-slate-800 border-slate-700">
         <CardHeader>
           <CardTitle className="flex items-center space-x-2 text-white">
             <span>💬</span>
-            <span>Admin-User Chat Dashboard</span>
+            <span>Active Conversations</span>
           </CardTitle>
         </CardHeader>
         <CardContent>

@@ -498,6 +498,43 @@ User question: ${message}`
     }
   });
 
+  // Send message to user by email address
+  app.post("/api/admin/send-message-by-email", async (req: any, res) => {
+    try {
+      const { email, message } = req.body;
+      
+      if (!email || !message) {
+        return res.status(400).json({ message: "Email and message are required" });
+      }
+
+      // Find user by email
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        return res.status(404).json({ message: "User not found with this email address" });
+      }
+
+      // Create or get conversation
+      await storage.getOrCreateConversation(user.id);
+
+      // Send message
+      const newMessage = await storage.createAdminMessage({
+        userId: user.id,
+        message,
+        isFromAdmin: true
+      });
+
+      res.json({
+        success: true,
+        message: newMessage,
+        userEmail: email,
+        userId: user.id
+      });
+    } catch (error) {
+      console.error("Error sending message by email:", error);
+      res.status(500).json({ message: "Failed to send message" });
+    }
+  });
+
   // Admin endpoint to get user list with credit balances
   app.get("/api/admin/users", isAuthenticated, async (req: any, res) => {
     try {
