@@ -111,6 +111,23 @@ export default function Landing() {
             <span className="text-blue-400 font-semibold"> Google's AI Overview</span> and search rankings. Generate high-quality, SEO-optimized content using advanced AI with real-time keyword research, CRAFT framework optimization, and Google E-E-A-T compliance. Perfect for content marketers, digital agencies, and businesses.
           </p>
           
+          {/* Professional AI Image */}
+          <div className="mb-8 flex justify-center">
+            <div className="relative group">
+              <img 
+                src="/attached_assets/download_1751782693093.jpeg" 
+                alt="Professional AI Meeting - ContentScale Team Analysis" 
+                className="w-full max-w-lg rounded-2xl shadow-2xl border border-purple-500/30 group-hover:border-purple-400/50 transition-all duration-300 transform group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-purple-900/20 to-transparent rounded-2xl"></div>
+              <div className="absolute bottom-4 left-4 right-4 text-center">
+                <p className="text-white/90 text-sm font-medium bg-black/50 rounded-lg px-3 py-1 backdrop-blur-sm">
+                  AI-Powered Content Strategy in Action
+                </p>
+              </div>
+            </div>
+          </div>
+          
           <div className="bg-gradient-to-r from-purple-600/20 to-blue-600/20 rounded-2xl p-6 mb-8 max-w-4xl mx-auto border border-purple-500/30">
             <p className="text-lg text-purple-200 leading-relaxed">
               Powered by the world's most advanced AI combination: <span className="text-purple-300 font-semibold">Perplexity AI</span> for real-time web research and current data discovery, paired with <span className="text-blue-300 font-semibold">Anthropic Claude</span> for intelligent content generation. This powerful dual-engine approach delivers unmatched content quality at the industry's most competitive pricing - giving you premium AI capabilities without premium costs.

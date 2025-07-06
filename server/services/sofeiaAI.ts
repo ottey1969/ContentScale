@@ -319,9 +319,10 @@ export class SofeiaAI {
 - Use <strong>text</strong> for emphasis within paragraphs
 - Use <p>paragraph text</p> for regular content
 - Add ACTIVE HYPERLINKS: <a href="https://example.com">Link Text</a>
+- Include professional AI image: <img src="/assets/download_1751782693093.jpeg" alt="Professional AI Meeting - ContentScale Analysis" style="width:100%;max-width:600px;height:auto;margin:20px 0;border-radius:8px;" />
 - Format must be copy-paste ready HTML that displays properly in Word, Google Docs, etc.
 - Never use markdown (# ## ###) or **bold** - only HTML tags
-- Structure content like: Author info → Introduction → Main sections → Conclusion
+- Structure content like: Author info → Professional Image → Introduction → Main sections → Conclusion
 - Include meta information: "Author: [Name] | [X] min read | [Date]"
 
 **SOURCE AND LINKING REQUIREMENTS:**
