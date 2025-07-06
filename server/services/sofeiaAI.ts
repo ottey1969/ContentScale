@@ -36,7 +36,7 @@ async function getPerplexityResearch(query: string): Promise<{ content: string; 
         top_p: 0.9,
         return_related_questions: false,
         search_recency_filter: 'month',
-        search_domain_filter: ['.gov', '.edu', 'census.gov', 'sba.gov', 'bls.gov'],
+        search_domain_filter: [],
         stream: false
       })
     });
@@ -273,14 +273,19 @@ export class SofeiaAI {
       const needsResearch = this.needsRealTimeData(message);
       let researchData: { content: string; sources: string[] } = { content: '', sources: [] };
       
-      // Perplexity research temporarily disabled
-      if (false) {
+      if (needsResearch && process.env.PERPLEXITY_API_KEY) {
         try {
-          // Get real-time research and statistics from Perplexity
+          // Get real-time research and statistics from Perplexity with timeout
           const researchQuery = this.extractResearchQuery(message);
-          researchData = await getPerplexityResearch(researchQuery);
+          const researchPromise = getPerplexityResearch(researchQuery);
+          const timeoutPromise = new Promise<{ content: string; sources: string[] }>((_, reject) => 
+            setTimeout(() => reject(new Error('Research timeout')), 8000)
+          );
+          
+          researchData = await Promise.race([researchPromise, timeoutPromise]);
+          console.log("Perplexity research completed successfully");
         } catch (error) {
-          console.log("Perplexity API unavailable, continuing with Anthropic only");
+          console.log("Perplexity research failed or timed out, continuing with Anthropic only");
           researchData = { content: '', sources: [] };
         }
       }
@@ -455,8 +460,15 @@ export class SofeiaAI {
   }
 
   private needsRealTimeData(message: string): boolean {
-    // Temporarily disable to fix timeout issues
-    return false;
+    const researchKeywords = [
+      'statistics', 'data', 'current', '2025', 'latest', 'trends', 'market',
+      'research', 'study', 'report', 'analysis', 'growth', 'revenue',
+      'industry', 'survey', 'percentage', 'rate', 'numbers', 'facts'
+    ];
+    
+    const messageLower = message.toLowerCase();
+    return researchKeywords.some(keyword => messageLower.includes(keyword)) ||
+           this.isBlogPostRequest(message);
   }
 
   private extractResearchQuery(message: string): string {
