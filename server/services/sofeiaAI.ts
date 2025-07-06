@@ -212,6 +212,22 @@ export class SofeiaAI {
   }
 
   private getPaymentInfo(userEmail: string, userProfile: UserProfile, isBlogRequest: boolean = false): PaymentInfo {
+    // Admin gets unlimited access
+    const isAdmin = userEmail === 'ottmar.francisca1969@gmail.com';
+    
+    if (isAdmin) {
+      return {
+        required: false,
+        freeQuestionsRemaining: 999,
+        pricePerQuestion: 0,
+        creditBalance: 999,
+        paymentOptions: {
+          payPerQuestion: 0,
+          creditPackages: PRICING_INFO.creditPackages
+        }
+      };
+    }
+    
     if (isBlogRequest) {
       // Blog posts: 1 free, then $2.00 each (matching dashboard content generation)
       const freeBlogsUsed = userProfile.preferredTopics.includes('blog_created') ? 1 : 0;
