@@ -1156,6 +1156,49 @@ export class DatabaseStorage implements IStorage {
 
     return result?.count || 0;
   }
+
+  async deleteConversationMessages(userId: string): Promise<void> {
+    await db
+      .delete(adminMessages)
+      .where(eq(adminMessages.userId, userId));
+  }
+
+  async deleteConversation(userId: string): Promise<void> {
+    await db
+      .delete(adminConversations)
+      .where(eq(adminConversations.userId, userId));
+  }
+
+  async deleteUser(userId: string): Promise<void> {
+    await db
+      .delete(users)
+      .where(eq(users.id, userId));
+  }
+
+  async blockUser(userId: string): Promise<void> {
+    await db
+      .update(users)
+      .set({ 
+        credits: -999999, // Mark as blocked with negative credits
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, userId));
+  }
+
+  async unblockUser(userId: string): Promise<void> {
+    await db
+      .update(users)
+      .set({ 
+        credits: 1, // Give 1 free credit when unblocked
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, userId));
+  }
+
+  async isUserBlocked(userId: string): Promise<boolean> {
+    const user = await this.getUser(userId);
+    return user ? user.credits < -900000 : false;
+  }
 }
 
 export const storage = new DatabaseStorage();

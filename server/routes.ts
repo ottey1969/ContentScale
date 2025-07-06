@@ -558,6 +558,122 @@ User question: ${message}`
     }
   });
 
+  // Delete conversation and user by email
+  app.delete("/api/admin/conversation-by-email", async (req: any, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ message: "Email is required" });
+      }
+
+      console.log("🗑️ Admin deleting conversation for email:", email);
+      
+      // Find user by email
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        return res.status(404).json({ message: "User not found with this email address" });
+      }
+
+      // Delete all messages for this user
+      await storage.deleteConversationMessages(user.id);
+      
+      // Delete conversation
+      await storage.deleteConversation(user.id);
+      
+      // Delete user record if it was created for messaging only (starts with msg_)
+      if (user.id.startsWith('msg_')) {
+        await storage.deleteUser(user.id);
+        console.log("✅ Deleted messaging-only user:", user.id);
+      }
+
+      console.log("✅ Conversation deleted successfully for:", email);
+      res.json({
+        success: true,
+        message: "Conversation deleted successfully",
+        userEmail: email
+      });
+    } catch (error) {
+      console.error("❌ Error deleting conversation:", error);
+      res.status(500).json({ 
+        message: "Failed to delete conversation", 
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+
+  // Block user account by email
+  app.post("/api/admin/block-user-by-email", async (req: any, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ message: "Email is required" });
+      }
+
+      console.log("🚫 Admin blocking user account for email:", email);
+      
+      // Find user by email
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        return res.status(404).json({ message: "User not found with this email address" });
+      }
+
+      // Block user account
+      await storage.blockUser(user.id);
+
+      console.log("✅ User account blocked successfully for:", email);
+      res.json({
+        success: true,
+        message: "User account blocked successfully",
+        userEmail: email,
+        userId: user.id
+      });
+    } catch (error) {
+      console.error("❌ Error blocking user:", error);
+      res.status(500).json({ 
+        message: "Failed to block user", 
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+
+  // Unblock user account by email
+  app.post("/api/admin/unblock-user-by-email", async (req: any, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ message: "Email is required" });
+      }
+
+      console.log("✅ Admin unblocking user account for email:", email);
+      
+      // Find user by email
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        return res.status(404).json({ message: "User not found with this email address" });
+      }
+
+      // Unblock user account
+      await storage.unblockUser(user.id);
+
+      console.log("✅ User account unblocked successfully for:", email);
+      res.json({
+        success: true,
+        message: "User account unblocked successfully",
+        userEmail: email,
+        userId: user.id
+      });
+    } catch (error) {
+      console.error("❌ Error unblocking user:", error);
+      res.status(500).json({ 
+        message: "Failed to unblock user", 
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+
   // Admin endpoint to get user list with credit balances
   app.get("/api/admin/users", isAuthenticated, async (req: any, res) => {
     try {

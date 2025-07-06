@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { Settings, Video, Save, Eye, Shield, Mail } from "lucide-react";
+import { Settings, Video, Save, Eye, Shield, Mail, Trash2, Ban, CheckCircle } from "lucide-react";
 import SecurityDashboard from "@/components/dashboard/SecurityDashboard";
 import { EmailMarketing } from "@/components/EmailMarketing";
 import { SEOHead, SEOConfigs } from "@/components/seo/SEOHead";
@@ -149,17 +149,90 @@ const AdminChatDashboard = () => {
       setShowUserSelector(false);
       // Refresh conversations to show the new message
       queryClient.invalidateQueries({ queryKey: ['/api/admin/conversations'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/messages'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/messages', data.userId] });
+      // Force refetch conversations
+      setTimeout(() => {
+        queryClient.refetchQueries({ queryKey: ['/api/admin/conversations'] });
+      }, 500);
       toast({
         title: "Message sent successfully",
         description: `Message sent to ${data.userEmail}`,
       });
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error("❌ Failed to send message:", error);
+      const errorMessage = error?.message || error?.toString() || "Failed to send message. Please try again.";
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to send message. Please try again.",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Delete conversation mutation
+  const deleteConversation = useMutation({
+    mutationFn: async (email: string) => {
+      const response = await apiRequest('DELETE', '/api/admin/conversation-by-email', { email });
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/conversations'] });
+      setSelectedUserId('');
+      toast({
+        title: "Conversation deleted",
+        description: `Conversation with ${data.userEmail} deleted successfully`,
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error?.message || "Failed to delete conversation",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Block user mutation
+  const blockUser = useMutation({
+    mutationFn: async (email: string) => {
+      const response = await apiRequest('POST', '/api/admin/block-user-by-email', { email });
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/conversations'] });
+      toast({
+        title: "User blocked",
+        description: `User ${data.userEmail} has been blocked`,
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error?.message || "Failed to block user",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Unblock user mutation
+  const unblockUser = useMutation({
+    mutationFn: async (email: string) => {
+      const response = await apiRequest('POST', '/api/admin/unblock-user-by-email', { email });
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/conversations'] });
+      toast({
+        title: "User unblocked",
+        description: `User ${data.userEmail} has been unblocked`,
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error?.message || "Failed to unblock user",
         variant: "destructive",
       });
     }
@@ -261,31 +334,93 @@ const AdminChatDashboard = () => {
                 {conversationsLoading ? (
                   <div className="text-gray-400">Loading conversations...</div>
                 ) : conversations?.conversations?.length > 0 ? (
-                  conversations.conversations.map((conv: any) => (
-                    <div
-                      key={conv.userId}
-                      onClick={() => setSelectedUserId(conv.userId)}
-                      className={`p-4 rounded-lg cursor-pointer transition-all ${
-                        selectedUserId === conv.userId
-                          ? 'bg-purple-600 text-white'
-                          : 'bg-slate-700 hover:bg-slate-600 text-gray-300'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <div className="font-medium">{conv.userEmail || `User ${conv.userId}`}</div>
-                          <div className="text-sm opacity-70">
-                            {conv.lastMessage ? conv.lastMessage.substring(0, 50) + '...' : 'No messages yet'}
+                  conversations.conversations.map((conv: any) => {
+                    const isBlocked = conv.userEmail && conv.userEmail.includes('[BLOCKED]');
+                    return (
+                      <div key={conv.userId} className="space-y-2">
+                        <div
+                          onClick={() => setSelectedUserId(conv.userId)}
+                          className={`p-4 rounded-lg cursor-pointer transition-all ${
+                            selectedUserId === conv.userId
+                              ? 'bg-purple-600 text-white'
+                              : 'bg-slate-700 hover:bg-slate-600 text-gray-300'
+                          } ${isBlocked ? 'border border-red-500' : ''}`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <div className="font-medium flex items-center space-x-2">
+                                <span>{conv.userEmail || `User ${conv.userId}`}</span>
+                                {isBlocked && <Ban className="w-4 h-4 text-red-400" />}
+                              </div>
+                              <div className="text-sm opacity-70">
+                                {conv.lastMessage ? conv.lastMessage.substring(0, 50) + '...' : 'No messages yet'}
+                              </div>
+                            </div>
+                            {conv.unreadCount > 0 && (
+                              <div className="bg-red-500 text-white rounded-full px-2 py-1 text-xs">
+                                {conv.unreadCount}
+                              </div>
+                            )}
                           </div>
                         </div>
-                        {conv.unreadCount > 0 && (
-                          <div className="bg-red-500 text-white rounded-full px-2 py-1 text-xs">
-                            {conv.unreadCount}
+                        
+                        {/* Action buttons for selected conversation */}
+                        {selectedUserId === conv.userId && (
+                          <div className="flex space-x-2 px-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (confirm(`Delete conversation with ${conv.userEmail}?`)) {
+                                  deleteConversation.mutate(conv.userEmail);
+                                }
+                              }}
+                              className="border-red-500 text-red-400 hover:bg-red-500 hover:text-white"
+                              disabled={deleteConversation.isPending}
+                            >
+                              <Trash2 className="w-3 h-3 mr-1" />
+                              Delete
+                            </Button>
+                            
+                            {!isBlocked ? (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (confirm(`Block user account ${conv.userEmail}?`)) {
+                                    blockUser.mutate(conv.userEmail);
+                                  }
+                                }}
+                                className="border-orange-500 text-orange-400 hover:bg-orange-500 hover:text-white"
+                                disabled={blockUser.isPending}
+                              >
+                                <Ban className="w-3 h-3 mr-1" />
+                                Block
+                              </Button>
+                            ) : (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (confirm(`Unblock user account ${conv.userEmail}?`)) {
+                                    unblockUser.mutate(conv.userEmail);
+                                  }
+                                }}
+                                className="border-green-500 text-green-400 hover:bg-green-500 hover:text-white"
+                                disabled={unblockUser.isPending}
+                              >
+                                <CheckCircle className="w-3 h-3 mr-1" />
+                                Unblock
+                              </Button>
+                            )}
                           </div>
                         )}
                       </div>
-                    </div>
-                  ))
+                    );
+                  })
                 ) : (
                   <div className="text-gray-400">No conversations yet</div>
                 )}
