@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,7 +28,44 @@ interface AdminSettings {
 const AdminChatDashboard = () => {
   const [selectedUserId, setSelectedUserId] = useState<string>('');
   const [newMessage, setNewMessage] = useState('');
+  const [lastMessageCount, setLastMessageCount] = useState(0);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const { toast } = useToast();
+
+  // Initialize audio for message notifications
+  useEffect(() => {
+    // Create a subtle notification sound using Web Audio API
+    const createNotificationSound = () => {
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
+      oscillator.frequency.setValueAtTime(800, audioContext.currentTime + 0.1);
+      
+      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+      
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.3);
+    };
+
+    audioRef.current = { play: createNotificationSound } as any;
+  }, []);
+
+  // Play sound when new messages arrive
+  const playNotificationSound = () => {
+    try {
+      if (audioRef.current) {
+        audioRef.current.play();
+      }
+    } catch (error) {
+      console.log('Could not play notification sound:', error);
+    }
+  };
   
   // Fetch all conversations
   const { data: conversations, isLoading: conversationsLoading } = useQuery({
@@ -42,6 +79,26 @@ const AdminChatDashboard = () => {
     enabled: !!selectedUserId,
     refetchInterval: 2000, // Refresh every 2 seconds when conversation is open
   });
+
+  // Detect new messages from users and play sound
+  useEffect(() => {
+    if (!selectedUserId) return;
+    
+    const messages = messageData?.messages || [];
+    if (messages.length > lastMessageCount && lastMessageCount > 0) {
+      // Check if the new message is from user (not admin)
+      const latestMessage = messages[messages.length - 1];
+      if (latestMessage && !latestMessage.isFromAdmin) {
+        playNotificationSound();
+        
+        toast({
+          title: "New message from user",
+          description: latestMessage.message.substring(0, 50) + (latestMessage.message.length > 50 ? '...' : ''),
+        });
+      }
+    }
+    setLastMessageCount(messages.length);
+  }, [messageData, lastMessageCount, selectedUserId, toast]);
   
   // Send message mutation
   const sendMessage = useMutation({
@@ -165,27 +222,42 @@ const AdminChatDashboard = () => {
                   </div>
                   
                   {/* Message Input */}
-                  <div className="flex space-x-2">
-                    <Textarea
-                      value={newMessage}
-                      onChange={(e) => setNewMessage(e.target.value)}
-                      placeholder="Type your message to the user..."
-                      className="flex-1 bg-slate-700 border-slate-600 text-white resize-none"
-                      rows={3}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                          e.preventDefault();
-                          handleSendMessage();
-                        }
-                      }}
-                    />
-                    <Button
-                      onClick={handleSendMessage}
-                      disabled={!newMessage.trim() || sendMessage.isPending}
-                      className="bg-purple-600 hover:bg-purple-700 text-white self-end"
-                    >
-                      Send
-                    </Button>
+                  <div className="space-y-2">
+                    <div className="flex space-x-2">
+                      <Textarea
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        placeholder="Type your message to the user..."
+                        className="flex-1 bg-slate-700 border-slate-600 text-white resize-none"
+                        rows={3}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            handleSendMessage();
+                          }
+                        }}
+                      />
+                      <Button
+                        onClick={handleSendMessage}
+                        disabled={!newMessage.trim() || sendMessage.isPending}
+                        className="bg-purple-600 hover:bg-purple-700 text-white self-end"
+                      >
+                        Send
+                      </Button>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <div className="text-xs text-gray-400">
+                        Press Enter to send, Shift+Enter for new line
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={playNotificationSound}
+                        className="text-xs text-gray-400 hover:text-white"
+                      >
+                        🔊 Test Sound
+                      </Button>
+                    </div>
                   </div>
                 </>
               ) : (

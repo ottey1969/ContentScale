@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,43 @@ export default function UserChatPopup() {
   const [isMinimized, setIsMinimized] = useState(false);
   const [newMessage, setNewMessage] = useState('');
   const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
+  const [lastMessageCount, setLastMessageCount] = useState(0);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Initialize audio for message notifications
+  useEffect(() => {
+    // Create a subtle notification sound using Web Audio API
+    const createNotificationSound = () => {
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+      oscillator.frequency.setValueAtTime(600, audioContext.currentTime + 0.1);
+      
+      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+      
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.3);
+    };
+
+    audioRef.current = { play: createNotificationSound } as any;
+  }, []);
+
+  // Play sound when new messages arrive
+  const playNotificationSound = () => {
+    try {
+      if (audioRef.current) {
+        audioRef.current.play();
+      }
+    } catch (error) {
+      console.log('Could not play notification sound:', error);
+    }
+  };
 
   // Fetch messages for the current user
   const { data: messageData, isLoading: messagesLoading } = useQuery({
@@ -33,7 +70,7 @@ export default function UserChatPopup() {
     refetchInterval: 5000, // Check for unread messages every 5 seconds
   });
 
-  // Update unread indicator
+  // Update unread indicator and play sound for new messages
   useEffect(() => {
     if (unreadData?.unreadCount > 0) {
       setHasUnreadMessages(true);
@@ -41,6 +78,27 @@ export default function UserChatPopup() {
       setHasUnreadMessages(false);
     }
   }, [unreadData]);
+
+  // Detect new messages and play sound
+  useEffect(() => {
+    const messages = messageData?.messages || [];
+    if (messages.length > lastMessageCount && lastMessageCount > 0) {
+      // Check if the new message is from admin
+      const latestMessage = messages[messages.length - 1];
+      if (latestMessage?.isFromAdmin) {
+        playNotificationSound();
+        
+        // Show toast notification if chat is closed
+        if (!isOpen) {
+          toast({
+            title: "New message from admin",
+            description: latestMessage.message.substring(0, 50) + (latestMessage.message.length > 50 ? '...' : ''),
+          });
+        }
+      }
+    }
+    setLastMessageCount(messages.length);
+  }, [messageData, lastMessageCount, isOpen, toast]);
 
   // Send message mutation
   const sendMessage = useMutation({
@@ -216,8 +274,18 @@ export default function UserChatPopup() {
                       <Send className="w-4 h-4" />
                     </Button>
                   </div>
-                  <div className="text-xs text-gray-400 mt-2">
-                    Press Enter to send, Shift+Enter for new line
+                  <div className="flex justify-between items-center mt-2">
+                    <div className="text-xs text-gray-400">
+                      Press Enter to send, Shift+Enter for new line
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={playNotificationSound}
+                      className="text-xs text-gray-400 hover:text-white"
+                    >
+                      🔊 Test Sound
+                    </Button>
                   </div>
                 </div>
               </CardContent>
