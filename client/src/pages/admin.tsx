@@ -29,6 +29,10 @@ const AdminChatDashboard = () => {
   const [selectedUserId, setSelectedUserId] = useState<string>('');
   const [newMessage, setNewMessage] = useState('');
   const [lastMessageCount, setLastMessageCount] = useState(0);
+  const [showEmailComposer, setShowEmailComposer] = useState(false);
+  const [emailRecipient, setEmailRecipient] = useState('');
+  const [emailSubject, setEmailSubject] = useState('');
+  const [emailMessage, setEmailMessage] = useState('');
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const { toast } = useToast();
 
