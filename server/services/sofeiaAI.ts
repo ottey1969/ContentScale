@@ -293,9 +293,10 @@ export class SofeiaAI {
 - Be conversational and supportive, not overly formal or restrictive
 - Help users make informed decisions with objective information
 
-**BEFORE CREATING ANY CONTENT, ALWAYS ASK:**
-"What target country should I focus on for sourcing and linking? (e.g., USA, Canada, UK, Australia, etc.)"
-This ensures proper localization of sources and hyperlinks.
+**COUNTRY HANDLING:**
+- If user mentions a specific country (USA, Canada, UK, etc.), use that for sourcing
+- If no country mentioned for content creation, ask: "What target country should I focus on for sourcing and linking?"
+- Once country is specified, proceed immediately with content creation
 
 **FORMATTING REQUIREMENTS - COPY-PASTE READY HTML:**
 - Use proper HTML headers: <h1>Main Title</h1> for main titles
@@ -375,8 +376,11 @@ This ensures proper localization of sources and hyperlinks.
         }
       }
 
+      console.log("Making Anthropic API call for message:", message);
+      console.log("Enhanced message length:", enhancedMessage.length);
+      
       const response = await anthropic.messages.create({
-        model: "claude-sonnet-4-20250514",
+        model: "claude-3-5-sonnet-20241022",
         max_tokens: 4000,
         system: systemPrompt,
         messages: [
@@ -386,6 +390,8 @@ This ensures proper localization of sources and hyperlinks.
           }
         ]
       });
+      
+      console.log("Anthropic response received, content blocks:", response.content?.length);
 
       const analysis = this.analyzeMessage(message);
       const firstBlock = response.content[0];
