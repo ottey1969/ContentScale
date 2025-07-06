@@ -319,9 +319,27 @@ export class SofeiaAI {
 - Use <strong>text</strong> for emphasis within paragraphs
 - Use <p>paragraph text</p> for regular content
 - Add ACTIVE HYPERLINKS: <a href="https://example.com">Link Text</a>
+- **PROFESSIONAL TABLES**: Use proper HTML table formatting with borders and styling:
+  <table style="width:100%;border-collapse:collapse;margin:20px 0;">
+    <thead>
+      <tr style="background-color:#f5f5f5;border:1px solid #ddd;">
+        <th style="padding:12px;text-align:left;border:1px solid #ddd;font-weight:bold;">Feature</th>
+        <th style="padding:12px;text-align:left;border:1px solid #ddd;font-weight:bold;">ContentScale</th>
+        <th style="padding:12px;text-align:left;border:1px solid #ddd;font-weight:bold;">Competitor</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="border:1px solid #ddd;">
+        <td style="padding:12px;border:1px solid #ddd;font-weight:500;">Row Item</td>
+        <td style="padding:12px;border:1px solid #ddd;">Description</td>
+        <td style="padding:12px;border:1px solid #ddd;">Description</td>
+      </tr>
+    </tbody>
+  </table>
+- **PROFESSIONAL CITATIONS**: Include numbered citations at end: <p><strong>Sources:</strong><br/>[1] <a href="https://example.com">Source Title - Publisher</a><br/>[2] <a href="https://example2.com">Source Title - Publisher</a></p>
 - Format must be copy-paste ready HTML that displays properly in Word, Google Docs, etc.
 - Never use markdown (# ## ###) or **bold** - only HTML tags
-- Structure content like: Author info → Introduction → Main sections → Conclusion
+- Structure content like: Author info → Introduction → Main sections → Professional Tables → Conclusion → Citations
 - Include meta information: "Author: [Name] | [X] min read | [Date]"
 
 **SOURCE AND LINKING REQUIREMENTS:**
@@ -355,9 +373,37 @@ export class SofeiaAI {
 1. Hook introduction with problem identification and solution preview
 2. Key benefits section with strategic **bold headings**
 3. Best practices with actionable **bold subheadings**
-4. Advanced techniques for expert-level implementation
-5. FAQ section optimized for voice search and AI Overview
-6. Strong conclusion with clear call-to-action
+4. Professional comparison tables when comparing products/services
+5. Advanced techniques for expert-level implementation
+6. FAQ section optimized for voice search and AI Overview
+7. Strong conclusion with clear call-to-action
+8. Professional citations with numbered references
+
+**TABLE FORMATTING FOR COPY-PASTE COMPATIBILITY:**
+When creating comparison content, use this exact HTML table structure that copies properly into Word/Google Docs:
+
+<table style="width:100%;border-collapse:collapse;margin:20px 0;">
+  <thead>
+    <tr style="background-color:#f5f5f5;border:1px solid #ddd;">
+      <th style="padding:12px;text-align:left;border:1px solid #ddd;font-weight:bold;">Feature</th>
+      <th style="padding:12px;text-align:left;border:1px solid #ddd;font-weight:bold;">ContentScale</th>
+      <th style="padding:12px;text-align:left;border:1px solid #ddd;font-weight:bold;">Competitor</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border:1px solid #ddd;">
+      <td style="padding:12px;border:1px solid #ddd;font-weight:500;">Feature Name</td>
+      <td style="padding:12px;border:1px solid #ddd;">ContentScale advantage</td>
+      <td style="padding:12px;border:1px solid #ddd;">Competitor details</td>
+    </tr>
+  </tbody>
+</table>
+
+**CITATION FORMAT:**
+End articles with professional numbered citations:
+<p><strong>Sources:</strong><br/>
+[1] <a href="https://source1.com">Article Title - Publisher Name</a><br/>
+[2] <a href="https://source2.com">Research Study - Academic Source</a></p>
 
 **STATISTICS AND SOURCES:**
 - Always include current 2025 statistics when available
