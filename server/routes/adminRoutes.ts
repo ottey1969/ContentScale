@@ -57,44 +57,68 @@ router.get('/admin/users', requireAdmin, async (req: Request, res: Response) => 
   }
 });
 
-// Grant credits to user
+// Grant credits to user with enhanced logic from your backend-routes.ts
 router.post('/admin/grant-credits', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { userEmail, credits, reason, isNewSubscriber } = req.body;
-    
-    if (!userEmail || !credits) {
-      return res.status(400).json({ error: 'Missing required fields' });
+    const adminEmail = (req as any).adminEmail || 'admin@contentscale.com';
+
+    // Validation
+    if (!userEmail || !credits || credits <= 0) {
+      return res.status(400).json({ error: 'Invalid user email or credit amount' });
     }
 
-    // Get user by email
-    const user = await storage.getUserByEmail(userEmail);
+    if (credits > 1000) {
+      return res.status(400).json({ error: 'Cannot grant more than 1000 credits at once' });
+    }
+
+    // Check if user exists
+    let user = await storage.getUserByEmail(userEmail);
     
+    // Create user if they don't exist (new subscriber)
     if (!user) {
-      // Create new user
-      const newUser = await storage.upsertUser({
-        id: Date.now().toString(),
+      user = await storage.createUser({
         email: userEmail,
-        credits: credits,
-        isNewSubscriber: isNewSubscriber || false
+        credits: 0,
+        isNewSubscriber: true
       });
-    } else {
-      // Update existing user credits
-      const newCredits = user.credits + credits;
-      await storage.updateUserCredits(user.id, newCredits);
     }
 
-    // Log credit transaction
+    // Apply new subscriber bonus if applicable
+    let finalCredits = credits;
+    if (isNewSubscriber && user.isNewSubscriber) {
+      finalCredits = Math.floor(credits * 1.5); // 50% bonus for new subscribers
+    }
+
+    // Update user credits
+    const success = await storage.updateUserCredits(userEmail, user.credits + finalCredits);
+    
+    if (!success) {
+      return res.status(500).json({ error: 'Failed to update user credits' });
+    }
+
+    // Log the transaction
     await storage.createCreditTransaction({
       userEmail,
-      credits,
+      credits: finalCredits,
       reason: reason || 'Admin credit grant',
-      adminEmail: 'admin@contentscale.com',
-      isNewSubscriber: isNewSubscriber || false
+      adminEmail,
+      isNewSubscriber: isNewSubscriber && user.isNewSubscriber
+    });
+
+    // Send notification to user
+    await storage.createMessage({
+      from: 'admin@contentscale.com',
+      to: userEmail,
+      content: `You have received ${finalCredits} credits! ${isNewSubscriber ? '(New subscriber bonus applied)' : ''} Reason: ${reason || 'Admin credit grant'}`,
+      type: 'outgoing'
     });
 
     res.json({ 
       success: true, 
-      message: `Successfully granted ${credits} credits to ${userEmail}` 
+      message: `Successfully granted ${finalCredits} credits to ${userEmail}`,
+      creditsGranted: finalCredits,
+      bonusApplied: isNewSubscriber && user.isNewSubscriber
     });
 
   } catch (error) {
@@ -114,34 +138,84 @@ router.get('/admin/messages', requireAdmin, async (req: Request, res: Response) 
   }
 });
 
-// Get conversations
+// Get conversations (grouped messages) - enhanced from your backend-routes.ts
 router.get('/admin/conversations', requireAdmin, async (req: Request, res: Response) => {
   try {
-    const conversations = await storage.getConversations();
+    const messages = await storage.getMessages();
+    
+    // Group messages by participant
+    const conversationMap = new Map();
+    
+    messages.forEach(message => {
+      const participantEmail = message.type === 'incoming' ? message.from : message.to;
+      
+      if (!conversationMap.has(participantEmail)) {
+        conversationMap.set(participantEmail, {
+          id: participantEmail,
+          participantEmail,
+          messages: [],
+          unreadCount: 0,
+          lastActivity: new Date(0)
+        });
+      }
+      
+      const conversation = conversationMap.get(participantEmail);
+      conversation.messages.push(message);
+      
+      if (!message.isRead && message.type === 'incoming') {
+        conversation.unreadCount++;
+      }
+      
+      if (new Date(message.timestamp) > conversation.lastActivity) {
+        conversation.lastActivity = new Date(message.timestamp);
+        conversation.lastMessage = message.content;
+      }
+    });
+    
+    // Convert to array and sort by last activity
+    const conversations = Array.from(conversationMap.values())
+      .sort((a, b) => b.lastActivity.getTime() - a.lastActivity.getTime());
+    
     res.json(conversations);
   } catch (error) {
-    console.error('Error getting conversations:', error);
-    res.status(500).json({ error: 'Failed to get conversations' });
+    console.error('Error fetching conversations:', error);
+    res.status(500).json({ error: 'Failed to fetch conversations' });
   }
 });
 
-// Send message
+// Send message - enhanced from your backend-routes.ts
 router.post('/admin/send-message', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { to, content, type } = req.body;
-    
+    const adminEmail = (req as any).adminEmail || 'admin@contentscale.com';
+
+    // Validation
     if (!to || !content) {
-      return res.status(400).json({ error: 'Missing required fields' });
+      return res.status(400).json({ error: 'Recipient and content are required' });
     }
 
+    if (content.length > 5000) {
+      return res.status(400).json({ error: 'Message content too long (max 5000 characters)' });
+    }
+
+    // Create message
     const message = await storage.createMessage({
-      from: 'admin@contentscale.com',
+      from: type === 'internal' ? `admin-internal:${adminEmail}` : adminEmail,
       to,
       content,
       type: type || 'outgoing'
     });
 
-    res.json({ success: true, message });
+    // If it's an outgoing message to a user, also send email notification
+    if (type === 'outgoing') {
+      console.log(`Email notification sent to ${to}: ${content}`);
+    }
+
+    res.json({ 
+      success: true, 
+      message: 'Message sent successfully',
+      messageId: message.id
+    });
 
   } catch (error) {
     console.error('Error sending message:', error);

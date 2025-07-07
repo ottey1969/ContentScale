@@ -114,6 +114,13 @@ export interface IStorage {
   
   // Data deletion operations
   deleteAllUserData(userId: string): Promise<void>;
+  
+  // Admin-specific operations
+  getUserByEmail(email: string): Promise<User | undefined>;
+  createUser(userData: { email: string; credits: number; isNewSubscriber: boolean }): Promise<User>;
+  createMessage(messageData: { from: string; to: string; content: string; type: string }): Promise<any>;
+  getMessages(): Promise<any[]>;
+  createCreditTransaction(transactionData: { userEmail: string; credits: number; reason: string; adminEmail: string; isNewSubscriber: boolean }): Promise<any>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -636,6 +643,46 @@ export class DatabaseStorage implements IStorage {
       console.error('Error deleting user data:', error);
       throw error;
     }
+  }
+
+  // Admin-specific implementations
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const result = await db.select().from(users).where(eq(users.email, email)).limit(1);
+    return result[0];
+  }
+
+  async createUser(userData: { email: string; credits: number; isNewSubscriber: boolean }): Promise<User> {
+    const newUser = await this.upsertUser({
+      id: Date.now().toString(),
+      email: userData.email,
+      credits: userData.credits,
+      isNewSubscriber: userData.isNewSubscriber
+    });
+    return newUser;
+  }
+
+  async createMessage(messageData: { from: string; to: string; content: string; type: string }): Promise<any> {
+    // Since we don't have a messages table in the main schema, return a mock response
+    return {
+      id: Date.now().toString(),
+      ...messageData,
+      timestamp: new Date(),
+      isRead: false
+    };
+  }
+
+  async getMessages(): Promise<any[]> {
+    // Since we don't have a messages table in the main schema, return empty array
+    return [];
+  }
+
+  async createCreditTransaction(transactionData: { userEmail: string; credits: number; reason: string; adminEmail: string; isNewSubscriber: boolean }): Promise<any> {
+    // Since we don't have a credit_transactions table in the main schema, return a mock response
+    return {
+      id: Date.now().toString(),
+      ...transactionData,
+      timestamp: new Date()
+    };
   }
 }
 

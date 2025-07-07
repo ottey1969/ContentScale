@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+// Now using the complete admin-fixes.tsx implementation
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -542,7 +543,7 @@ const AdminChatDashboard = () => {
   );
 };
 
-export default function Admin() {
+function Admin() {
   const { user, isLoading } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -1063,3 +1064,6 @@ export default function Admin() {
     </div>
   );
 }
+
+// Replace current admin with new implementation
+export default AdminPanel;
