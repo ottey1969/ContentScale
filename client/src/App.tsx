@@ -8,7 +8,7 @@ import Dashboard from "@/pages/dashboard";
 import SimpleDashboard from "@/pages/simple-dashboard";
 import Landing from "@/pages/landing";
 import LandingTest from "@/pages/landing-test";
-import AdminFinal from "@/pages/admin-final";
+import AdminComplete from "@/pages/admin-complete";
 import UserChatPopup from "@/components/UserChatPopup";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -21,7 +21,7 @@ function Router() {
       <Route path="/" component={Landing} />
       
       {/* Admin panel - only for authenticated admins */}
-      <Route path="/admin" component={isAuthenticated ? AdminFinal : Landing} />
+      <Route path="/admin" component={isAuthenticated ? AdminComplete : Landing} />
       
       {/* Redirect dashboard to landing page */}
       <Route path="/dashboard">

@@ -21,7 +21,8 @@ import express from "express";
 import path from "path";
 import { createPaypalOrder, capturePaypalOrder, loadPaypalDefault } from "./paypal";
 import * as paypalSdk from '@paypal/checkout-server-sdk';
-import adminRoutes from './routes/adminRoutes';
+import adminRoutes from './routes/adminRoutes-complete';
+import paypalRoutes from './routes/paypalRoutes';
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -40,6 +41,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register admin routes
   app.use('/', adminRoutes);
+  
+  // Register PayPal routes
+  app.use('/api', paypalRoutes);
 
   // Check IP to determine admin status
   app.get('/api/check-admin', async (req, res) => {
