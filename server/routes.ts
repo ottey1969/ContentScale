@@ -1540,7 +1540,7 @@ async function processCSVKeywords(batchId: string, csvData: any[], userId: strin
     console.error(`Error processing CSV batch ${batchId}:`, error);
     await storage.updateCsvBatch(batchId, { status: "failed" });
   }
-  // PayPal Integration (inside registerRoutes function)
+  // PayPal Integration with proper database methods
   const paypal = paypalSdk;
 
   const paypalEnvironment = () => {
@@ -1557,6 +1557,48 @@ async function processCSVKeywords(batchId: string, csvData: any[], userId: strin
 
   const paypalClient = () => {
     return new paypal.core.PayPalHttpClient(paypalEnvironment());
+  };
+
+  // Database methods for PayPal operations
+  const db = {
+    async getUserByEmail(email: string) {
+      return await storage.getUser ? await storage.getUserByEmail(email) : await storage.getUser(email);
+    },
+    async updateUserCredits(email: string, credits: number) {
+      const user = await this.getUserByEmail(email);
+      if (user) {
+        await storage.updateUserCredits(user.id, credits);
+        return true;
+      }
+      return false;
+    },
+    async createUser(userData: any) {
+      return await storage.upsertUser({
+        id: userData.id || Date.now().toString(),
+        email: userData.email,
+        credits: userData.credits || 0,
+        isNewSubscriber: userData.isNewSubscriber || false,
+        createdAt: new Date()
+      });
+    },
+    async createCreditTransaction(transactionData: any) {
+      return await storage.createCreditTransaction(transactionData);
+    },
+    async updatePayPalOrder(orderId: string, updates: any) {
+      return await storage.updatePayPalOrder(orderId, updates);
+    },
+    async updatePayPalIssue(issueId: string, updates: any) {
+      return await storage.updatePayPalIssue(issueId, updates);
+    },
+    async createPayPalOrder(orderData: any) {
+      return await storage.createPayPalOrder(orderData);
+    },
+    async getPayPalOrder(orderId: string) {
+      return await storage.getPayPalOrder(orderId);
+    },
+    async createPayPalIssue(issueData: any) {
+      return await storage.createPayPalIssue(issueData);
+    }
   };
 
   // PayPal Routes

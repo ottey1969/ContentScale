@@ -4,17 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ContentScale - Secure Payment</title>
-    <!-- PayPal SDK for PRODUCTION -->
-    <script src="https://www.paypal.com/sdk/js?client-id=AYJwSJrRz6WpN6HSPcUgJg2IKJL9eSJjrwJN9oBPJfFo_Q5X7o_gg8fN8yXzCHNhwCpJfZyHzgOW_E&currency=USD&intent=capture"></script>
+    <script src="https://www.paypal.com/sdk/js?client-id=YOUR_PAYPAL_CLIENT_ID&currency=USD"></script>
     <style>
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
         }
-
+        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
@@ -22,173 +21,142 @@
             justify-content: center;
             padding: 20px;
         }
-
+        
         .payment-container {
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             padding: 40px;
             max-width: 500px;
             width: 100%;
             text-align: center;
         }
-
+        
         .logo {
-            font-size: 28px;
+            font-size: 24px;
             font-weight: bold;
-            color: #667eea;
-            margin-bottom: 10px;
-        }
-
-        .subtitle {
-            color: #666;
+            color: #4f46e5;
             margin-bottom: 30px;
-            font-size: 16px;
         }
-
-        .payment-info {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 30px;
+        
+        .payment-details {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 24px;
             margin-bottom: 30px;
-            border: 2px solid #e9ecef;
+            border-left: 4px solid #4f46e5;
         }
-
+        
         .amount {
-            font-size: 48px;
+            font-size: 36px;
             font-weight: bold;
-            color: #28a745;
-            margin-bottom: 10px;
+            color: #1e293b;
+            margin-bottom: 8px;
         }
-
-        .credits-info {
+        
+        .credits {
             font-size: 18px;
-            color: #6c757d;
-            margin-bottom: 20px;
+            color: #64748b;
+            margin-bottom: 16px;
         }
-
-        .feature-list {
-            text-align: left;
-            list-style: none;
-            margin-bottom: 20px;
+        
+        .user-email {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 14px;
+            color: #475569;
         }
-
-        .feature-list li {
-            padding: 8px 0;
-            color: #495057;
-            display: flex;
-            align-items: center;
-        }
-
-        .feature-list li:before {
-            content: "✅";
-            margin-right: 10px;
-        }
-
-        #paypal-button-container {
+        
+        .paypal-container {
             margin: 30px 0;
         }
-
-        .secure-info {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #6c757d;
-            font-size: 14px;
+        
+        .security-note {
+            font-size: 12px;
+            color: #64748b;
             margin-top: 20px;
+            padding: 16px;
+            background: #f1f5f9;
+            border-radius: 8px;
         }
-
-        .secure-info:before {
-            content: "🔒";
-            margin-right: 8px;
-        }
-
+        
         .loading {
             display: none;
-            text-align: center;
-            padding: 20px;
+            margin: 20px 0;
         }
-
-        .success {
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4f46e5;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .success-message {
             display: none;
-            text-align: center;
-            padding: 20px;
-            color: #28a745;
+            background: #dcfce7;
+            border: 1px solid #86efac;
+            color: #166534;
+            padding: 16px;
+            border-radius: 8px;
+            margin: 20px 0;
         }
-
-        .error {
+        
+        .error-message {
             display: none;
-            text-align: center;
-            padding: 20px;
-            color: #dc3545;
-            background: #f8d7da;
-            border: 1px solid #f5c6cb;
-            border-radius: 10px;
-            margin-top: 20px;
-        }
-
-        .back-link {
-            display: inline-block;
-            margin-top: 20px;
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        .back-link:hover {
-            text-decoration: underline;
-        }
-
-        @media (max-width: 480px) {
-            .payment-container {
-                padding: 30px 20px;
-            }
-            
-            .amount {
-                font-size: 36px;
-            }
+            background: #fef2f2;
+            border: 1px solid #fca5a5;
+            color: #dc2626;
+            padding: 16px;
+            border-radius: 8px;
+            margin: 20px 0;
         }
     </style>
 </head>
 <body>
     <div class="payment-container">
-        <div class="logo">ContentScale</div>
-        <div class="subtitle">Secure Payment Portal</div>
+        <div class="logo">🚀 ContentScale</div>
         
-        <div class="payment-info">
-            <div class="amount" id="payment-amount">$2.00</div>
-            <div class="credits-info" id="credits-info">Get 10 Premium Credits</div>
-            
-            <ul class="feature-list">
-                <li>AI-Powered Content Generation</li>
-                <li>Advanced SEO Optimization</li>
-                <li>Keyword Research Tools</li>
-                <li>Professional Content Templates</li>
-                <li>Real-time Content Analysis</li>
-            </ul>
-        </div>
-
-        <div id="paypal-button-container"></div>
+        <h1 style="color: #1e293b; margin-bottom: 30px;">Secure Payment</h1>
         
-        <div class="secure-info">
-            Secure payment powered by PayPal
+        <div class="payment-details">
+            <div class="amount" id="amount">$2.00</div>
+            <div class="credits" id="credits">10 Credits</div>
+            <div class="user-email" id="userEmail">Loading...</div>
         </div>
-
+        
         <div class="loading" id="loading">
-            <h3>Processing your payment...</h3>
-            <p>Please wait while we confirm your transaction.</p>
+            <div class="spinner"></div>
+            <p style="margin-top: 10px; color: #64748b;">Processing payment...</p>
         </div>
-
-        <div class="success" id="success">
-            <h3>✅ Payment Successful!</h3>
-            <p>Your credits have been added to your account.</p>
-            <a href="/" class="back-link">Return to ContentScale</a>
+        
+        <div class="success-message" id="successMessage">
+            <strong>✅ Payment Successful!</strong><br>
+            Your credits have been added to your account. You can now close this page and return to ContentScale.
         </div>
-
-        <div class="error" id="error">
-            <h3>❌ Payment Failed</h3>
-            <p id="error-message">There was an issue processing your payment.</p>
-            <a href="/" class="back-link">Return to ContentScale</a>
+        
+        <div class="error-message" id="errorMessage">
+            <strong>❌ Payment Failed</strong><br>
+            <span id="errorText">There was an issue processing your payment. Please try again.</span>
+        </div>
+        
+        <div class="paypal-container" id="paypalContainer">
+            <div id="paypal-button-container"></div>
+        </div>
+        
+        <div class="security-note">
+            🔒 Your payment is secured by PayPal's industry-leading encryption.<br>
+            ContentScale never stores your payment information.
         </div>
     </div>
 
@@ -198,85 +166,113 @@
         const amount = urlParams.get('amount') || '2.00';
         const credits = urlParams.get('credits') || '10';
         const userEmail = urlParams.get('userEmail') || '';
-
+        
         // Update display
-        document.getElementById('payment-amount').textContent = '$' + amount;
-        document.getElementById('credits-info').textContent = `Get ${credits} Premium Credits`;
-
-        // Initialize PayPal
-        paypal.Buttons({
-            createOrder: function(data, actions) {
-                return fetch('/api/paypal/order', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        userEmail: userEmail,
-                        amount: parseFloat(amount),
-                        credits: parseInt(credits)
+        document.getElementById('amount').textContent = `$${amount}`;
+        document.getElementById('credits').textContent = `${credits} Credits`;
+        document.getElementById('userEmail').textContent = userEmail || 'No email provided';
+        
+        // PayPal integration
+        if (userEmail) {
+            paypal.Buttons({
+                createOrder: function(data, actions) {
+                    return fetch('/api/paypal/orders', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            amount: parseFloat(amount),
+                            credits: parseInt(credits),
+                            userEmail: userEmail
+                        }),
                     })
-                })
-                .then(response => response.json())
-                .then(order => {
-                    if (order.error) {
-                        throw new Error(order.error);
-                    }
-                    return order.id;
-                });
-            },
-
-            onApprove: function(data, actions) {
-                document.getElementById('paypal-button-container').style.display = 'none';
-                document.getElementById('loading').style.display = 'block';
-
-                return fetch(`/api/paypal/order/${data.orderID}/capture`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        userEmail: userEmail
+                    .then(function(response) {
+                        return response.json();
                     })
-                })
-                .then(response => response.json())
-                .then(result => {
-                    document.getElementById('loading').style.display = 'none';
+                    .then(function(data) {
+                        return data.orderID;
+                    })
+                    .catch(function(error) {
+                        console.error('Error creating order:', error);
+                        showError('Failed to create payment order. Please try again.');
+                    });
+                },
+                
+                onApprove: function(data, actions) {
+                    showLoading();
                     
-                    if (result.success) {
-                        document.getElementById('success').style.display = 'block';
+                    return fetch('/api/paypal/capture', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            orderID: data.orderID,
+                            userEmail: userEmail
+                        }),
+                    })
+                    .then(function(response) {
+                        return response.json();
+                    })
+                    .then(function(data) {
+                        hideLoading();
                         
-                        // Redirect after 3 seconds
-                        setTimeout(() => {
-                            window.location.href = '/?payment=success&credits=' + credits;
-                        }, 3000);
-                    } else {
-                        throw new Error(result.error || 'Payment capture failed');
-                    }
-                });
-            },
-
-            onError: function(err) {
-                console.error('PayPal Error:', err);
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('error').style.display = 'block';
-                document.getElementById('error-message').textContent = 
-                    'Payment failed. Please try again or contact support.';
-            },
-
-            onCancel: function(data) {
-                console.log('Payment cancelled by user');
-                window.location.href = '/?payment=cancelled';
-            }
-
-        }).render('#paypal-button-container');
-
-        // Handle missing user email
-        if (!userEmail) {
-            document.getElementById('paypal-button-container').style.display = 'none';
-            document.getElementById('error').style.display = 'block';
-            document.getElementById('error-message').textContent = 
-                'User authentication required. Please login first.';
+                        if (data.success) {
+                            showSuccess();
+                            // Auto-close after 3 seconds
+                            setTimeout(function() {
+                                window.close();
+                            }, 3000);
+                        } else {
+                            showError(data.error || 'Payment capture failed. Please contact support.');
+                        }
+                    })
+                    .catch(function(error) {
+                        hideLoading();
+                        console.error('Error capturing payment:', error);
+                        showError('Payment processing failed. Please contact support if you were charged.');
+                    });
+                },
+                
+                onError: function(err) {
+                    console.error('PayPal error:', err);
+                    showError('PayPal encountered an error. Please try again or contact support.');
+                },
+                
+                onCancel: function(data) {
+                    showError('Payment was cancelled. No charges were made.');
+                }
+                
+            }).render('#paypal-button-container');
+        } else {
+            showError('No email address provided. Please return to ContentScale and try again.');
+        }
+        
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('paypalContainer').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+        
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+        
+        function showSuccess() {
+            hideLoading();
+            document.getElementById('successMessage').style.display = 'block';
+            document.getElementById('paypalContainer').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+        
+        function showError(message) {
+            hideLoading();
+            document.getElementById('errorText').textContent = message;
+            document.getElementById('errorMessage').style.display = 'block';
+            document.getElementById('successMessage').style.display = 'none';
+            document.getElementById('paypalContainer').style.display = 'none';
         }
     </script>
 </body>

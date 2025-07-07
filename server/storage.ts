@@ -136,11 +136,14 @@ export interface IStorage {
   createPayPalOrder(orderData: any): Promise<any>;
   updatePayPalOrder(orderId: string, updates: any): Promise<boolean>;
   getPayPalOrder(orderId: string): Promise<any>;
-  createCreditTransaction(transactionData: any): Promise<any>;
   createPayPalIssue(issueData: any): Promise<any>;
   updatePayPalIssue(issueId: string, updates: any): Promise<boolean>;
   getPayPalIssues(): Promise<any[]>;
   getUserPayPalIssues(userEmail: string): Promise<any[]>;
+  
+  // Additional methods required by PayPal backend routes
+  getUserByEmail(email: string): Promise<any>;
+  updateUserCredits(email: string, credits: number): Promise<boolean>;
   
   // Admin messaging and user management operations
   getUsers(): Promise<any[]>;
@@ -217,11 +220,6 @@ export class DatabaseStorage implements IStorage {
   // User operations (mandatory for Replit Auth)
   async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user;
-  }
-
-  async getUserByEmail(email: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.email, email));
     return user;
   }
 

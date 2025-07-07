@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import PayPalIssueManager from './PayPalIssueManager';
 
 interface ChatMessage {
   id: string;
@@ -25,7 +24,6 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [userEmailInput, setUserEmailInput] = useState(userEmail);
   const [isConnected, setIsConnected] = useState(false);
-  const [showPayPalIssues, setShowPayPalIssues] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -51,12 +49,12 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
 
   const loadChatHistory = async () => {
     if (!userEmailInput) return;
-
+    
     try {
       const response = await fetch(`/api/chat/history/${encodeURIComponent(userEmailInput)}`);
       if (response.ok) {
-        const history = await response.json();
-        const formattedMessages: ChatMessage[] = history.map((msg: any) => ({
+        const data = await response.json();
+        const formattedMessages = data.messages.map((msg: any) => ({
           id: msg.id,
           content: msg.content,
           timestamp: new Date(msg.timestamp),
@@ -70,23 +68,22 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
     }
   };
 
-  const sendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const handleSendMessage = async () => {
     if (!newMessage.trim() || !userEmailInput.trim()) return;
 
+    const messageToSend = newMessage.trim();
+    setNewMessage('');
     setIsLoading(true);
 
-    // Add user message to UI immediately
+    // Add user message immediately
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
-      content: newMessage,
+      content: messageToSend,
       timestamp: new Date(),
       isFromUser: true
     };
 
     setMessages(prev => [...prev, userMessage]);
-    setNewMessage('');
 
     try {
       const response = await fetch('/api/chat/send', {
@@ -96,31 +93,39 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
         },
         body: JSON.stringify({
           userEmail: userEmailInput,
-          content: newMessage
+          message: messageToSend,
+          type: 'incoming'
         }),
       });
 
       if (response.ok) {
-        setIsConnected(true);
+        const data = await response.json();
+        
         // Add auto-response
-        setTimeout(() => {
-          const autoResponse: ChatMessage = {
-            id: (Date.now() + 1).toString(),
-            content: "Thank you for your message! Our admin team will respond shortly. You can continue the conversation here or check back later.",
-            timestamp: new Date(),
-            isFromUser: false
-          };
-          setMessages(prev => [...prev, autoResponse]);
-        }, 1000);
+        const botMessage: ChatMessage = {
+          id: (Date.now() + 1).toString(),
+          content: data.response || 'Thank you for your message. Our support team will get back to you soon!',
+          timestamp: new Date(),
+          isFromUser: false
+        };
+
+        setMessages(prev => [...prev, botMessage]);
+        setIsConnected(true);
       } else {
-        // Remove the message if sending failed
-        setMessages(prev => prev.filter(msg => msg.id !== userMessage.id));
-        alert('Failed to send message. Please try again.');
+        throw new Error('Failed to send message');
       }
     } catch (error) {
       console.error('Error sending message:', error);
-      setMessages(prev => prev.filter(msg => msg.id !== userMessage.id));
-      alert('Failed to send message. Please check your connection.');
+      
+      // Add error message
+      const errorMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        content: 'Sorry, there was an error sending your message. Please try again.',
+        timestamp: new Date(),
+        isFromUser: false
+      };
+
+      setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }
@@ -165,14 +170,6 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
                 {isConnected ? 'Connected' : 'Chat with our team'}
               </p>
             </div>
-            <div className="flex space-x-2">
-              <button
-                onClick={() => setShowPayPalIssues(!showPayPalIssues)}
-                className="text-white hover:text-gray-200 transition-colors p-1 rounded"
-                title="PayPal Issues"
-              >
-                💳
-              </button>
             <button
               onClick={toggleWidget}
               className="text-white hover:text-gray-200 transition-colors"
@@ -193,14 +190,14 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
                   value={userEmailInput}
                   onChange={(e) => setUserEmailInput(e.target.value)}
                   placeholder="Enter your email to start chatting"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
                 <button
                   onClick={connectToChat}
                   disabled={!userEmailInput.trim()}
-                  className="w-full bg-purple-600 text-white py-2 px-4 rounded-md text-sm hover:bg-purple-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                  className="w-full bg-purple-600 text-white py-2 px-4 rounded-md text-sm hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Start Chat
+                  Connect to Chat
                 </button>
               </div>
             </div>
@@ -208,21 +205,9 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
 
           {/* Messages Area */}
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
-            {!isConnected && messages.length === 0 && (
-              <div className="text-center text-gray-500 text-sm">
-                <div className="mb-2">
-                  <svg className="w-8 h-8 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                  </svg>
-                </div>
-                <p>Welcome to ContentScale Support!</p>
-                <p className="text-xs mt-1">Enter your email above to start chatting with our team.</p>
-              </div>
-            )}
-
             {messages.length === 0 && isConnected && (
               <div className="text-center text-gray-500 text-sm">
-                <p>Start a conversation with our support team!</p>
+                Welcome! How can we help you today?
               </div>
             )}
 
@@ -232,17 +217,22 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
                 className={`flex ${message.isFromUser ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-xs px-3 py-2 rounded-lg text-sm ${
+                  className={`max-w-xs lg:max-w-md px-3 py-2 rounded-lg text-sm ${
                     message.isFromUser
-                      ? 'bg-purple-600 text-white rounded-br-none'
-                      : 'bg-gray-100 text-gray-800 rounded-bl-none'
+                      ? 'bg-purple-600 text-white'
+                      : 'bg-gray-100 text-gray-800'
                   }`}
                 >
                   <p>{message.content}</p>
-                  <p className={`text-xs mt-1 ${
-                    message.isFromUser ? 'text-purple-200' : 'text-gray-500'
-                  }`}>
-                    {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  <p
+                    className={`text-xs mt-1 ${
+                      message.isFromUser ? 'text-purple-200' : 'text-gray-500'
+                    }`}
+                  >
+                    {message.timestamp.toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
                   </p>
                 </div>
               </div>
@@ -250,7 +240,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
 
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-gray-100 text-gray-800 px-3 py-2 rounded-lg rounded-bl-none text-sm">
+                <div className="bg-gray-100 text-gray-800 px-3 py-2 rounded-lg text-sm">
                   <div className="flex space-x-1">
                     <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
                     <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
@@ -263,51 +253,27 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
             <div ref={messagesEndRef} />
           </div>
 
-          {/* PayPal Issues Section */}
-          {showPayPalIssues && isConnected && (
-            <div className="border-t border-gray-200 p-4 max-h-64 overflow-y-auto">
-              <PayPalIssueManager 
-                userEmail={userEmailInput} 
-                onIssueSubmitted={() => {
-                  const autoMessage = {
-                    id: Date.now().toString(),
-                    content: "PayPal issue submitted successfully! Our team will investigate and respond soon.",
-                    timestamp: new Date(),
-                    isFromUser: false
-                  };
-                  setMessages(prev => [...prev, autoMessage]);
-                }}
-              />
-            </div>
-          )}
-
           {/* Message Input */}
           {isConnected && (
-            <div className="border-t border-gray-200 p-4">
-              <form onSubmit={sendMessage} className="flex space-x-2">
+            <div className="p-4 border-t border-gray-200">
+              <div className="flex space-x-2">
                 <input
                   type="text"
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
                   placeholder="Type your message..."
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
                   disabled={isLoading}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:bg-gray-100"
-                  maxLength={1000}
                 />
                 <button
-                  type="submit"
+                  onClick={handleSendMessage}
                   disabled={!newMessage.trim() || isLoading}
-                  className="bg-purple-600 text-white p-2 rounded-md hover:bg-purple-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-                  aria-label="Send message"
+                  className="bg-purple-600 text-white px-4 py-2 rounded-md text-sm hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                  </svg>
+                  Send
                 </button>
-              </form>
-              <p className="text-xs text-gray-500 mt-1">
-                Press Enter to send • {1000 - newMessage.length} characters remaining
-              </p>
+              </div>
             </div>
           )}
         </div>
