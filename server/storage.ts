@@ -141,12 +141,9 @@ export interface IStorage {
   getPayPalIssues(): Promise<any[]>;
   getUserPayPalIssues(userEmail: string): Promise<any[]>;
   
-  // Additional methods required by PayPal backend routes and admin functionality
-  getUserByEmail(email: string): Promise<any>;
-  updateUserCredits(email: string, credits: number): Promise<boolean>;
+  // Additional methods required by PayPal backend routes and admin functionality  
   createUser(userData: any): Promise<any>;
   createCreditTransaction(transactionData: any): Promise<any>;
-  updatePayPalIssue(issueId: string, updates: any): Promise<boolean>;
   
   // Admin messaging and user management operations
   getUsers(): Promise<any[]>;
@@ -1345,6 +1342,32 @@ export class DatabaseStorage implements IStorage {
   async getConversations(): Promise<any[]> {
     // Return conversations - implement based on your messaging system
     return [];
+  }
+
+  async createUser(userData: any): Promise<any> {
+    return this.upsertUser({
+      id: userData.id || Date.now().toString(),
+      email: userData.email,
+      credits: userData.credits || 0,
+      isNewSubscriber: userData.isNewSubscriber || false,
+      createdAt: new Date()
+    });
+  }
+
+  async createCreditTransaction(transactionData: any): Promise<any> {
+    // Create credit transaction record
+    const transaction = {
+      id: Date.now().toString(),
+      userEmail: transactionData.userEmail,
+      credits: transactionData.credits,
+      transactionType: transactionData.transactionType || 'purchase',
+      reason: transactionData.reason || 'Credit transaction',
+      adminEmail: transactionData.adminEmail || 'system@contentscale.com',
+      isNewSubscriber: transactionData.isNewSubscriber || false,
+      timestamp: new Date(),
+      metadata: transactionData.metadata || {}
+    };
+    return transaction;
   }
 }
 

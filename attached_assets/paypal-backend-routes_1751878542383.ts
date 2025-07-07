@@ -115,6 +115,36 @@ const db = {
   async getUserPayPalIssues(userEmail: string): Promise<PayPalIssue[]> {
     // Get user's issues from database
     return [];
+  },
+
+  async createUser(userData: any): Promise<any> {
+    const newUser = {
+      id: Date.now().toString(),
+      email: userData.email,
+      credits: userData.credits || 0,
+      isNewSubscriber: userData.isNewSubscriber || true,
+      createdAt: new Date()
+    };
+    return newUser;
+  },
+
+  async createCreditTransaction(transactionData: any): Promise<any> {
+    const transaction = {
+      id: Date.now().toString(),
+      userEmail: transactionData.userEmail,
+      credits: transactionData.credits,
+      transactionType: transactionData.transactionType || 'purchase',
+      reason: transactionData.reason,
+      adminEmail: transactionData.adminEmail || 'system@contentscale.com',
+      metadata: transactionData.metadata || {},
+      timestamp: new Date()
+    };
+    return transaction;
+  },
+
+  async updatePayPalIssue(issueId: string, updates: any): Promise<boolean> {
+    // Update PayPal issue in database
+    return true;
   }
 };
 

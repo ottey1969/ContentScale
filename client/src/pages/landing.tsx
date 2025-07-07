@@ -1076,6 +1076,9 @@ export default function Landing() {
       
       {/* Chat Popup */}
       <ChatPopup isOpen={showChatPopup} onClose={() => setShowChatPopup(false)} isTestMode={true} />
+      
+      {/* Alternative Chat Widget (from your chat-widget.tsx file) */}
+      {/* <ChatWidget userEmail="" /> */}
     </div>
   );
 }

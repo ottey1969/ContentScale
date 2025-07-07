@@ -983,6 +983,76 @@ export default function Admin() {
             <AdminChatDashboard />
           </TabsContent>
 
+          <TabsContent value="credits">
+            <Card>
+              <CardHeader>
+                <CardTitle>Credit Management</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="userEmail">User Email</Label>
+                    <Input
+                      id="userEmail"
+                      type="email"
+                      placeholder="user@example.com"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="credits">Credits</Label>
+                    <Input
+                      id="credits"
+                      type="number"
+                      defaultValue="10"
+                      min="1"
+                      max="1000"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="reason">Reason</Label>
+                  <Input
+                    id="reason"
+                    placeholder="Admin credit grant"
+                  />
+                </div>
+                <Button>Grant Credits</Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="users">
+            <Card>
+              <CardHeader>
+                <CardTitle>User Management</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <Button>Refresh Users</Button>
+                  <div className="text-sm text-gray-500">
+                    User list will appear here after clicking refresh
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="messages">
+            <Card>
+              <CardHeader>
+                <CardTitle>Message Management</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <Button>Refresh Messages</Button>
+                  <div className="text-sm text-gray-500">
+                    Messages will appear here after clicking refresh
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           <TabsContent value="security" className="space-y-6 mt-6">
             {/* Security Dashboard */}
             <SecurityDashboard />
