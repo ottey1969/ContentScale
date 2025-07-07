@@ -1317,6 +1317,119 @@ User question: ${message}`
     }
   });
 
+  // PayPal Issue Management System for Agent Support
+  app.post('/api/paypal/issues', async (req, res) => {
+    try {
+      const { userEmail, orderID, transactionID, amount, currency, issueType, description } = req.body;
+
+      if (!userEmail || !issueType || !description) {
+        return res.status(400).json({ error: 'User email, issue type, and description are required' });
+      }
+
+      // Store PayPal issue in messages table for agent tracking
+      await db.execute(`
+        INSERT INTO messages (from_email, to_email, content, message_type, is_read, metadata)
+        VALUES ($1, $2, $3, 'paypal_issue', false, $4)
+      `, [
+        userEmail, 
+        'admin@contentscale.com', 
+        `PayPal Issue - ${issueType}: ${description}`,
+        JSON.stringify({
+          issueType: 'paypal_issue',
+          orderID: orderID || null,
+          transactionID: transactionID || null,
+          amount: amount || null,
+          currency: currency || 'USD',
+          paypalIssueType: issueType,
+          status: 'open',
+          priority: issueType === 'payment_failed' ? 'high' : 'normal'
+        })
+      ]);
+
+      res.json({ 
+        success: true, 
+        message: 'PayPal issue submitted successfully'
+      });
+
+    } catch (error) {
+      console.error('Error submitting PayPal issue:', error);
+      res.status(500).json({ error: 'Failed to submit PayPal issue' });
+    }
+  });
+
+  app.get('/api/paypal/issues/:userEmail', async (req, res) => {
+    try {
+      const { userEmail } = req.params;
+      
+      const issues = await db.execute(`
+        SELECT id, from_email, content, created_at, metadata, is_read
+        FROM messages 
+        WHERE from_email = $1 AND message_type = 'paypal_issue'
+        ORDER BY created_at DESC
+      `, [userEmail]);
+
+      const formattedIssues = issues.rows.map((row: any) => {
+        const metadata = row.metadata ? JSON.parse(row.metadata) : {};
+        return {
+          id: row.id,
+          userEmail: row.from_email,
+          orderID: metadata.orderID,
+          transactionID: metadata.transactionID,
+          amount: metadata.amount,
+          currency: metadata.currency || 'USD',
+          issueType: metadata.paypalIssueType || 'other',
+          status: metadata.status || 'open',
+          description: row.content.replace(/^PayPal Issue - \w+: /, ''),
+          createdAt: row.created_at,
+          resolvedAt: metadata.resolvedAt
+        };
+      });
+
+      res.json(formattedIssues);
+
+    } catch (error) {
+      console.error('Error fetching PayPal issues:', error);
+      res.status(500).json({ error: 'Failed to fetch PayPal issues' });
+    }
+  });
+
+  // Admin endpoint to view and manage all PayPal issues
+  app.get('/api/admin/paypal-issues', adminSecurityMiddleware(), async (req, res) => {
+    try {
+      const issues = await db.execute(`
+        SELECT id, from_email, to_email, content, created_at, metadata, is_read
+        FROM messages 
+        WHERE message_type = 'paypal_issue'
+        ORDER BY created_at DESC
+      `);
+
+      const formattedIssues = issues.rows.map((row: any) => {
+        const metadata = row.metadata ? JSON.parse(row.metadata) : {};
+        return {
+          id: row.id,
+          userEmail: row.from_email,
+          orderID: metadata.orderID,
+          transactionID: metadata.transactionID,
+          amount: metadata.amount,
+          currency: metadata.currency || 'USD',
+          issueType: metadata.paypalIssueType || 'other',
+          status: metadata.status || 'open',
+          priority: metadata.priority || 'normal',
+          description: row.content.replace(/^PayPal Issue - \w+: /, ''),
+          createdAt: row.created_at,
+          isRead: row.is_read,
+          adminNotes: metadata.adminNotes
+        };
+      });
+
+      res.json(formattedIssues);
+
+    } catch (error) {
+      console.error('Error fetching PayPal issues for admin:', error);
+      res.status(500).json({ error: 'Failed to fetch PayPal issues' });
+    }
+  });
+
   const httpServer = createServer(app);
 
   // WebSocket server disabled for development to prevent connection errors

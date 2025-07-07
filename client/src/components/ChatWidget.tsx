@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import PayPalIssueManager from './PayPalIssueManager';
 
 interface ChatMessage {
   id: string;
@@ -24,6 +25,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [userEmailInput, setUserEmailInput] = useState(userEmail);
   const [isConnected, setIsConnected] = useState(false);
+  const [showPayPalIssues, setShowPayPalIssues] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -163,6 +165,14 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
                 {isConnected ? 'Connected' : 'Chat with our team'}
               </p>
             </div>
+            <div className="flex space-x-2">
+              <button
+                onClick={() => setShowPayPalIssues(!showPayPalIssues)}
+                className="text-white hover:text-gray-200 transition-colors p-1 rounded"
+                title="PayPal Issues"
+              >
+                💳
+              </button>
             <button
               onClick={toggleWidget}
               className="text-white hover:text-gray-200 transition-colors"
@@ -252,6 +262,24 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
 
             <div ref={messagesEndRef} />
           </div>
+
+          {/* PayPal Issues Section */}
+          {showPayPalIssues && isConnected && (
+            <div className="border-t border-gray-200 p-4 max-h-64 overflow-y-auto">
+              <PayPalIssueManager 
+                userEmail={userEmailInput} 
+                onIssueSubmitted={() => {
+                  const autoMessage = {
+                    id: Date.now().toString(),
+                    content: "PayPal issue submitted successfully! Our team will investigate and respond soon.",
+                    timestamp: new Date(),
+                    isFromUser: false
+                  };
+                  setMessages(prev => [...prev, autoMessage]);
+                }}
+              />
+            </div>
+          )}
 
           {/* Message Input */}
           {isConnected && (
