@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ContentScale - Secure Payment</title>
+    <!-- PayPal SDK for PRODUCTION -->
+    <script src="https://www.paypal.com/sdk/js?client-id=YOUR_REAL_PAYPAL_CLIENT_ID&currency=USD&intent=capture"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .payment-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        .payment-info {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border-left: 4px solid #667eea;
+        }
+
+        .amount {
+            font-size: 36px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .credits-info {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .user-info {
+            background: #e3f2fd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .user-email {
+            font-weight: 600;
+            color: #1976d2;
+            font-size: 16px;
+        }
+
+        .production-badge {
+            background: #28a745;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        #paypal-button-container {
+            margin: 30px 0;
+            min-height: 50px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .success-message {
+            display: none;
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .error-message {
+            display: none;
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .back-button {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+
+        .back-button:hover {
+            background: #5a6268;
+        }
+
+        .security-info {
+            font-size: 12px;
+            color: #999;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .security-icons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .security-icon {
+            width: 30px;
+            height: 20px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+            color: #666;
+        }
+
+        .production-warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .payment-details {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .payment-details h4 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .payment-details ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .payment-details li {
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .payment-details li:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            color: #333;
+        }
+
+        @media (max-width: 480px) {
+            .payment-container {
+                padding: 30px 20px;
+                margin: 10px;
+            }
+            
+            .amount {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="payment-container">
+        <div class="logo">
+            ContentScale
+            <span class="production-badge">LIVE</span>
+        </div>
+        <div class="subtitle">Secure Payment Processing</div>
+        
+        <div class="production-warning">
+            <strong>⚠️ Live Payment Environment</strong><br>
+            This is a real payment transaction. You will be charged the amount shown below.
+        </div>
+        
+        <div class="payment-info">
+            <div class="amount">$<span id="amount-display">2.00</span></div>
+            <div class="credits-info">Purchase <span id="credits-display">10</span> Credits</div>
+            <div class="user-info">
+                <div class="user-email" id="user-email">Loading...</div>
+            </div>
+        </div>
+
+        <div class="payment-details">
+            <h4>Payment Summary</h4>
+            <ul>
+                <li><span>Credits:</span> <span id="credits-summary">10</span></li>
+                <li><span>Price per credit:</span> <span>$0.20</span></li>
+                <li><span>Subtotal:</span> <span id="subtotal">$2.00</span></li>
+                <li><span>Total:</span> <span id="total">$2.00</span></li>
+            </ul>
+        </div>
+
+        <div id="paypal-button-container"></div>
+        
+        <div class="loading" id="loading">
+            <div class="loading-spinner"></div>
+            <div>Processing your payment...</div>
+        </div>
+
+        <div class="success-message" id="success-message">
+            <h3>🎉 Payment Successful!</h3>
+            <p>Your <span id="success-credits">10</span> credits have been added to your account.</p>
+            <p>Transaction ID: <span id="transaction-id">Loading...</span></p>
+            <p>Redirecting you back to the chat...</p>
+        </div>
+
+        <div class="error-message" id="error-message">
+            <h3>❌ Payment Failed</h3>
+            <p id="error-text">There was an issue processing your payment. Please try again.</p>
+            <button onclick="reportIssue()" style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; margin-top: 10px; cursor: pointer;">
+                Report Issue
+            </button>
+        </div>
+
+        <button class="back-button" onclick="goBack()">← Back to Chat</button>
+
+        <div class="security-info">
+            <div>🔒 Your payment is secured by PayPal's industry-leading encryption</div>
+            <div class="security-icons">
+                <div class="security-icon">SSL</div>
+                <div class="security-icon">256</div>
+                <div class="security-icon">PCI</div>
+            </div>
+            <div style="margin-top: 10px; font-size: 11px;">
+                Powered by PayPal • Production Environment • Real Transactions
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const userEmail = urlParams.get('email') || 'user@example.com';
+        const returnUrl = urlParams.get('return') || '/';
+        const amount = parseFloat(urlParams.get('amount') || '2.00');
+        const credits = parseInt(urlParams.get('credits') || '10');
+
+        // Update UI with payment info
+        document.getElementById('user-email').textContent = userEmail;
+        document.getElementById('amount-display').textContent = amount.toFixed(2);
+        document.getElementById('credits-display').textContent = credits.toString();
+        document.getElementById('credits-summary').textContent = credits.toString();
+        document.getElementById('subtotal').textContent = `$${amount.toFixed(2)}`;
+        document.getElementById('total').textContent = `$${amount.toFixed(2)}`;
+
+        // API configuration
+        const API_BASE_URL = window.location.origin;
+        let paypalClientId = '';
+
+        // Load PayPal configuration
+        async function loadPayPalConfig() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/paypal/setup`);
+                const config = await response.json();
+                paypalClientId = config.clientId;
+                
+                if (!paypalClientId) {
+                    throw new Error('PayPal client ID not configured');
+                }
+                
+                // Initialize PayPal buttons after config is loaded
+                initializePayPal();
+                
+            } catch (error) {
+                console.error('Failed to load PayPal configuration:', error);
+                showError('PayPal configuration error. Please contact support.');
+            }
+        }
+
+        // Initialize PayPal buttons
+        function initializePayPal() {
+            if (typeof paypal === 'undefined') {
+                showError('PayPal SDK failed to load. Please refresh the page.');
+                return;
+            }
+
+            paypal.Buttons({
+                style: {
+                    layout: 'vertical',
+                    color: 'blue',
+                    shape: 'rect',
+                    label: 'paypal',
+                    height: 50,
+                    tagline: false
+                },
+
+                createOrder: function(data, actions) {
+                    showLoading(true);
+                    
+                    return fetch(`${API_BASE_URL}/api/paypal/order`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            userEmail: userEmail,
+                            amount: amount,
+                            credits: credits,
+                            currency: 'USD'
+                        })
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.error) {
+                            throw new Error(data.error);
+                        }
+                        console.log('Order created:', data.orderID);
+                        return data.orderID;
+                    })
+                    .catch(error => {
+                        console.error('Error creating order:', error);
+                        showError('Failed to create payment order. Please try again.');
+                        showLoading(false);
+                        throw error;
+                    });
+                },
+
+                onApprove: function(data, actions) {
+                    showLoading(true);
+                    console.log('Payment approved, capturing...', data.orderID);
+                    
+                    return fetch(`${API_BASE_URL}/api/paypal/order/${data.orderID}/capture`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            userEmail: userEmail,
+                            orderID: data.orderID
+                        })
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.error) {
+                            throw new Error(data.error);
+                        }
+                        
+                        console.log('Payment captured successfully:', data);
+                        showSuccess(data.transactionID, data.creditsAdded);
+                        
+                        // Redirect back to chat after 4 seconds
+                        setTimeout(() => {
+                            const redirectUrl = returnUrl + 
+                                (returnUrl.includes('?') ? '&' : '?') + 
+                                `payment=success&credits=${data.creditsAdded}&transaction=${data.transactionID}`;
+                            window.location.href = redirectUrl;
+                        }, 4000);
+                    })
+                    .catch(error => {
+                        console.error('Error capturing payment:', error);
+                        showError('Payment capture failed. If you were charged, please contact support with your order ID: ' + data.orderID);
+                        showLoading(false);
+                    });
+                },
+
+                onError: function(err) {
+                    console.error('PayPal error:', err);
+                    showError('PayPal encountered an error. Please try again or contact support.');
+                    showLoading(false);
+                },
+
+                onCancel: function(data) {
+                    console.log('Payment cancelled:', data);
+                    showError('Payment was cancelled. You can try again when ready.');
+                    showLoading(false);
+                }
+            }).render('#paypal-button-container');
+        }
+
+        function showLoading(show) {
+            const loading = document.getElementById('loading');
+            const paypalContainer = document.getElementById('paypal-button-container');
+            
+            if (show) {
+                loading.style.display = 'block';
+                paypalContainer.style.display = 'none';
+            } else {
+                loading.style.display = 'none';
+                paypalContainer.style.display = 'block';
+            }
+        }
+
+        function showSuccess(transactionId, creditsAdded) {
+            document.getElementById('success-message').style.display = 'block';
+            document.getElementById('success-credits').textContent = creditsAdded.toString();
+            document.getElementById('transaction-id').textContent = transactionId;
+            document.getElementById('paypal-button-container').style.display = 'none';
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error-message').style.display = 'none';
+        }
+
+        function showError(message) {
+            document.getElementById('error-message').style.display = 'block';
+            document.getElementById('error-text').textContent = message;
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        function goBack() {
+            window.location.href = returnUrl;
+        }
+
+        async function reportIssue() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/paypal/issues`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        userEmail: userEmail,
+                        issueType: 'payment_failed',
+                        description: `Payment failed on payment page. Amount: $${amount}, Credits: ${credits}`,
+                        priority: 'high',
+                        amount: amount
+                    })
+                });
+
+                if (response.ok) {
+                    alert('Issue reported successfully. Our support team will contact you shortly.');
+                } else {
+                    alert('Failed to report issue. Please contact support directly.');
+                }
+            } catch (error) {
+                console.error('Error reporting issue:', error);
+                alert('Failed to report issue. Please contact support directly.');
+            }
+        }
+
+        // Handle page load errors
+        window.addEventListener('error', function(e) {
+            console.error('Page error:', e);
+            showError('There was a technical issue. Please refresh the page or contact support.');
+        });
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Payment page loaded for:', userEmail);
+            console.log('Return URL:', returnUrl);
+            console.log('Amount:', amount, 'Credits:', credits);
+            
+            loadPayPalConfig();
+        });
+
+        // Prevent accidental page refresh during payment
+        window.addEventListener('beforeunload', function(e) {
+            const loading = document.getElementById('loading');
+            if (loading.style.display === 'block') {
+                e.preventDefault();
+                e.returnValue = 'Payment is in progress. Are you sure you want to leave?';
+                return e.returnValue;
+            }
+        });
+    </script>
+</body>
+</html>
+
