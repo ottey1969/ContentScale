@@ -7,7 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Rocket, Brain, Search, Users, TrendingUp, Shield, Trophy, CheckCircle, Play, ArrowRight, Cookie, FileText, Shield as ShieldIcon, MessageCircle } from "lucide-react";
 import { SEOHead, SEOConfigs } from "@/components/seo/SEOHead";
 import { ChatPopup } from "@/components/ChatPopup";
-import ChatWidget from "@/components/ChatWidget";
+import EnhancedChatWidget from "@/components/EnhancedChatWidget";
 
 import { GeneratedContent } from "@/components/GeneratedContent";
 
@@ -1071,6 +1071,9 @@ export default function Landing() {
         </div>
       )}
 
+      {/* Enhanced Chat Widget */}
+      <EnhancedChatWidget />
+      
       {/* Chat Popup */}
       <ChatPopup isOpen={showChatPopup} onClose={() => setShowChatPopup(false)} isTestMode={true} />
     </div>

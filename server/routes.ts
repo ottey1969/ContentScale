@@ -20,6 +20,7 @@ import { Readable } from "stream";
 import express from "express";
 import path from "path";
 import { createPaypalOrder, capturePaypalOrder, loadPaypalDefault } from "./paypal";
+import * as paypalSdk from '@paypal/checkout-server-sdk';
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -1535,4 +1536,255 @@ async function processCSVKeywords(batchId: string, csvData: any[], userId: strin
     console.error(`Error processing CSV batch ${batchId}:`, error);
     await storage.updateCsvBatch(batchId, { status: "failed" });
   }
+  // PayPal Integration (inside registerRoutes function)
+  const paypal = paypalSdk;
+
+  const paypalEnvironment = () => {
+    const clientId = process.env.PAYPAL_CLIENT_ID;
+    const clientSecret = process.env.PAYPAL_CLIENT_SECRET;
+    
+    if (!clientId || !clientSecret) {
+      console.warn('PayPal credentials not found in environment variables');
+      return null;
+    }
+    
+    return new paypal.core.LiveEnvironment(clientId, clientSecret);
+  };
+
+  const paypalClient = () => {
+    return new paypal.core.PayPalHttpClient(paypalEnvironment());
+  };
+
+  // PayPal Routes
+  app.get('/api/paypal/setup', async (req, res) => {
+    try {
+      res.json({
+        clientId: process.env.PAYPAL_CLIENT_ID,
+        currency: 'USD',
+        environment: 'production'
+      });
+    } catch (error) {
+      console.error('PayPal setup error:', error);
+      res.status(500).json({ error: 'Failed to get PayPal configuration' });
+    }
+  });
+
+  app.post('/api/paypal/order', async (req, res) => {
+    try {
+      const { userEmail, amount, credits, currency = 'USD' } = req.body;
+
+      if (!userEmail || !amount || !credits) {
+        return res.status(400).json({ error: 'Missing required fields' });
+      }
+
+      if (amount < 0.01 || amount > 1000) {
+        return res.status(400).json({ error: 'Invalid amount' });
+      }
+
+      const request = new paypal.orders.OrdersCreateRequest();
+      request.prefer("return=representation");
+      request.requestBody({
+        intent: 'CAPTURE',
+        purchase_units: [{
+          amount: {
+            currency_code: currency,
+            value: amount.toFixed(2)
+          },
+          description: `ContentScale Credits - ${credits} credits`
+        }],
+        application_context: {
+          cancel_url: `${req.protocol}://${req.get('host')}/payment.html?status=cancelled`,
+          return_url: `${req.protocol}://${req.get('host')}/payment.html?status=success`
+        }
+      });
+
+      const order = await paypalClient().execute(request);
+      
+      const dbOrder = await storage.createPayPalOrder({
+        userEmail,
+        amount,
+        credits,
+        currency,
+        paypalOrderId: order.result.id,
+        status: 'created'
+      });
+
+      res.json({
+        id: order.result.id,
+        status: order.result.status,
+        links: order.result.links
+      });
+
+    } catch (error) {
+      console.error('PayPal order creation error:', error);
+      res.status(500).json({ error: 'Failed to create PayPal order' });
+    }
+  });
+
+  app.post('/api/paypal/order/:orderID/capture', async (req, res) => {
+    try {
+      const { orderID } = req.params;
+      const { userEmail } = req.body;
+
+      if (!userEmail) {
+        return res.status(400).json({ error: 'User email required' });
+      }
+
+      const dbOrder = await storage.getPayPalOrder(orderID);
+      if (!dbOrder) {
+        return res.status(404).json({ error: 'Order not found' });
+      }
+
+      const request = new paypal.orders.OrdersCaptureRequest(orderID);
+      request.requestBody({});
+      
+      const capture = await paypalClient().execute(request);
+
+      if (capture.result.status === 'COMPLETED') {
+        let user = await storage.getUserByEmail(userEmail);
+        
+        if (user) {
+          const newCredits = user.credits + dbOrder.credits;
+          await storage.updateUserCredits(user.id, newCredits);
+        } else {
+          user = await storage.upsertUser({
+            id: Date.now().toString(),
+            email: userEmail,
+            credits: dbOrder.credits
+          });
+        }
+
+        await storage.updatePayPalOrder(orderID, {
+          status: 'captured',
+          transactionId: capture.result.purchase_units[0].payments.captures[0].id,
+          completedAt: new Date()
+        });
+
+        await storage.createCreditTransaction({
+          userEmail,
+          credits: dbOrder.credits,
+          transactionType: 'purchase',
+          reason: `PayPal payment - Order ${orderID}`,
+          adminEmail: 'system@contentscale.com',
+          metadata: {
+            paypalOrderId: orderID,
+            transactionId: capture.result.purchase_units[0].payments.captures[0].id,
+            amount: dbOrder.amount,
+            currency: dbOrder.currency
+          }
+        });
+
+        res.json({
+          success: true,
+          orderID,
+          transactionId: capture.result.purchase_units[0].payments.captures[0].id,
+          amount: dbOrder.amount,
+          credits: dbOrder.credits
+        });
+
+      } else {
+        await storage.updatePayPalOrder(orderID, { status: 'failed' });
+        res.status(400).json({ error: 'Payment capture failed', status: capture.result.status });
+      }
+
+    } catch (error) {
+      console.error('PayPal capture error:', error);
+      res.status(500).json({ error: 'Failed to capture PayPal payment' });
+    }
+  });
+
+  app.get('/api/user/credits/:userEmail', async (req, res) => {
+    try {
+      const { userEmail } = req.params;
+      const user = await storage.getUserByEmail(userEmail);
+      
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      res.json({
+        userEmail: user.email,
+        credits: user.credits
+      });
+
+    } catch (error) {
+      console.error('Get user credits error:', error);
+      res.status(500).json({ error: 'Failed to get user credits' });
+    }
+  });
+
+  app.post('/api/paypal/report-issue', async (req, res) => {
+    try {
+      const { userEmail, issueType, description, orderID, transactionID, amount, priority = 'normal' } = req.body;
+
+      if (!userEmail || !issueType || !description) {
+        return res.status(400).json({ error: 'Missing required fields' });
+      }
+
+      const issue = await storage.createPayPalIssue({
+        userEmail,
+        issueType,
+        description,
+        priority,
+        orderID,
+        transactionID,
+        amount
+      });
+
+      res.json({
+        success: true,
+        issueId: issue.id,
+        message: 'Issue reported successfully. Our support team will contact you soon.'
+      });
+
+    } catch (error) {
+      console.error('Report PayPal issue error:', error);
+      res.status(500).json({ error: 'Failed to report issue' });
+    }
+  });
+
+  app.get('/api/admin/paypal/issues', adminSecurityMiddleware, async (req, res) => {
+    try {
+      const issues = await storage.getPayPalIssues();
+      res.json(issues);
+    } catch (error) {
+      console.error('Get PayPal issues error:', error);
+      res.status(500).json({ error: 'Failed to get PayPal issues' });
+    }
+  });
+
+  app.put('/api/admin/paypal/issues/:issueId', adminSecurityMiddleware, async (req, res) => {
+    try {
+      const { issueId } = req.params;
+      const updates = req.body;
+
+      const success = await storage.updatePayPalIssue(issueId, updates);
+      
+      if (success) {
+        res.json({ success: true, message: 'Issue updated successfully' });
+      } else {
+        res.status(404).json({ error: 'Issue not found' });
+      }
+
+    } catch (error) {
+      console.error('Update PayPal issue error:', error);
+      res.status(500).json({ error: 'Failed to update issue' });
+    }
+  });
+
+  app.get('/api/paypal/issues/:userEmail', async (req, res) => {
+    try {
+      const { userEmail } = req.params;
+      const issues = await storage.getUserPayPalIssues(userEmail);
+      res.json(issues);
+    } catch (error) {
+      console.error('Get user PayPal issues error:', error);
+      res.status(500).json({ error: 'Failed to get user issues' });
+    }
+  });
+
+  const server = createServer(app);
+  return server;
 }
+
+// PayPal functionality will be added separately to avoid scope issues
