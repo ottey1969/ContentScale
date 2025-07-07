@@ -1165,6 +1165,158 @@ User question: ${message}`
     }
   });
 
+  // Enhanced Admin Credit Management with Transaction Logging
+  app.post('/api/admin/grant-credits-enhanced', adminSecurityMiddleware(), async (req, res) => {
+    try {
+      const { userEmail, credits, reason, isNewSubscriber } = req.body;
+
+      if (!userEmail || !credits || credits <= 0) {
+        return res.status(400).json({ error: 'Invalid user email or credit amount' });
+      }
+
+      if (credits > 1000) {
+        return res.status(400).json({ error: 'Cannot grant more than 1000 credits at once' });
+      }
+
+      let user = await storage.getUser(userEmail);
+      
+      if (!user) {
+        user = await storage.upsertUser({
+          id: userEmail,
+          email: userEmail,
+          credits: 0,
+          name: userEmail.split('@')[0],
+          image: '',
+          isNewSubscriber: true
+        });
+      }
+
+      let finalCredits = credits;
+      if (isNewSubscriber && user.isNewSubscriber) {
+        finalCredits = Math.floor(credits * 1.5);
+      }
+
+      await storage.updateUserCredits(userEmail, user.credits + finalCredits);
+
+      // Log transaction in enhanced table
+      await db.execute(`
+        INSERT INTO credit_transactions (user_email, credits, transaction_type, reason, admin_email, is_new_subscriber_bonus)
+        VALUES ($1, $2, 'grant', $3, $4, $5)
+      `, [userEmail, finalCredits, reason || 'Admin credit grant', 'ottmar.francisca1969@gmail.com', isNewSubscriber && user.isNewSubscriber]);
+
+      await storage.createActivity({
+        userId: userEmail,
+        type: 'credit_grant',
+        description: `Enhanced admin granted ${finalCredits} credits. Reason: ${reason}`,
+        metadata: { finalCredits, reason, bonusApplied: isNewSubscriber && user.isNewSubscriber }
+      });
+
+      res.json({ 
+        success: true, 
+        message: `Successfully granted ${finalCredits} credits to ${userEmail}`,
+        creditsGranted: finalCredits,
+        bonusApplied: isNewSubscriber && user.isNewSubscriber
+      });
+
+    } catch (error) {
+      console.error('Error granting enhanced credits:', error);
+      res.status(500).json({ error: 'Failed to grant credits' });
+    }
+  });
+
+  // Enhanced Chat System
+  app.post('/api/chat/send', async (req, res) => {
+    try {
+      const { userEmail, content } = req.body;
+
+      if (!userEmail || !content) {
+        return res.status(400).json({ error: 'User email and content are required' });
+      }
+
+      if (content.length > 1000) {
+        return res.status(400).json({ error: 'Message too long (max 1000 characters)' });
+      }
+
+      await db.execute(`
+        INSERT INTO messages (from_email, to_email, content, message_type, is_read)
+        VALUES ($1, $2, $3, 'incoming', false)
+      `, [userEmail, 'admin@contentscale.com', content]);
+
+      res.json({ 
+        success: true, 
+        message: 'Message sent to admin successfully'
+      });
+
+    } catch (error) {
+      console.error('Error sending chat message:', error);
+      res.status(500).json({ error: 'Failed to send message' });
+    }
+  });
+
+  app.get('/api/chat/history/:userEmail', async (req, res) => {
+    try {
+      const { userEmail } = req.params;
+      
+      const messages = await db.execute(`
+        SELECT id, from_email as "from", to_email as "to", content, created_at as timestamp, message_type as type, is_read
+        FROM messages 
+        WHERE (from_email = $1 AND to_email = 'admin@contentscale.com') 
+           OR (to_email = $1 AND from_email LIKE '%admin%')
+        ORDER BY created_at ASC
+      `, [userEmail]);
+
+      res.json(messages.rows);
+
+    } catch (error) {
+      console.error('Error fetching chat history:', error);
+      res.status(500).json({ error: 'Failed to fetch chat history' });
+    }
+  });
+
+  // Admin message management
+  app.get('/api/admin/conversations', adminSecurityMiddleware(), async (req, res) => {
+    try {
+      const conversations = await db.execute(`
+        SELECT 
+          c.*,
+          (SELECT content FROM messages m 
+           WHERE m.participant_email = c.participant_email OR m.to_email = c.participant_email
+           ORDER BY m.created_at DESC LIMIT 1) as last_message_content
+        FROM conversations c
+        ORDER BY c.last_message_at DESC
+      `);
+
+      res.json(conversations.rows);
+    } catch (error) {
+      console.error('Error fetching conversations:', error);
+      res.status(500).json({ error: 'Failed to fetch conversations' });
+    }
+  });
+
+  app.post('/api/admin/send-message', adminSecurityMiddleware(), async (req, res) => {
+    try {
+      const { to, content, type = 'outgoing' } = req.body;
+
+      if (!to || !content) {
+        return res.status(400).json({ error: 'Recipient and content are required' });
+      }
+
+      await db.execute(`
+        INSERT INTO messages (from_email, to_email, content, message_type, is_read)
+        VALUES ($1, $2, $3, $4, false)
+      `, ['admin@contentscale.com', to, content, type]);
+
+      res.json({ 
+        success: true, 
+        message: 'Message sent successfully'
+      });
+
+    } catch (error) {
+      console.error('Error sending admin message:', error);
+      res.status(500).json({ error: 'Failed to send message' });
+    }
+  });
+
   const httpServer = createServer(app);
 
   // WebSocket server disabled for development to prevent connection errors
