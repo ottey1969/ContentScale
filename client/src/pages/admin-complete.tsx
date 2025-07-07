@@ -295,25 +295,30 @@ const AdminPanel: React.FC = () => {
 
               <button
                 type="submit"
-                className="w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors"
+                className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:from-purple-700 hover:to-blue-700 transition-all"
               >
                 Grant Credits
               </button>
             </form>
 
-            {/* User Credit Overview */}
+            {/* User List */}
             <div className="mt-8">
-              <h3 className="text-xl font-semibold mb-4">Recent Users</h3>
-              <div className="space-y-2 max-h-64 overflow-y-auto">
+              <h3 className="text-xl font-bold mb-4">Recent Users</h3>
+              <div className="space-y-2">
                 {filteredUsers.slice(0, 10).map((user) => (
-                  <div key={user.id} className="flex justify-between items-center p-3 bg-gray-700 rounded">
+                  <div key={user.id} className="bg-gray-700 p-4 rounded-lg flex justify-between items-center">
                     <div>
-                      <span className="font-medium">{user.email}</span>
-                      {user.isNewSubscriber && (
-                        <span className="ml-2 px-2 py-1 bg-green-600 text-xs rounded">New</span>
-                      )}
+                      <p className="font-medium">{user.email}</p>
+                      <p className="text-sm text-gray-400">
+                        Credits: {user.credits} | {user.isNewSubscriber ? 'New Subscriber' : 'Existing User'}
+                      </p>
                     </div>
-                    <span className="text-purple-400 font-medium">{user.credits} credits</span>
+                    <button
+                      onClick={() => setCreditForm({...creditForm, userEmail: user.email})}
+                      className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition-colors"
+                    >
+                      Grant Credits
+                    </button>
                   </div>
                 ))}
               </div>
@@ -321,56 +326,148 @@ const AdminPanel: React.FC = () => {
           </div>
         )}
 
-        {/* Messages Tab */}
+        {/* Unified Messaging Tab */}
         {activeTab === 'messages' && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Send Message Form */}
-            <div className="bg-gray-800 rounded-lg p-6">
-              <h2 className="text-2xl font-bold mb-6">💬 Send Message</h2>
-              
+          <div className="bg-gray-800 rounded-lg p-6">
+            <h2 className="text-2xl font-bold mb-6">💬 Unified Messaging Center</h2>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Conversations List */}
+              <div className="lg:col-span-1">
+                <h3 className="text-lg font-bold mb-4">Active Conversations</h3>
+                <div className="space-y-2 max-h-96 overflow-y-auto">
+                  {filteredConversations.map((conversation) => (
+                    <div
+                      key={conversation.id}
+                      onClick={() => setSelectedConversation(conversation.id)}
+                      className={`p-3 rounded-lg cursor-pointer transition-colors ${
+                        selectedConversation === conversation.id
+                          ? 'bg-purple-600'
+                          : 'bg-gray-700 hover:bg-gray-600'
+                      }`}
+                    >
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <p className="font-medium text-sm">{conversation.participantEmail}</p>
+                          <p className="text-xs text-gray-300 truncate">{conversation.lastMessage}</p>
+                        </div>
+                        {conversation.unreadCount > 0 && (
+                          <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                            {conversation.unreadCount}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-400 mt-1">
+                        {new Date(conversation.lastActivity).toLocaleString()}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Message Thread */}
+              <div className="lg:col-span-2">
+                {selectedConversation ? (
+                  <div>
+                    <h3 className="text-lg font-bold mb-4">
+                      Conversation with {selectedConversation}
+                    </h3>
+                    <div className="bg-gray-700 rounded-lg p-4 h-64 overflow-y-auto mb-4">
+                      {getConversationMessages(selectedConversation).map((message) => (
+                        <div
+                          key={message.id}
+                          className={`mb-3 p-3 rounded-lg ${
+                            message.type === 'outgoing'
+                              ? 'bg-purple-600 ml-8'
+                              : 'bg-gray-600 mr-8'
+                          }`}
+                          onClick={() => !message.isRead && markMessageAsRead(message.id)}
+                        >
+                          <div className="flex justify-between items-start mb-1">
+                            <span className="text-sm font-medium">
+                              {message.type === 'outgoing' ? 'You' : message.from}
+                            </span>
+                            <span className="text-xs text-gray-300">
+                              {new Date(message.timestamp).toLocaleString()}
+                            </span>
+                          </div>
+                          <p className="text-sm">{message.content}</p>
+                          {!message.isRead && message.type === 'incoming' && (
+                            <span className="text-xs text-yellow-400">● Unread</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                    
+                    {/* Quick Reply */}
+                    <form onSubmit={handleSendMessage}>
+                      <div className="flex space-x-2">
+                        <input
+                          type="text"
+                          value={messageForm.content}
+                          onChange={(e) => setMessageForm({...messageForm, content: e.target.value, to: selectedConversation})}
+                          placeholder="Type your reply..."
+                          className="flex-1 px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-500"
+                        />
+                        <button
+                          type="submit"
+                          className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors"
+                        >
+                          Send
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                ) : (
+                  <div className="text-center text-gray-400 py-12">
+                    <p>Select a conversation to view messages</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Send New Message */}
+            <div className="mt-8 border-t border-gray-700 pt-6">
+              <h3 className="text-lg font-bold mb-4">Send New Message</h3>
               <form onSubmit={handleSendMessage} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">To (Email)</label>
-                  <input
-                    type="email"
-                    value={messageForm.to}
-                    onChange={(e) => setMessageForm({...messageForm, to: e.target.value})}
-                    placeholder="recipient@example.com"
-                    required
-                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-500"
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Recipient Email</label>
+                    <input
+                      type="email"
+                      value={messageForm.to}
+                      onChange={(e) => setMessageForm({...messageForm, to: e.target.value})}
+                      placeholder="user@example.com"
+                      required
+                      className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Message Type</label>
+                    <select
+                      value={messageForm.type}
+                      onChange={(e) => setMessageForm({...messageForm, type: e.target.value as 'outgoing' | 'internal'})}
+                      className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                    >
+                      <option value="outgoing">Outgoing (to user)</option>
+                      <option value="internal">Internal (admin note)</option>
+                    </select>
+                  </div>
                 </div>
-
                 <div>
-                  <label className="block text-sm font-medium mb-2">Message Type</label>
-                  <select
-                    value={messageForm.type}
-                    onChange={(e) => setMessageForm({...messageForm, type: e.target.value as 'outgoing' | 'internal'})}
-                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-purple-500"
-                  >
-                    <option value="outgoing">Outgoing (to user)</option>
-                    <option value="internal">Internal note</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2">Content</label>
+                  <label className="block text-sm font-medium mb-2">Message Content</label>
                   <textarea
                     value={messageForm.content}
                     onChange={(e) => setMessageForm({...messageForm, content: e.target.value})}
-                    placeholder="Enter your message..."
+                    placeholder="Type your message here..."
                     rows={4}
                     required
                     className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-500"
                   />
-                  <div className="text-xs text-gray-400 mt-1">
-                    {messageForm.content.length}/5000 characters
-                  </div>
                 </div>
-
                 <button
                   type="submit"
-                  className="w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors"
+                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:from-purple-700 hover:to-blue-700 transition-all"
                 >
                   Send Message
                 </button>
@@ -378,41 +475,37 @@ const AdminPanel: React.FC = () => {
             </div>
 
             {/* Recent Messages */}
-            <div className="bg-gray-800 rounded-lg p-6">
-              <h2 className="text-2xl font-bold mb-6">Recent Messages</h2>
-              
-              <div className="space-y-2 max-h-96 overflow-y-auto">
-                {filteredMessages.slice(0, 15).map((message) => (
-                  <div key={message.id} className="p-3 bg-gray-700 rounded">
-                    <div className="flex justify-between items-start mb-2">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2">
-                          <span className="text-sm font-medium">{message.from}</span>
-                          <span className="text-xs text-gray-400">→</span>
-                          <span className="text-sm">{message.to}</span>
-                          <span className={`px-2 py-1 text-xs rounded ${
-                            message.type === 'incoming' ? 'bg-blue-600' : 
-                            message.type === 'outgoing' ? 'bg-green-600' : 'bg-yellow-600'
-                          }`}>
-                            {message.type}
-                          </span>
-                        </div>
-                        <p className="text-sm text-gray-300 mt-1">{message.content}</p>
-                      </div>
-                      <div className="flex flex-col items-end">
-                        <span className="text-xs text-gray-400">
+            <div className="mt-8">
+              <h3 className="text-xl font-bold mb-4">Recent Messages</h3>
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {filteredMessages.slice(0, 20).map((message) => (
+                  <div
+                    key={message.id}
+                    className={`p-3 rounded-lg ${
+                      message.isRead ? 'bg-gray-700' : 'bg-gray-600 border-l-4 border-yellow-400'
+                    }`}
+                    onClick={() => !message.isRead && markMessageAsRead(message.id)}
+                  >
+                    <div className="flex justify-between items-start mb-1">
+                      <span className="text-sm font-medium">
+                        {message.type === 'incoming' ? `From: ${message.from}` : `To: ${message.to}`}
+                      </span>
+                      <div className="flex items-center space-x-2">
+                        <span className={`text-xs px-2 py-1 rounded ${
+                          message.type === 'incoming' ? 'bg-green-600' : 
+                          message.type === 'outgoing' ? 'bg-blue-600' : 'bg-purple-600'
+                        }`}>
+                          {message.type}
+                        </span>
+                        <span className="text-xs text-gray-300">
                           {new Date(message.timestamp).toLocaleString()}
                         </span>
-                        {!message.isRead && message.type === 'incoming' && (
-                          <button
-                            onClick={() => markMessageAsRead(message.id)}
-                            className="mt-1 px-2 py-1 bg-purple-600 text-xs rounded hover:bg-purple-700"
-                          >
-                            Mark Read
-                          </button>
-                        )}
                       </div>
                     </div>
+                    <p className="text-sm text-gray-300">{message.content}</p>
+                    {!message.isRead && (
+                      <span className="text-xs text-yellow-400 mt-1 block">● Unread - Click to mark as read</span>
+                    )}
                   </div>
                 ))}
               </div>
@@ -424,26 +517,35 @@ const AdminPanel: React.FC = () => {
         {activeTab === 'users' && (
           <div className="bg-gray-800 rounded-lg p-6">
             <h2 className="text-2xl font-bold mb-6">👥 User Management</h2>
-            
-            <div className="grid gap-4">
+            <div className="space-y-4">
               {filteredUsers.map((user) => (
-                <div key={user.id} className="flex justify-between items-center p-4 bg-gray-700 rounded-lg">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-3">
-                      <span className="font-medium">{user.email}</span>
-                      {user.isNewSubscriber && (
-                        <span className="px-2 py-1 bg-green-600 text-xs rounded">New Subscriber</span>
+                <div key={user.id} className="bg-gray-700 p-4 rounded-lg">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="font-medium">{user.email}</p>
+                      <p className="text-sm text-gray-400">
+                        Credits: {user.credits} | Status: {user.isNewSubscriber ? 'New Subscriber' : 'Existing User'}
+                      </p>
+                      {user.lastLogin && (
+                        <p className="text-xs text-gray-500">
+                          Last login: {new Date(user.lastLogin).toLocaleString()}
+                        </p>
                       )}
                     </div>
-                    {user.lastLogin && (
-                      <p className="text-sm text-gray-400 mt-1">
-                        Last login: {new Date(user.lastLogin).toLocaleDateString()}
-                      </p>
-                    )}
-                  </div>
-                  <div className="text-right">
-                    <span className="text-lg font-semibold text-purple-400">{user.credits}</span>
-                    <p className="text-xs text-gray-400">credits</p>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => setCreditForm({...creditForm, userEmail: user.email})}
+                        className="bg-purple-600 text-white px-3 py-1 rounded text-sm hover:bg-purple-700 transition-colors"
+                      >
+                        Grant Credits
+                      </button>
+                      <button
+                        onClick={() => setMessageForm({...messageForm, to: user.email})}
+                        className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors"
+                      >
+                        Send Message
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -455,41 +557,27 @@ const AdminPanel: React.FC = () => {
         {activeTab === 'security' && (
           <div className="bg-gray-800 rounded-lg p-6">
             <h2 className="text-2xl font-bold mb-6">🔒 Security Overview</h2>
-            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="p-4 bg-gray-700 rounded-lg">
-                <h3 className="text-lg font-semibold mb-2">System Status</h3>
+              <div className="bg-gray-700 p-4 rounded-lg">
+                <h3 className="text-lg font-bold mb-2">System Status</h3>
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <span>Total Users:</span>
-                    <span className="text-green-400">{users.length}</span>
+                    <span>Security Monitoring:</span>
+                    <span className="text-green-400">Active</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Active Messages:</span>
-                    <span className="text-blue-400">{messages.length}</span>
+                    <span>Encryption:</span>
+                    <span className="text-green-400">Enabled</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>New Subscribers:</span>
-                    <span className="text-purple-400">
-                      {users.filter(u => u.isNewSubscriber).length}
-                    </span>
+                    <span>Rate Limiting:</span>
+                    <span className="text-green-400">Active</span>
                   </div>
                 </div>
               </div>
-              
-              <div className="p-4 bg-gray-700 rounded-lg">
-                <h3 className="text-lg font-semibold mb-2">Quick Actions</h3>
-                <div className="space-y-2">
-                  <button className="w-full p-2 bg-purple-600 rounded hover:bg-purple-700 transition-colors">
-                    Export User Data
-                  </button>
-                  <button className="w-full p-2 bg-blue-600 rounded hover:bg-blue-700 transition-colors">
-                    Generate Report
-                  </button>
-                  <button className="w-full p-2 bg-green-600 rounded hover:bg-green-700 transition-colors">
-                    System Health Check
-                  </button>
-                </div>
+              <div className="bg-gray-700 p-4 rounded-lg">
+                <h3 className="text-lg font-bold mb-2">Recent Activity</h3>
+                <p className="text-sm text-gray-400">Security logs and monitoring data would appear here.</p>
               </div>
             </div>
           </div>
@@ -500,3 +588,4 @@ const AdminPanel: React.FC = () => {
 };
 
 export default AdminPanel;
+

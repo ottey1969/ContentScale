@@ -116,19 +116,19 @@ const requireAdmin = (req: Request, res: Response, next: express.NextFunction) =
 // Get all users
 router.get('/admin/users', requireAdmin, async (req: Request, res: Response) => {
   try {
-    const users = await storage.getUsers();
+    const users = await db.getUsers();
     res.json(users);
   } catch (error) {
-    console.error('Error getting users:', error);
-    res.status(500).json({ error: 'Failed to get users' });
+    console.error('Error fetching users:', error);
+    res.status(500).json({ error: 'Failed to fetch users' });
   }
 });
 
-// Grant credits to user with enhanced logic from your backend-routes.ts
+// Grant credits to user
 router.post('/admin/grant-credits', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { userEmail, credits, reason, isNewSubscriber } = req.body;
-    const adminEmail = (req as any).adminEmail || 'admin@contentscale.com';
+    const adminEmail = (req as any).adminEmail;
 
     // Validation
     if (!userEmail || !credits || credits <= 0) {
@@ -140,11 +140,11 @@ router.post('/admin/grant-credits', requireAdmin, async (req: Request, res: Resp
     }
 
     // Check if user exists
-    let user = await storage.getUserByEmail(userEmail);
+    let user = await db.getUserByEmail(userEmail);
     
     // Create user if they don't exist (new subscriber)
     if (!user) {
-      user = await storage.createUser({
+      user = await db.createUser({
         email: userEmail,
         credits: 0,
         isNewSubscriber: true
@@ -158,14 +158,14 @@ router.post('/admin/grant-credits', requireAdmin, async (req: Request, res: Resp
     }
 
     // Update user credits
-    const success = await storage.updateUserCredits(userEmail, user.credits + finalCredits);
+    const success = await db.updateUserCredits(userEmail, user.credits + finalCredits);
     
     if (!success) {
       return res.status(500).json({ error: 'Failed to update user credits' });
     }
 
     // Log the transaction
-    await storage.createCreditTransaction({
+    await db.createCreditTransaction({
       userEmail,
       credits: finalCredits,
       reason: reason || 'Admin credit grant',
@@ -174,7 +174,7 @@ router.post('/admin/grant-credits', requireAdmin, async (req: Request, res: Resp
     });
 
     // Send notification to user
-    await storage.createMessage({
+    await db.createMessage({
       from: 'admin@contentscale.com',
       to: userEmail,
       content: `You have received ${finalCredits} credits! ${isNewSubscriber ? '(New subscriber bonus applied)' : ''} Reason: ${reason || 'Admin credit grant'}`,
@@ -197,18 +197,20 @@ router.post('/admin/grant-credits', requireAdmin, async (req: Request, res: Resp
 // Get all messages
 router.get('/admin/messages', requireAdmin, async (req: Request, res: Response) => {
   try {
-    const messages = await storage.getMessages();
+    const messages = await db.getMessages();
+    // Sort by timestamp, newest first
+    messages.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
     res.json(messages);
   } catch (error) {
-    console.error('Error getting messages:', error);
-    res.status(500).json({ error: 'Failed to get messages' });
+    console.error('Error fetching messages:', error);
+    res.status(500).json({ error: 'Failed to fetch messages' });
   }
 });
 
-// Get conversations (grouped messages) - enhanced from your backend-routes.ts
+// Get conversations (grouped messages)
 router.get('/admin/conversations', requireAdmin, async (req: Request, res: Response) => {
   try {
-    const messages = await storage.getMessages();
+    const messages = await db.getMessages();
     
     // Group messages by participant
     const conversationMap = new Map();
@@ -250,11 +252,11 @@ router.get('/admin/conversations', requireAdmin, async (req: Request, res: Respo
   }
 });
 
-// Send message - enhanced from your backend-routes.ts
+// Send message
 router.post('/admin/send-message', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { to, content, type } = req.body;
-    const adminEmail = (req as any).adminEmail || 'admin@contentscale.com';
+    const adminEmail = (req as any).adminEmail;
 
     // Validation
     if (!to || !content) {
@@ -266,7 +268,7 @@ router.post('/admin/send-message', requireAdmin, async (req: Request, res: Respo
     }
 
     // Create message
-    const message = await storage.createMessage({
+    const message = await db.createMessage({
       from: type === 'internal' ? `admin-internal:${adminEmail}` : adminEmail,
       to,
       content,
@@ -275,6 +277,7 @@ router.post('/admin/send-message', requireAdmin, async (req: Request, res: Respo
 
     // If it's an outgoing message to a user, also send email notification
     if (type === 'outgoing') {
+      // Here you would integrate with your email service
       console.log(`Email notification sent to ${to}: ${content}`);
     }
 
@@ -295,13 +298,13 @@ router.put('/admin/messages/:messageId/read', requireAdmin, async (req: Request,
   try {
     const { messageId } = req.params;
     
-    const success = await storage.markMessageAsRead(messageId);
+    const success = await db.markMessageAsRead(messageId);
     
-    if (success) {
-      res.json({ success: true, message: 'Message marked as read' });
-    } else {
-      res.status(404).json({ error: 'Message not found' });
+    if (!success) {
+      return res.status(404).json({ error: 'Message not found' });
     }
+
+    res.json({ success: true, message: 'Message marked as read' });
 
   } catch (error) {
     console.error('Error marking message as read:', error);
@@ -309,26 +312,32 @@ router.put('/admin/messages/:messageId/read', requireAdmin, async (req: Request,
   }
 });
 
-// Send chat message (public endpoint)
+// Chat widget endpoint for users to send messages to admin
 router.post('/api/chat/send', async (req: Request, res: Response) => {
   try {
-    const { userEmail, message, type } = req.body;
-    
-    if (!userEmail || !message) {
-      return res.status(400).json({ error: 'Missing required fields' });
+    const { userEmail, content } = req.body;
+
+    // Validation
+    if (!userEmail || !content) {
+      return res.status(400).json({ error: 'User email and content are required' });
     }
 
-    const chatMessage = await storage.createMessage({
+    if (content.length > 1000) {
+      return res.status(400).json({ error: 'Message too long (max 1000 characters)' });
+    }
+
+    // Create incoming message
+    const message = await db.createMessage({
       from: userEmail,
       to: 'admin@contentscale.com',
-      content: message,
-      type: type || 'incoming'
+      content,
+      type: 'incoming'
     });
 
     res.json({ 
       success: true, 
-      message: chatMessage,
-      response: 'Thank you for your message. Our support team will get back to you soon!' 
+      message: 'Message sent to admin successfully',
+      messageId: message.id
     });
 
   } catch (error) {
@@ -337,90 +346,107 @@ router.post('/api/chat/send', async (req: Request, res: Response) => {
   }
 });
 
-// Get chat history
+// Get chat history for a user
 router.get('/api/chat/history/:userEmail', async (req: Request, res: Response) => {
   try {
     const { userEmail } = req.params;
+    const messages = await db.getMessages();
     
-    // Get messages for this user
-    const messages = await storage.getMessages();
-    const userMessages = messages.filter(m => 
-      m.from === userEmail || m.to === userEmail
-    );
+    // Filter messages for this user
+    const userMessages = messages.filter(msg => 
+      (msg.from === userEmail && msg.to === 'admin@contentscale.com') ||
+      (msg.to === userEmail && msg.from.includes('admin'))
+    ).sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
 
-    res.json({ messages: userMessages });
+    res.json(userMessages);
 
   } catch (error) {
-    console.error('Error getting chat history:', error);
-    res.status(500).json({ error: 'Failed to get chat history' });
+    console.error('Error fetching chat history:', error);
+    res.status(500).json({ error: 'Failed to fetch chat history' });
   }
 });
 
 // Bulk credit operations
 router.post('/admin/bulk-credits', requireAdmin, async (req: Request, res: Response) => {
   try {
-    const { operations } = req.body;
-    
-    if (!Array.isArray(operations)) {
-      return res.status(400).json({ error: 'Operations must be an array' });
+    const { operations } = req.body; // Array of {userEmail, credits, reason}
+    const adminEmail = (req as any).adminEmail;
+    const results = [];
+
+    if (!Array.isArray(operations) || operations.length === 0) {
+      return res.status(400).json({ error: 'Operations array is required' });
     }
 
-    const results = [];
-    
+    if (operations.length > 100) {
+      return res.status(400).json({ error: 'Cannot process more than 100 operations at once' });
+    }
+
     for (const operation of operations) {
       try {
         const { userEmail, credits, reason } = operation;
         
-        const user = await storage.getUserByEmail(userEmail);
-        
-        if (user) {
-          const newCredits = user.credits + credits;
-          await storage.updateUserCredits(user.id, newCredits);
-          
-          await storage.createCreditTransaction({
-            userEmail,
-            credits,
-            reason: reason || 'Bulk credit operation',
-            adminEmail: 'admin@contentscale.com',
-            isNewSubscriber: false
-          });
-          
-          results.push({ userEmail, success: true });
-        } else {
-          results.push({ userEmail, success: false, error: 'User not found' });
+        if (!userEmail || !credits || credits <= 0) {
+          results.push({ userEmail, success: false, error: 'Invalid data' });
+          continue;
         }
+
+        let user = await db.getUserByEmail(userEmail);
+        if (!user) {
+          user = await db.createUser({
+            email: userEmail,
+            credits: 0,
+            isNewSubscriber: true
+          });
+        }
+
+        await db.updateUserCredits(userEmail, user.credits + credits);
+        await db.createCreditTransaction({
+          userEmail,
+          credits,
+          reason: reason || 'Bulk credit grant',
+          adminEmail,
+          isNewSubscriber: user.isNewSubscriber
+        });
+
+        results.push({ userEmail, success: true, creditsGranted: credits });
+
       } catch (error) {
-        results.push({ userEmail: operation.userEmail, success: false, error: error.message });
+        results.push({ userEmail: operation.userEmail, success: false, error: 'Processing failed' });
       }
     }
 
-    res.json({ success: true, results });
+    res.json({ 
+      success: true, 
+      message: `Processed ${operations.length} operations`,
+      results
+    });
 
   } catch (error) {
-    console.error('Error with bulk credit operations:', error);
-    res.status(500).json({ error: 'Failed to process bulk operations' });
+    console.error('Error processing bulk credits:', error);
+    res.status(500).json({ error: 'Failed to process bulk credit operations' });
   }
 });
 
-// Get credit history
+// Get credit transaction history
 router.get('/admin/credit-history', requireAdmin, async (req: Request, res: Response) => {
   try {
-    // This would need to be implemented based on your credit transaction storage
-    const transactions = []; // Placeholder
-    res.json(transactions);
+    // This would fetch from your credit transactions table
+    // For now, returning empty array as placeholder
+    res.json([]);
   } catch (error) {
-    console.error('Error getting credit history:', error);
-    res.status(500).json({ error: 'Failed to get credit history' });
+    console.error('Error fetching credit history:', error);
+    res.status(500).json({ error: 'Failed to fetch credit history' });
   }
 });
 
-// Health check
+// Health check endpoint
 router.get('/admin/health', (req: Request, res: Response) => {
   res.json({ 
     status: 'healthy', 
     timestamp: new Date().toISOString(),
-    service: 'ContentScale Admin API'
+    version: '1.0.0'
   });
 });
 
 export default router;
+

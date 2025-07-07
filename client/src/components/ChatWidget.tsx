@@ -49,12 +49,12 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
 
   const loadChatHistory = async () => {
     if (!userEmailInput) return;
-    
+
     try {
       const response = await fetch(`/api/chat/history/${encodeURIComponent(userEmailInput)}`);
       if (response.ok) {
-        const data = await response.json();
-        const formattedMessages = data.messages.map((msg: any) => ({
+        const history = await response.json();
+        const formattedMessages: ChatMessage[] = history.map((msg: any) => ({
           id: msg.id,
           content: msg.content,
           timestamp: new Date(msg.timestamp),
@@ -68,22 +68,23 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
     }
   };
 
-  const handleSendMessage = async () => {
+  const sendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
     if (!newMessage.trim() || !userEmailInput.trim()) return;
 
-    const messageToSend = newMessage.trim();
-    setNewMessage('');
     setIsLoading(true);
 
-    // Add user message immediately
+    // Add user message to UI immediately
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
-      content: messageToSend,
+      content: newMessage,
       timestamp: new Date(),
       isFromUser: true
     };
 
     setMessages(prev => [...prev, userMessage]);
+    setNewMessage('');
 
     try {
       const response = await fetch('/api/chat/send', {
@@ -93,39 +94,31 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
         },
         body: JSON.stringify({
           userEmail: userEmailInput,
-          message: messageToSend,
-          type: 'incoming'
+          content: newMessage
         }),
       });
 
       if (response.ok) {
-        const data = await response.json();
-        
-        // Add auto-response
-        const botMessage: ChatMessage = {
-          id: (Date.now() + 1).toString(),
-          content: data.response || 'Thank you for your message. Our support team will get back to you soon!',
-          timestamp: new Date(),
-          isFromUser: false
-        };
-
-        setMessages(prev => [...prev, botMessage]);
         setIsConnected(true);
+        // Add auto-response
+        setTimeout(() => {
+          const autoResponse: ChatMessage = {
+            id: (Date.now() + 1).toString(),
+            content: "Thank you for your message! Our admin team will respond shortly. You can continue the conversation here or check back later.",
+            timestamp: new Date(),
+            isFromUser: false
+          };
+          setMessages(prev => [...prev, autoResponse]);
+        }, 1000);
       } else {
-        throw new Error('Failed to send message');
+        // Remove the message if sending failed
+        setMessages(prev => prev.filter(msg => msg.id !== userMessage.id));
+        alert('Failed to send message. Please try again.');
       }
     } catch (error) {
       console.error('Error sending message:', error);
-      
-      // Add error message
-      const errorMessage: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        content: 'Sorry, there was an error sending your message. Please try again.',
-        timestamp: new Date(),
-        isFromUser: false
-      };
-
-      setMessages(prev => [...prev, errorMessage]);
+      setMessages(prev => prev.filter(msg => msg.id !== userMessage.id));
+      alert('Failed to send message. Please check your connection.');
     } finally {
       setIsLoading(false);
     }
@@ -190,14 +183,14 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
                   value={userEmailInput}
                   onChange={(e) => setUserEmailInput(e.target.value)}
                   placeholder="Enter your email to start chatting"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 />
                 <button
                   onClick={connectToChat}
                   disabled={!userEmailInput.trim()}
-                  className="w-full bg-purple-600 text-white py-2 px-4 rounded-md text-sm hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-purple-600 text-white py-2 px-4 rounded-md text-sm hover:bg-purple-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                 >
-                  Connect to Chat
+                  Start Chat
                 </button>
               </div>
             </div>
@@ -205,9 +198,21 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
 
           {/* Messages Area */}
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            {!isConnected && messages.length === 0 && (
+              <div className="text-center text-gray-500 text-sm">
+                <div className="mb-2">
+                  <svg className="w-8 h-8 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>
+                </div>
+                <p>Welcome to ContentScale Support!</p>
+                <p className="text-xs mt-1">Enter your email above to start chatting with our team.</p>
+              </div>
+            )}
+
             {messages.length === 0 && isConnected && (
               <div className="text-center text-gray-500 text-sm">
-                Welcome! How can we help you today?
+                <p>Start a conversation with our support team!</p>
               </div>
             )}
 
@@ -217,22 +222,17 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
                 className={`flex ${message.isFromUser ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-xs lg:max-w-md px-3 py-2 rounded-lg text-sm ${
+                  className={`max-w-xs px-3 py-2 rounded-lg text-sm ${
                     message.isFromUser
-                      ? 'bg-purple-600 text-white'
-                      : 'bg-gray-100 text-gray-800'
+                      ? 'bg-purple-600 text-white rounded-br-none'
+                      : 'bg-gray-100 text-gray-800 rounded-bl-none'
                   }`}
                 >
                   <p>{message.content}</p>
-                  <p
-                    className={`text-xs mt-1 ${
-                      message.isFromUser ? 'text-purple-200' : 'text-gray-500'
-                    }`}
-                  >
-                    {message.timestamp.toLocaleTimeString([], {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
+                  <p className={`text-xs mt-1 ${
+                    message.isFromUser ? 'text-purple-200' : 'text-gray-500'
+                  }`}>
+                    {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
               </div>
@@ -240,7 +240,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
 
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-gray-100 text-gray-800 px-3 py-2 rounded-lg text-sm">
+                <div className="bg-gray-100 text-gray-800 px-3 py-2 rounded-lg rounded-bl-none text-sm">
                   <div className="flex space-x-1">
                     <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
                     <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
@@ -255,25 +255,31 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
 
           {/* Message Input */}
           {isConnected && (
-            <div className="p-4 border-t border-gray-200">
-              <div className="flex space-x-2">
+            <div className="border-t border-gray-200 p-4">
+              <form onSubmit={sendMessage} className="flex space-x-2">
                 <input
                   type="text"
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
                   placeholder="Type your message..."
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
                   disabled={isLoading}
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:bg-gray-100"
+                  maxLength={1000}
                 />
                 <button
-                  onClick={handleSendMessage}
+                  type="submit"
                   disabled={!newMessage.trim() || isLoading}
-                  className="bg-purple-600 text-white px-4 py-2 rounded-md text-sm hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-purple-600 text-white p-2 rounded-md hover:bg-purple-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                  aria-label="Send message"
                 >
-                  Send
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                  </svg>
                 </button>
-              </div>
+              </form>
+              <p className="text-xs text-gray-500 mt-1">
+                Press Enter to send • {1000 - newMessage.length} characters remaining
+              </p>
             </div>
           )}
         </div>
@@ -283,3 +289,4 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
 };
 
 export default ChatWidget;
+
