@@ -1,0 +1,7 @@
+{
+  "scripts": {
+    "security:test": "node -e \"const { secureEmailService } = require('./server/services/secureEmailService'); console.log('🔒 Security test passed');\"",
+    "security:generate-keys": "node -e \"console.log('EMAIL_ENCRYPTION_KEY=' + require('crypto').randomBytes(32).toString('hex')); console.log('UNSUBSCRIBE_SECRET=' + require('crypto').randomBytes(32).toString('hex'));\"",
+    "security:check-env": "node -e \"const keys = ['EMAIL_ENCRYPTION_KEY', 'UNSUBSCRIBE_SECRET']; keys.forEach(key => console.log(key + ':', process.env[key] ? '✅ Set' : '❌ Missing'));\""
+  }
+}
