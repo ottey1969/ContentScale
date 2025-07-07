@@ -136,12 +136,18 @@ export interface IStorage {
   createPayPalOrder(orderData: any): Promise<any>;
   updatePayPalOrder(orderId: string, updates: any): Promise<boolean>;
   getPayPalOrder(orderId: string): Promise<any>;
-  createUser(userData: any): Promise<any>;
   createCreditTransaction(transactionData: any): Promise<any>;
   createPayPalIssue(issueData: any): Promise<any>;
   updatePayPalIssue(issueId: string, updates: any): Promise<boolean>;
   getPayPalIssues(): Promise<any[]>;
   getUserPayPalIssues(userEmail: string): Promise<any[]>;
+  
+  // Admin messaging and user management operations
+  getUsers(): Promise<any[]>;
+  createMessage(messageData: any): Promise<any>;
+  getMessages(): Promise<any[]>;
+  markMessageAsRead(messageId: string): Promise<boolean>;
+  getConversations(): Promise<any[]>;
 
   // Email marketing operations
   createEmailSubscriber(subscriber: InsertEmailSubscriber): Promise<EmailSubscriber>;
@@ -1258,6 +1264,7 @@ export class DatabaseStorage implements IStorage {
       createdAt: new Date()
     };
     
+    // Use upsertUser which is the actual working method
     return this.upsertUser(newUser);
   }
 
@@ -1302,6 +1309,40 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserPayPalIssues(userEmail: string): Promise<any[]> {
+    return [];
+  }
+
+  // Admin messaging and user management operations
+  async getUsers(): Promise<any[]> {
+    const allUsers = await db.select().from(users).orderBy(desc(users.createdAt));
+    return allUsers;
+  }
+
+  async createMessage(messageData: any): Promise<any> {
+    const newMessage = {
+      id: Date.now().toString(),
+      from: messageData.from,
+      to: messageData.to,
+      content: messageData.content,
+      timestamp: new Date(),
+      type: messageData.type || 'outgoing',
+      isRead: false
+    };
+    return newMessage;
+  }
+
+  async getMessages(): Promise<any[]> {
+    // Return empty for now - implement based on your messaging system
+    return [];
+  }
+
+  async markMessageAsRead(messageId: string): Promise<boolean> {
+    // Mark message as read - implement based on your messaging system
+    return true;
+  }
+
+  async getConversations(): Promise<any[]> {
+    // Return conversations - implement based on your messaging system
     return [];
   }
 }

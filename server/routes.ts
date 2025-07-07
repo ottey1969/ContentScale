@@ -21,6 +21,7 @@ import express from "express";
 import path from "path";
 import { createPaypalOrder, capturePaypalOrder, loadPaypalDefault } from "./paypal";
 import * as paypalSdk from '@paypal/checkout-server-sdk';
+import adminRoutes from './routes/adminRoutes';
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -36,6 +37,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Register Sofeia AI routes
   registerSofeiaRoutes(app);
+  
+  // Register admin routes
+  app.use('/', adminRoutes);
 
   // Check IP to determine admin status
   app.get('/api/check-admin', async (req, res) => {
@@ -1647,10 +1651,11 @@ async function processCSVKeywords(batchId: string, csvData: any[], userId: strin
           const newCredits = user.credits + dbOrder.credits;
           await storage.updateUserCredits(user.id, newCredits);
         } else {
-          user = await storage.upsertUser({
-            id: Date.now().toString(),
+          // Create new user if doesn't exist using the expected createUser method
+          user = await storage.createUser({
             email: userEmail,
-            credits: dbOrder.credits
+            credits: dbOrder.credits,
+            isNewSubscriber: true
           });
         }
 

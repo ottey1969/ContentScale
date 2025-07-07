@@ -197,6 +197,17 @@ const EnhancedChatWidget: React.FC<ChatWidgetProps> = ({
     // Redirect to payment page
     const paymentUrl = `/payment.html?amount=2.00&credits=10&userEmail=${encodeURIComponent(userEmailInput)}`;
     window.open(paymentUrl, '_blank');
+    
+    // Add a message to chat about the payment redirect
+    const paymentRedirectMessage: ChatMessage = {
+      id: (Date.now() + 2).toString(),
+      content: '🔄 Redirecting you to secure PayPal payment page. Complete your payment and return here for instant credit delivery!',
+      timestamp: new Date(),
+      isFromUser: false,
+      type: 'system'
+    };
+    
+    setMessages(prev => [...prev, paymentRedirectMessage]);
   };
 
   const reportPayPalIssue = () => {
