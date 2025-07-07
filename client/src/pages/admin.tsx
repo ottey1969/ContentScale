@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { Settings, Video, Save, Eye, Shield, Mail, Trash2, Ban, CheckCircle } from "lucide-react";
+import { Settings, Video, Save, Eye, Shield, Mail, Trash2, Ban, CheckCircle, Users, MessageSquare, CreditCard } from "lucide-react";
 import SecurityDashboard from "@/components/dashboard/SecurityDashboard";
 import { EmailMarketing } from "@/components/EmailMarketing";
 import { SEOHead, SEOConfigs } from "@/components/seo/SEOHead";
@@ -20,6 +20,32 @@ interface AdminSettings {
   maintenanceMode: boolean;
   welcomeMessage: string;
   maxCreditsPerUser: number;
+}
+
+interface User {
+  id: string;
+  email: string;
+  credits: number;
+  isNewSubscriber: boolean;
+  lastLogin?: Date;
+}
+
+interface Message {
+  id: string;
+  from: string;
+  to: string;
+  content: string;
+  timestamp: Date;
+  type: 'incoming' | 'outgoing' | 'internal';
+  isRead: boolean;
+}
+
+interface Conversation {
+  id: string;
+  participantEmail: string;
+  lastMessage: string;
+  unreadCount: number;
+  lastActivity: Date;
 }
 
 

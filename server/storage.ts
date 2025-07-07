@@ -141,9 +141,12 @@ export interface IStorage {
   getPayPalIssues(): Promise<any[]>;
   getUserPayPalIssues(userEmail: string): Promise<any[]>;
   
-  // Additional methods required by PayPal backend routes
+  // Additional methods required by PayPal backend routes and admin functionality
   getUserByEmail(email: string): Promise<any>;
   updateUserCredits(email: string, credits: number): Promise<boolean>;
+  createUser(userData: any): Promise<any>;
+  createCreditTransaction(transactionData: any): Promise<any>;
+  updatePayPalIssue(issueId: string, updates: any): Promise<boolean>;
   
   // Admin messaging and user management operations
   getUsers(): Promise<any[]>;

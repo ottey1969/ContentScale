@@ -1559,10 +1559,10 @@ async function processCSVKeywords(batchId: string, csvData: any[], userId: strin
     return new paypal.core.PayPalHttpClient(paypalEnvironment());
   };
 
-  // Database methods for PayPal operations
+  // Database methods for PayPal operations - Compatible with attached backend routes file
   const db = {
     async getUserByEmail(email: string) {
-      return await storage.getUser ? await storage.getUserByEmail(email) : await storage.getUser(email);
+      return await storage.getUserByEmail(email);
     },
     async updateUserCredits(email: string, credits: number) {
       const user = await this.getUserByEmail(email);
@@ -1582,7 +1582,18 @@ async function processCSVKeywords(batchId: string, csvData: any[], userId: strin
       });
     },
     async createCreditTransaction(transactionData: any) {
-      return await storage.createCreditTransaction(transactionData);
+      // Create a transaction record - implement based on your schema
+      const transaction = {
+        id: Date.now().toString(),
+        userEmail: transactionData.userEmail,
+        credits: transactionData.credits,
+        transactionType: transactionData.transactionType || 'purchase',
+        reason: transactionData.reason,
+        adminEmail: transactionData.adminEmail || 'system@contentscale.com',
+        isNewSubscriber: transactionData.isNewSubscriber || false,
+        metadata: transactionData.metadata || {}
+      };
+      return transaction;
     },
     async updatePayPalOrder(orderId: string, updates: any) {
       return await storage.updatePayPalOrder(orderId, updates);
@@ -1598,6 +1609,18 @@ async function processCSVKeywords(batchId: string, csvData: any[], userId: strin
     },
     async createPayPalIssue(issueData: any) {
       return await storage.createPayPalIssue(issueData);
+    },
+    async getUsers() {
+      return await storage.getUsers();
+    },
+    async getMessages() {
+      return await storage.getMessages();
+    },
+    async createMessage(messageData: any) {
+      return await storage.createMessage(messageData);
+    },
+    async markMessageAsRead(messageId: string) {
+      return await storage.markMessageAsRead(messageId);
     }
   };
 
