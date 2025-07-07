@@ -110,11 +110,6 @@ const db = {
     };
   },
 
-  async updatePayPalIssue(issueId: string, updates: Partial<PayPalIssue>): Promise<boolean> {
-    // Update issue in database
-    return true;
-  },
-
   async createPayPalIssue(issueData: Partial<PayPalIssue>): Promise<PayPalIssue> {
     const newIssue: PayPalIssue = {
       id: Date.now().toString(),
@@ -381,44 +376,81 @@ router.get('/paypal/issues/:userEmail', async (req: Request, res: Response) => {
     res.json(issues);
   } catch (error) {
     console.error('Error fetching user PayPal issues:', error);
-    res.status(500).json({ error: 'Failed to fetch user issues' });
+    res.status(500).json({ error: 'Failed to fetch issues' });
   }
 });
 
 // Admin: Get all PayPal issues
-router.get('/admin/paypal/issues', async (req: Request, res: Response) => {
+router.get('/admin/paypal-issues', async (req: Request, res: Response) => {
   try {
     const issues = await db.getPayPalIssues();
     res.json(issues);
   } catch (error) {
     console.error('Error fetching PayPal issues:', error);
-    res.status(500).json({ error: 'Failed to fetch PayPal issues' });
+    res.status(500).json({ error: 'Failed to fetch issues' });
   }
 });
 
 // Admin: Update PayPal issue
-router.put('/admin/paypal/issues/:issueId', async (req: Request, res: Response) => {
+router.put('/admin/paypal-issues/:issueId', async (req: Request, res: Response) => {
   try {
     const { issueId } = req.params;
-    const { status, adminNotes, priority } = req.body;
+    const { status, adminNotes } = req.body;
 
-    const success = await db.updatePayPalIssue(issueId, {
+    // Update issue in database
+    const updated = await db.updatePayPalIssue(issueId, {
       status,
       adminNotes,
-      priority,
       resolvedAt: status === 'resolved' ? new Date() : undefined
     });
 
-    if (success) {
-      res.json({ success: true, message: 'Issue updated successfully' });
-    } else {
-      res.status(404).json({ error: 'Issue not found' });
+    if (!updated) {
+      return res.status(404).json({ error: 'Issue not found' });
     }
+
+    res.json({ success: true, message: 'Issue updated successfully' });
 
   } catch (error) {
     console.error('Error updating PayPal issue:', error);
     res.status(500).json({ error: 'Failed to update issue' });
   }
+});
+
+// Webhook endpoint for PayPal notifications (optional but recommended)
+router.post('/paypal/webhook', async (req: Request, res: Response) => {
+  try {
+    const event = req.body;
+    
+    console.log('PayPal webhook received:', event.event_type);
+    
+    // Handle different webhook events
+    switch (event.event_type) {
+      case 'PAYMENT.CAPTURE.COMPLETED':
+        // Handle successful payment
+        console.log('Payment completed:', event.resource.id);
+        break;
+      case 'PAYMENT.CAPTURE.DENIED':
+        // Handle denied payment
+        console.log('Payment denied:', event.resource.id);
+        break;
+      default:
+        console.log('Unhandled webhook event:', event.event_type);
+    }
+
+    res.status(200).send('OK');
+  } catch (error) {
+    console.error('Webhook error:', error);
+    res.status(500).send('Error');
+  }
+});
+
+// Health check
+router.get('/paypal/health', (req: Request, res: Response) => {
+  res.json({
+    status: 'healthy',
+    environment: 'production',
+    timestamp: new Date().toISOString()
+  });
 });
 
 export default router;

@@ -21,8 +21,8 @@ import express from "express";
 import path from "path";
 import { createPaypalOrder, capturePaypalOrder, loadPaypalDefault } from "./paypal";
 import * as paypalSdk from '@paypal/checkout-server-sdk';
-import adminRoutes from './routes/adminRoutes-complete';
-import paypalRoutes from './routes/paypalRoutes';
+import adminRoutes from './routes/adminRoutes-exact';
+import paypalRoutes from './routes/paypalRoutes-exact';
 
 const upload = multer({ storage: multer.memoryStorage() });
 
